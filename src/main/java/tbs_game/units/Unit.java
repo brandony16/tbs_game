@@ -13,4 +13,9 @@ public class Unit {
         this.hp = unitType.maxHp;
         this.owner = owner;
     }
+
+    @Override
+    public String toString() {
+        return unitType.toString();
+    }
 }

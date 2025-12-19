@@ -1,28 +1,28 @@
 package tbs_game;
 
-import tbs_game.board.Board;
-import tbs_game.board.Tile;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import tbs_game.game.Game;
+import tbs_game.gui.GameGUI;
 
-public class Main {
+public class Main extends Application {
 
-    public static void main(String[] args) {
-        Game game = new Game(4, 4);
-        Board board = game.getBoard();
+    private static final int WINDOW_WIDTH = 1200;
+    private static final int WINDOW_HEIGHT = 800;
 
-        printBoard(board);
+    @Override
+    public void start(Stage stage) {
+        Game game = new Game(8, 8);
+        GameGUI gui = new GameGUI(game);
+
+        Scene scene = new Scene(gui.getRoot(), WINDOW_WIDTH, WINDOW_HEIGHT);
+        stage.setTitle("Budget Polytopia");
+        stage.setScene(scene);
+        stage.show();
     }
 
-    private static void printBoard(Board board) {
-        int width = board.getWidth();
-        int height = board.getHeight();
-
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                Tile tile = board.getTile(i, j);
-                System.out.printf("|%s|", tile.getTerrain().name);
-            }
-            System.out.print("\n");
-        }
+    public static void main(String[] args) {
+        launch();
     }
 }
