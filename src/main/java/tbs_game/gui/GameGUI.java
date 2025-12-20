@@ -4,15 +4,16 @@ import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
-import tbs_game.Position;
+import javafx.scene.shape.Polygon;
+import tbs_game.HexPos;
 import tbs_game.board.Board;
 import tbs_game.game.Game;
 import tbs_game.units.Unit;
 
 public class GameGUI {
 
-    private static final int TILE_SIZE = 75;
+    private static final int TILE_RADIUS = 40;
+    private static final double SQRT3 = Math.sqrt(3);
 
     private final Pane root;
     private final Game game;
@@ -35,52 +36,56 @@ public class GameGUI {
     }
 
     private void drawBoard() {
+        boardGroup.getChildren().clear();
+
         Board board = game.getBoard();
-        int rows = board.getHeight();
-        int cols = board.getWidth();
 
-        boardGroup.getChildren().clear(); // Redraw
+        double minX = Double.MAX_VALUE;
+        double maxX = Double.MIN_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxY = Double.MIN_VALUE;
 
-        for (int y = 0; y < rows; y++) {
-            for (int x = 0; x < cols; x++) {
-                Rectangle rect = new Rectangle(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                rect.setFill(Color.GREEN);
-                rect.setStroke(Color.BLACK);
-                boardGroup.getChildren().add(rect);
-            }
+        for (HexPos pos : board.getPositions()) {
+            double cx = hexToPixelX(pos);
+            double cy = hexToPixelY(pos);
+
+            Polygon hex = createHex(cx, cy);
+            hex.setFill(Color.GREEN);
+            hex.setStroke(Color.BLACK);
+
+            boardGroup.getChildren().add(hex);
+
+            minX = Math.min(minX, cx);
+            maxX = Math.max(maxX, cx);
+            minY = Math.min(minY, cy);
+            maxY = Math.max(maxY, cy);
         }
 
-        double boardWidth = cols * TILE_SIZE;
-        double boardHeight = rows * TILE_SIZE;
+        double boardWidth = maxX - minX + TILE_RADIUS * 2;
+        double boardHeight = maxY - minY + TILE_RADIUS * 2;
 
-        // Center the group dynamically
-        boardGroup.layoutXProperty().bind(root.widthProperty().subtract(boardWidth).divide(2));
-        boardGroup.layoutYProperty().bind(root.heightProperty().subtract(boardHeight).divide(2));
+        boardGroup.layoutXProperty().bind(root.widthProperty().subtract(boardWidth).divide(2).subtract(minX));
+        boardGroup.layoutYProperty().bind(root.heightProperty().subtract(boardHeight).divide(2).subtract(minY));
     }
 
     private void drawUnits() {
-        // iterate Game, draw units on top of tiles
-        Board board = game.getBoard();
-        int rows = board.getHeight();
-        int cols = board.getWidth();
-
         unitGroup.getChildren().clear();
 
-        for (int y = 0; y < rows; y++) {
-            for (int x = 0; x < cols; x++) {
-                Unit unit = game.getUnitAt(new Position(x, y));
-                if (unit == null) {
-                    continue;
-                }
+        for (HexPos pos : game.getUnitPositions()) {
+            double cx = hexToPixelX(pos);
+            double cy = hexToPixelY(pos);
 
-                Circle unitNode = new Circle(x * TILE_SIZE + TILE_SIZE / 2.0,
-                        y * TILE_SIZE + TILE_SIZE / 2.0,
-                        TILE_SIZE * 0.4);
+            Circle unitNode = new Circle(
+                    cx,
+                    cy,
+                    TILE_RADIUS * 0.5
+            );
 
-                unitNode.setFill(colorFor(unit));
-                unitNode.setStroke(Color.BLACK);
-                boardGroup.getChildren().add(unitNode);
-            }
+            Unit unit = game.getUnitAt(pos);
+            unitNode.setFill(colorFor(unit));
+            unitNode.setStroke(Color.BLACK);
+
+            unitGroup.getChildren().add(unitNode);
         }
 
         unitGroup.layoutXProperty().bind(boardGroup.layoutXProperty());
@@ -94,5 +99,24 @@ public class GameGUI {
             case AI ->
                 Color.RED;
         };
+    }
+
+    private Polygon createHex(double cx, double cy) {
+        Polygon hex = new Polygon();
+        for (int i = 0; i < 6; i++) {
+            double angle = Math.toRadians(60 * i - 30); // pointy-top
+            double x = cx + TILE_RADIUS * Math.cos(angle);
+            double y = cy + TILE_RADIUS * Math.sin(angle);
+            hex.getPoints().addAll(x, y);
+        }
+        return hex;
+    }
+
+    private double hexToPixelX(HexPos p) {
+        return TILE_RADIUS * (SQRT3 * p.q() + SQRT3 / 2 * p.r());
+    }
+
+    private double hexToPixelY(HexPos p) {
+        return TILE_RADIUS * (3.0 / 2 * p.r());
     }
 }

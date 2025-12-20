@@ -1,35 +1,44 @@
 package tbs_game.board;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import tbs_game.HexPos;
+
 public class Board {
 
-    private final int width;
-    private final int height;
-    private final Tile[] tiles;
+    private final int radius;
+    private final Map<HexPos, Tile> tiles;
 
-    public Board(int width, int height) {
-        this.width = width;
-        this.height = height;
-        tiles = new Tile[width * height];
+    public Board(int radius) {
+        this.radius = radius;
+        this.tiles = new HashMap<>();
         initializeTiles();
     }
 
-    public Tile getTile(int x, int y) {
-        return tiles[y * width + x];
+    public Collection<HexPos> getPositions() {
+        return tiles.keySet();
     }
 
-    public int getHeight() {
-        return height;
+    public Tile getTile(HexPos pos) {
+        return tiles.get(pos);
     }
 
-    public int getWidth() {
-        return width;
+    public int getRadius() {
+        return radius;
     }
 
     private void initializeTiles() {
         // Fill tile array with default terrain (PLAINS)
         // Replace with actualy generation at some point 
-        for (int i = 0; i < this.tiles.length; i++) {
-            this.tiles[i] = new Tile(Terrain.PLAINS);
+        for (int q = -radius; q <= radius; q++) {
+            for (int r = -radius; r <= radius; r++) {
+                int s = -q - r; // "3rd" axis of hex
+                if (Math.abs(s) <= radius) {
+                    tiles.put(new HexPos(q, r), new Tile(Terrain.PLAINS));
+                }
+            }
         }
     }
 }
