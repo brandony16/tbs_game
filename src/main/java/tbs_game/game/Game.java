@@ -60,9 +60,10 @@ public class Game {
     }
 
     private boolean validMove(Unit unit, HexPos from, HexPos to) {
-        int maxUnitMoveDist = unit.getType().moveRange;
+        int maxMoveDist = unit.getType().moveRange;
+        int moveDist = from.distanceTo(to);
 
-        return true;
+        return moveDist <= maxMoveDist;
     }
 
     private void handleAttack(Unit attacker, Unit defender) {
