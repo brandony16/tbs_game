@@ -5,6 +5,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import tbs_game.game.Game;
 import tbs_game.gui.GameGUI;
+import tbs_game.player.Player;
+import tbs_game.units.Unit;
+import tbs_game.units.UnitType;
 
 public class Main extends Application {
 
@@ -13,7 +16,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        Game game = new Game(8, 8);
+        Game game = setUpGame();
         GameGUI gui = new GameGUI(game);
 
         Scene scene = new Scene(gui.getRoot(), WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -24,5 +27,19 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch();
+    }
+
+    public Game setUpGame() {
+        Game game = new Game(8, 8);
+
+        // Line of soldiers
+        for (int i = 0; i < 8; i++) {
+            Unit unit = new Unit(UnitType.SOLDIER, Player.USER);
+            Unit aiUnit = new Unit(UnitType.SOLDIER, Player.AI);
+            game.placeUnitAt(new Position(i, 7), unit);
+            game.placeUnitAt(new Position(i, 0), aiUnit);
+        }
+
+        return game;
     }
 }

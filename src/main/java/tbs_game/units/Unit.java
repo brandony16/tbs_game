@@ -4,18 +4,26 @@ import tbs_game.player.Player;
 
 public class Unit {
 
-    private UnitType unitType;
+    private UnitType type;
     private int hp;
     private Player owner;
 
-    public Unit(UnitType unitType, Player owner) {
-        this.unitType = unitType;
-        this.hp = unitType.maxHp;
+    public Unit(UnitType type, Player owner) {
+        this.type = type;
+        this.hp = type.maxHp;
         this.owner = owner;
+    }
+
+    public Player getOwner() {
+        return this.owner;
+    }
+
+    public UnitType getType() {
+        return this.type;
     }
 
     @Override
     public String toString() {
-        return unitType.toString();
+        return type.toString();
     }
 }

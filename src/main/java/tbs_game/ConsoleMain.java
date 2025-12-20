@@ -18,7 +18,7 @@ public class ConsoleMain {
     }
 
     private static void setUpBoard(Game game) {
-        Player user = new Player();
+        Player user = Player.USER;
         Unit soldier = new Unit(UnitType.SOLDIER, user);
         Unit archer = new Unit(UnitType.ARCHER, user);
         Unit calvary = new Unit(UnitType.CAVALRY, user);
