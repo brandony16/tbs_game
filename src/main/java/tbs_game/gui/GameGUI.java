@@ -10,21 +10,29 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import tbs_game.HexPos;
 import tbs_game.board.Board;
 import tbs_game.game.Game;
+import tbs_game.player.Player;
 import tbs_game.units.Unit;
 
 public class GameGUI {
 
     private static final int TILE_RADIUS = 40;
     private static final double SQRT3 = Math.sqrt(3);
+    private static final Color HUD_BG = Color.rgb(200, 160, 105);
 
     private final Pane root;
     private final Game game;
     private final Group boardGroup;
     private final Group highlightGroup;
     private final Group unitGroup;
+
+    private Group hudGroup;
+    private Text turnText;
+    private Text unitInfoText;
 
     private HexPos selectedPos;
     private Set<HexPos> reachableHexes = Set.of();
@@ -36,6 +44,8 @@ public class GameGUI {
         this.highlightGroup = new Group();
         this.unitGroup = new Group();
         root.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
+
+        initHUD();
 
         root.setOnMouseClicked(e -> handleClick(e.getX(), e.getY()));
 
@@ -86,6 +96,58 @@ public class GameGUI {
         this.selectedPos = null;
         this.reachableHexes = Set.of();
         redraw();
+    }
+
+    private void initHUD() {
+        hudGroup = new Group();
+
+        Group turnHudElement = initTurnHUD();
+        Group troopInfoElement = initTroopInfoHUD();
+
+        hudGroup.getChildren().addAll(turnHudElement, troopInfoElement);
+
+        // Add HUD on top of everything
+        root.getChildren().add(hudGroup);
+    }
+
+    private Group initTurnHUD() {
+        Group turnHUD = new Group();
+
+        Rectangle bg = new Rectangle(300, 50, HUD_BG);
+        turnText = new Text();
+        turnText.setFill(Color.BLACK);
+        turnText.setFont(new Font(20));
+
+        double padding = 10;
+        turnText.setX(padding);
+        turnText.setY(bg.getHeight() / 2.0 + turnText.getFont().getSize() / 4.0);
+
+        turnHUD.getChildren().addAll(bg, turnText);
+
+        turnHUD.setLayoutX(0);
+        turnHUD.setLayoutY(0);
+
+        return turnHUD;
+    }
+
+    private Group initTroopInfoHUD() {
+        Group troopHUD = new Group();
+
+        Rectangle bg = new Rectangle(300, 200, HUD_BG);
+        unitInfoText = new Text();
+        unitInfoText.setFill(Color.BLACK);
+        unitInfoText.setFont(Font.font(16));
+
+        double padding = 10;
+        unitInfoText.setX(padding);
+        unitInfoText.setY(bg.getHeight() / 2.0 + unitInfoText.getFont().getSize() / 4.0);
+
+        troopHUD.getChildren().addAll(bg, unitInfoText);
+
+        troopHUD.setLayoutX(0);
+        troopHUD.layoutYProperty().bind(root.heightProperty().subtract(bg.getHeight()));
+
+        return troopHUD;
     }
 
     private void drawBoard() {
@@ -179,11 +241,11 @@ public class GameGUI {
         double barX = cx - barWidth / 2;
         double barY = cy + TILE_RADIUS * 0.45;
 
-        // Background bar
+        // HP Background
         Rectangle bg = new Rectangle(barX, barY, barWidth, barHeight);
         bg.setFill(Color.DARKRED);
 
-        // Foreground bar (HP)
+        // HP Bar
         double hpRatio = (double) unit.getHealth() / unit.getType().maxHp;
         Rectangle fg = new Rectangle(barX, barY, barWidth * hpRatio, barHeight);
         fg.setFill(Color.LIMEGREEN);
@@ -192,9 +254,31 @@ public class GameGUI {
         return group;
     }
 
+    private void updateHUD() {
+        // Update player turn
+        Player current = game.getCurrentPlayer();
+        turnText.setText("Player Turn: " + current.name());
+        turnText.setFill(current == Player.USER ? Color.BLACK : Color.DARKRED);
+
+        // Update selected unit info
+        if (selectedPos != null) {
+            Unit unit = game.getUnitAt(selectedPos);
+            if (unit != null) {
+                unitInfoText.setText("Selected Unit: " + unit.getType().name()
+                        + " HP: " + unit.getHealth()
+                        + "/" + unit.getType().maxHp);
+            } else {
+                unitInfoText.setText("");
+            }
+        } else {
+            unitInfoText.setText("");
+        }
+    }
+
     private void redraw() {
         drawBoard();
         drawUnits();
+        updateHUD();
     }
 
     private Color colorFor(Unit unit) {
