@@ -22,6 +22,10 @@ public class Unit {
         return this.type;
     }
 
+    public int getHealth() {
+        return this.hp;
+    }
+
     @Override
     public String toString() {
         return type.toString();

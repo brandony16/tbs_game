@@ -3,10 +3,13 @@ package tbs_game.gui;
 import java.util.Set;
 
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 import tbs_game.HexPos;
 import tbs_game.board.Board;
 import tbs_game.game.Game;
@@ -20,6 +23,7 @@ public class GameGUI {
     private final Pane root;
     private final Game game;
     private final Group boardGroup;
+    private final Group highlightGroup;
     private final Group unitGroup;
 
     private HexPos selectedPos;
@@ -29,8 +33,9 @@ public class GameGUI {
         this.game = game;
         this.root = new Pane();
         this.boardGroup = new Group();
+        this.highlightGroup = new Group();
         this.unitGroup = new Group();
-        root.getChildren().addAll(boardGroup, unitGroup);
+        root.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
 
         root.setOnMouseClicked(e -> handleClick(e.getX(), e.getY()));
 
@@ -85,6 +90,7 @@ public class GameGUI {
 
     private void drawBoard() {
         boardGroup.getChildren().clear();
+        highlightGroup.getChildren().clear();
 
         Board board = game.getBoard();
 
@@ -98,14 +104,34 @@ public class GameGUI {
             double cy = hexToPixelY(pos);
 
             Polygon hex = createHex(cx, cy);
-            if (reachableHexes.contains(pos)) {
-                hex.setFill(Color.LIGHTBLUE);
-            } else {
-                hex.setFill(Color.GREEN);
-            }
+            hex.setFill(Color.GREEN);
             hex.setStroke(Color.BLACK);
-
             boardGroup.getChildren().add(hex);
+
+            if (selectedPos != null) {
+                if (selectedPos.equals(pos)) { // Gold outline for selected square
+                    Polygon outline = createHex(cx, cy);
+                    outline.setFill(Color.TRANSPARENT);
+                    outline.setStroke(Color.GOLD);
+                    outline.setStrokeWidth(4.0);
+                    outline.setStrokeType(StrokeType.INSIDE);
+                    outline.setMouseTransparent(true);
+                    highlightGroup.getChildren().add(outline);
+                } else if (reachableHexes.contains(pos)) {
+                    Polygon highlight = createHex(cx, cy);
+                    highlight.setFill(Color.rgb(0, 0, 0, 0.3));
+
+                    Unit selectedUnit = game.getUnitAt(selectedPos);
+                    Unit unitInRange = game.getUnitAt(pos);
+                    if (unitInRange != null && !selectedUnit.getOwner().equals(unitInRange.getOwner())) {
+                        highlight.setStroke(Color.RED);
+                        highlight.setStrokeWidth(2.0);
+                        highlight.setStrokeType(StrokeType.INSIDE);
+
+                    }
+                    highlightGroup.getChildren().add(highlight);
+                }
+            }
 
             minX = Math.min(minX, cx);
             maxX = Math.max(maxX, cx);
@@ -118,30 +144,52 @@ public class GameGUI {
 
         boardGroup.layoutXProperty().bind(root.widthProperty().subtract(boardWidth).divide(2).subtract(minX));
         boardGroup.layoutYProperty().bind(root.heightProperty().subtract(boardHeight).divide(2).subtract(minY));
+        highlightGroup.layoutXProperty().bind(boardGroup.layoutXProperty());
+        highlightGroup.layoutYProperty().bind(boardGroup.layoutYProperty());
     }
 
     private void drawUnits() {
         unitGroup.getChildren().clear();
 
         for (HexPos pos : game.getUnitPositions()) {
-            double cx = hexToPixelX(pos);
-            double cy = hexToPixelY(pos);
-
-            Circle unitNode = new Circle(
-                    cx,
-                    cy,
-                    TILE_RADIUS * 0.5
-            );
-
-            Unit unit = game.getUnitAt(pos);
-            unitNode.setFill(colorFor(unit));
-            unitNode.setStroke(Color.BLACK);
-
+            Node unitNode = drawUnitNode(pos);
             unitGroup.getChildren().add(unitNode);
         }
 
         unitGroup.layoutXProperty().bind(boardGroup.layoutXProperty());
         unitGroup.layoutYProperty().bind(boardGroup.layoutYProperty());
+    }
+
+    private Node drawUnitNode(HexPos pos) {
+        double cx = hexToPixelX(pos);
+        double cy = hexToPixelY(pos);
+
+        Group group = new Group();
+        Unit unit = game.getUnitAt(pos);
+
+        // Unit body
+        Circle body = new Circle(cx, cy, TILE_RADIUS * 0.35);
+        body.setFill(colorFor(unit));
+        body.setStroke(Color.BLACK);
+
+        // Health bar sizes
+        double barWidth = TILE_RADIUS * 0.6;
+        double barHeight = 6;
+
+        double barX = cx - barWidth / 2;
+        double barY = cy + TILE_RADIUS * 0.45;
+
+        // Background bar
+        Rectangle bg = new Rectangle(barX, barY, barWidth, barHeight);
+        bg.setFill(Color.DARKRED);
+
+        // Foreground bar (HP)
+        double hpRatio = (double) unit.getHealth() / unit.getType().maxHp;
+        Rectangle fg = new Rectangle(barX, barY, barWidth * hpRatio, barHeight);
+        fg.setFill(Color.LIMEGREEN);
+
+        group.getChildren().addAll(body, bg, fg);
+        return group;
     }
 
     private void redraw() {
