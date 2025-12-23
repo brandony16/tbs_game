@@ -26,4 +26,15 @@ public class Unit {
     public String toString() {
         return type.toString();
     }
+
+    public void dealDamage(int damage) {
+        this.hp -= damage;
+        if (this.hp < 0) {
+            this.hp = 0;
+        }
+    }
+
+    public boolean isDead() {
+        return this.hp == 0;
+    }
 }

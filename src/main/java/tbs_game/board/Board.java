@@ -29,6 +29,10 @@ public class Board {
         return radius;
     }
 
+    public boolean isOnBoard(HexPos pos) {
+        return tiles.get(pos) != null;
+    }
+
     private void initializeTiles() {
         // Fill tile array with default terrain (PLAINS)
         // Replace with actualy generation at some point 

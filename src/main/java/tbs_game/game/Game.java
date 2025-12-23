@@ -2,7 +2,9 @@ package tbs_game.game;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import tbs_game.HexPos;
 import tbs_game.board.Board;
@@ -14,20 +16,27 @@ public class Game {
 
     private final Board board;
     private final Map<HexPos, Unit> units;
+
     private final Player player1;
     private final Player player2;
+    private Player currentPlayer;
 
     public Game(int radius) {
         this.board = new Board(radius);
         this.units = new HashMap<>();
         this.player1 = Player.USER;
         this.player2 = Player.AI;
+        this.currentPlayer = player1;
 
         setUpGame();
     }
 
     public Board getBoard() {
         return board;
+    }
+
+    public Player getCurrentPlayer() {
+        return this.currentPlayer;
     }
 
     public Collection<HexPos> getUnitPositions() {
@@ -42,21 +51,52 @@ public class Game {
         this.units.put(pos, unit);
     }
 
-    public void moveUnitTo(HexPos from, HexPos to) {
+    public void moveUnit(HexPos from, HexPos to) {
         Unit unit = getUnitAt(from);
         if (unit == null) {
             return;
         }
-
+        if (!unit.getOwner().equals(currentPlayer)) {
+            return; // Not this units turn
+        }
         if (!validMove(unit, from, to)) {
             return;
-        };
+        }
 
         Unit otherUnit = getUnitAt(to);
         if (otherUnit == null) {
-        } else if (!otherUnit.getOwner().equals(unit.getOwner())) {
-            handleAttack(unit, otherUnit);
+            handleMove(from, to);
+        } else if (!unit.getOwner().equals(otherUnit.getOwner())) {
+            handleAttack(unit, otherUnit, from, to);
         }
+
+        endTurn();
+    }
+
+    public Set<HexPos> getReachableHexes(HexPos from) {
+        Set<HexPos> reachableHexes = new HashSet<>();
+
+        // Confirm a unit is at the tile
+        Unit unit = units.get(from);
+        if (unit == null) {
+            return reachableHexes;
+        }
+
+        int range = unit.getType().moveRange;
+
+        // See if each hex is in range of the unit
+        for (HexPos pos : board.getPositions()) {
+            if (from.distanceTo(pos) <= range && !isFriendly(pos, unit.getOwner())) {
+                reachableHexes.add(pos);
+            }
+        }
+
+        return reachableHexes;
+    }
+
+    private boolean isFriendly(HexPos pos, Player player) {
+        Unit unit = getUnitAt(pos);
+        return unit != null && unit.getOwner().equals(player);
     }
 
     private boolean validMove(Unit unit, HexPos from, HexPos to) {
@@ -66,8 +106,30 @@ public class Game {
         return moveDist <= maxMoveDist;
     }
 
-    private void handleAttack(Unit attacker, Unit defender) {
+    private void handleAttack(Unit attacker, Unit defender, HexPos attackSq, HexPos defenseSq) {
+        int attackDamage = attacker.getType().attackDamage;
+        defender.dealDamage(attackDamage);
 
+        if (defender.isDead()) {
+            handleMove(attackSq, defenseSq);
+        }
+    }
+
+    private void handleMove(HexPos from, HexPos to) {
+        Unit mover = units.get(from);
+        if (mover == null) {
+            return;
+        }
+
+        // Remove unit from previous square and move it to new square
+        units.remove(from);
+        units.put(to, mover);
+    }
+
+    private void endTurn() {
+        currentPlayer = (currentPlayer.equals(player1))
+                ? player2
+                : player1;
     }
 
     private void setUpGame() {

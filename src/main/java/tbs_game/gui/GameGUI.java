@@ -1,5 +1,7 @@
 package tbs_game.gui;
 
+import java.util.Set;
+
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -20,6 +22,9 @@ public class GameGUI {
     private final Group boardGroup;
     private final Group unitGroup;
 
+    private HexPos selectedPos;
+    private Set<HexPos> reachableHexes = Set.of();
+
     public GameGUI(Game game) {
         this.game = game;
         this.root = new Pane();
@@ -27,12 +32,55 @@ public class GameGUI {
         this.unitGroup = new Group();
         root.getChildren().addAll(boardGroup, unitGroup);
 
-        drawBoard();
-        drawUnits();
+        root.setOnMouseClicked(e -> handleClick(e.getX(), e.getY()));
+
+        redraw();
     }
 
     public Pane getRoot() {
         return root;
+    }
+
+    private void handleClick(double mouseX, double mouseY) {
+        // Convert to "board space" w/ (0,0) being the center of the board
+        double localX = mouseX - boardGroup.getLayoutX();
+        double localY = mouseY - boardGroup.getLayoutY();
+
+        HexPos clicked = pixelToHex(localX, localY);
+        if (!game.getBoard().isOnBoard(clicked)) {
+            clearSelection();
+            return;
+        }
+
+        Unit unit = game.getUnitAt(clicked);
+        boolean isFriendlyUnit = unit != null && unit.getOwner().equals(game.getCurrentPlayer());
+        if (this.selectedPos == null) {
+            if (isFriendlyUnit) {
+                selectPos(clicked);
+            }
+        } else {
+            if (reachableHexes.contains(clicked)) {
+                game.moveUnit(selectedPos, clicked);
+                clearSelection();
+                redraw();
+            } else if (isFriendlyUnit) {
+                selectPos(clicked); // switch selection
+            } else {
+                clearSelection();
+            }
+        }
+    }
+
+    private void selectPos(HexPos pos) {
+        this.selectedPos = pos;
+        this.reachableHexes = game.getReachableHexes(pos);
+        redraw();
+    }
+
+    private void clearSelection() {
+        this.selectedPos = null;
+        this.reachableHexes = Set.of();
+        redraw();
     }
 
     private void drawBoard() {
@@ -50,7 +98,11 @@ public class GameGUI {
             double cy = hexToPixelY(pos);
 
             Polygon hex = createHex(cx, cy);
-            hex.setFill(Color.GREEN);
+            if (reachableHexes.contains(pos)) {
+                hex.setFill(Color.LIGHTBLUE);
+            } else {
+                hex.setFill(Color.GREEN);
+            }
             hex.setStroke(Color.BLACK);
 
             boardGroup.getChildren().add(hex);
@@ -92,6 +144,11 @@ public class GameGUI {
         unitGroup.layoutYProperty().bind(boardGroup.layoutYProperty());
     }
 
+    private void redraw() {
+        drawBoard();
+        drawUnits();
+    }
+
     private Color colorFor(Unit unit) {
         return switch (unit.getOwner()) {
             case USER ->
@@ -112,11 +169,40 @@ public class GameGUI {
         return hex;
     }
 
+    // ----- PIXEL MATH AND CONVERSIONS ----
     private double hexToPixelX(HexPos p) {
         return TILE_RADIUS * (SQRT3 * p.q() + SQRT3 / 2 * p.r());
     }
 
     private double hexToPixelY(HexPos p) {
         return TILE_RADIUS * (3.0 / 2 * p.r());
+    }
+
+    private HexPos pixelToHex(double x, double y) {
+        double q = (Math.sqrt(3) / 3 * x - 1.0 / 3 * y) / TILE_RADIUS;
+        double r = (2.0 / 3 * y) / TILE_RADIUS;
+        return hexRound(q, r);
+    }
+
+    private HexPos hexRound(double q, double r) {
+        double s = -q - r;
+
+        // Round each axis to nearest int
+        int rq = (int) Math.round(q);
+        int rr = (int) Math.round(r);
+        int rs = (int) Math.round(s);
+
+        // Find diff between rounded value and actual value
+        double dq = Math.abs(rq - q);
+        double dr = Math.abs(rr - r);
+        double ds = Math.abs(rs - s);
+
+        if (dq > dr && dq > ds) {
+            rq = -rr - rs;
+        } else if (dr > ds) {
+            rr = -rq - rs;
+        }
+
+        return new HexPos(rq, rr);
     }
 }
