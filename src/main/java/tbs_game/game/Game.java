@@ -51,16 +51,16 @@ public class Game {
         this.units.put(pos, unit);
     }
 
-    public void moveUnit(HexPos from, HexPos to) {
+    public boolean moveUnit(HexPos from, HexPos to) {
         Unit unit = getUnitAt(from);
         if (unit == null) {
-            return;
+            return false;
         }
         if (!unit.getOwner().equals(currentPlayer)) {
-            return; // Not this units turn
+            return false; // Not this units turn
         }
         if (!validMove(unit, from, to)) {
-            return;
+            return false;
         }
 
         Unit otherUnit = getUnitAt(to);
@@ -71,6 +71,7 @@ public class Game {
         }
 
         endTurn();
+        return true;
     }
 
     public Set<HexPos> getReachableHexes(HexPos from) {

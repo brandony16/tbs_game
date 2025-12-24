@@ -1,9 +1,11 @@
 package tbs_game.gui;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
+import javafx.animation.TranslateTransition;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -12,6 +14,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 import tbs_game.HexPos;
 import tbs_game.board.Board;
 import tbs_game.game.Game;
@@ -28,11 +31,14 @@ public class GameGUI {
     private final Game game;
     private final Group boardGroup;
     private final Group highlightGroup;
+
     private final Group unitGroup;
+    private final Map<HexPos, Group> unitElements;
 
     private Group hudGroup;
     private Text turnText;
     private Text unitInfoText;
+    private Group unitInfoHUD;
 
     private HexPos selectedPos;
     private Set<HexPos> reachableHexes = Set.of();
@@ -43,6 +49,7 @@ public class GameGUI {
         this.boardGroup = new Group();
         this.highlightGroup = new Group();
         this.unitGroup = new Group();
+        this.unitElements = new HashMap<>();
         root.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
 
         initHUD();
@@ -75,9 +82,7 @@ public class GameGUI {
             }
         } else {
             if (reachableHexes.contains(clicked)) {
-                game.moveUnit(selectedPos, clicked);
-                clearSelection();
-                redraw();
+                animateMove(selectedPos, clicked);
             } else if (isFriendlyUnit) {
                 selectPos(clicked); // switch selection
             } else {
@@ -131,10 +136,11 @@ public class GameGUI {
     }
 
     private Group initTroopInfoHUD() {
-        Group troopHUD = new Group();
+        unitInfoHUD = new Group();
 
         Rectangle bg = new Rectangle(300, 200, HUD_BG);
         unitInfoText = new Text();
+
         unitInfoText.setFill(Color.BLACK);
         unitInfoText.setFont(Font.font(16));
 
@@ -142,12 +148,15 @@ public class GameGUI {
         unitInfoText.setX(padding);
         unitInfoText.setY(bg.getHeight() / 2.0 + unitInfoText.getFont().getSize() / 4.0);
 
-        troopHUD.getChildren().addAll(bg, unitInfoText);
+        unitInfoHUD.getChildren().addAll(bg, unitInfoText);
 
-        troopHUD.setLayoutX(0);
-        troopHUD.layoutYProperty().bind(root.heightProperty().subtract(bg.getHeight()));
+        unitInfoHUD.setLayoutX(0);
+        unitInfoHUD.layoutYProperty().bind(root.heightProperty().subtract(bg.getHeight()));
 
-        return troopHUD;
+        unitInfoHUD.setVisible(false);
+        unitInfoHUD.setManaged(false);
+
+        return unitInfoHUD;
     }
 
     private void drawBoard() {
@@ -212,17 +221,20 @@ public class GameGUI {
 
     private void drawUnits() {
         unitGroup.getChildren().clear();
+        unitElements.clear();
 
         for (HexPos pos : game.getUnitPositions()) {
-            Node unitNode = drawUnitNode(pos);
-            unitGroup.getChildren().add(unitNode);
+            Group unitElement = drawUnitElement(pos);
+
+            unitElements.put(pos, unitElement);
+            unitGroup.getChildren().add(unitElement);
         }
 
         unitGroup.layoutXProperty().bind(boardGroup.layoutXProperty());
         unitGroup.layoutYProperty().bind(boardGroup.layoutYProperty());
     }
 
-    private Node drawUnitNode(HexPos pos) {
+    private Group drawUnitElement(HexPos pos) {
         double cx = hexToPixelX(pos);
         double cy = hexToPixelY(pos);
 
@@ -254,6 +266,45 @@ public class GameGUI {
         return group;
     }
 
+    private void animateMove(HexPos from, HexPos to) {
+        Group unitElement = unitElements.get(from);
+        if (unitElement == null) {
+            return;
+        }
+
+        if (game.moveUnit(from, to) == false) {
+            return;
+        }
+
+        double startX = hexToPixelX(from);
+        double startY = hexToPixelY(from);
+        double endX = hexToPixelX(to);
+        double endY = hexToPixelY(to);
+
+        TranslateTransition tt = new TranslateTransition(Duration.millis(200), unitElement);
+        tt.setFromX(0);
+        tt.setFromY(0);
+        tt.setToX(endX - startX);
+        tt.setToY(endY - startY);
+
+        tt.setOnFinished(e -> {
+            // Reset translate and snap to final position
+            unitElement.setTranslateX(0);
+            unitElement.setTranslateY(0);
+            unitElement.setLayoutX(endX);
+            unitElement.setLayoutY(endY);
+
+            unitElements.remove(from);
+            unitElements.put(to, unitElement);
+
+            // Update game state after animation
+            clearSelection();
+            redraw();
+        });
+
+        tt.play();
+    }
+
     private void updateHUD() {
         // Update player turn
         Player current = game.getCurrentPlayer();
@@ -267,11 +318,17 @@ public class GameGUI {
                 unitInfoText.setText("Selected Unit: " + unit.getType().name()
                         + " HP: " + unit.getHealth()
                         + "/" + unit.getType().maxHp);
+                unitInfoHUD.setVisible(true);
+                unitInfoHUD.setManaged(true);
             } else {
                 unitInfoText.setText("");
+                unitInfoHUD.setVisible(false);
+                unitInfoHUD.setManaged(false);
             }
         } else {
             unitInfoText.setText("");
+            unitInfoHUD.setVisible(false);
+            unitInfoHUD.setManaged(false);
         }
     }
 
