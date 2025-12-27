@@ -51,6 +51,17 @@ public class Game {
         this.units.put(pos, unit);
     }
 
+    public boolean isValidMove(HexPos from, HexPos to) {
+        Unit unit = getUnitAt(from);
+        if (unit == null) {
+            return false;
+        }
+        if (!unit.getOwner().equals(currentPlayer)) {
+            return false; // Not this units turn
+        }
+        return validMove(unit, from, to);
+    }
+
     public boolean moveUnit(HexPos from, HexPos to) {
         Unit unit = getUnitAt(from);
         if (unit == null) {

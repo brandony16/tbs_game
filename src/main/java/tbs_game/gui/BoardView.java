@@ -1,0 +1,225 @@
+package tbs_game.gui;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javafx.animation.TranslateTransition;
+import javafx.geometry.Point2D;
+import javafx.scene.Group;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
+import javafx.util.Duration;
+import tbs_game.HexPos;
+import tbs_game.board.Board;
+import tbs_game.game.Game;
+import tbs_game.units.Unit;
+
+public class BoardView {
+
+    private static final int TILE_RADIUS = 40;
+    private static final Color DEFAULT_TILE_COLOR = Color.GREEN;
+    private final HexMath hexMath = new HexMath(TILE_RADIUS);
+
+    private final Game game;
+    private final Camera camera = new Camera();
+
+    private final Group worldRoot = new Group(); // all board content
+    private final Group boardGroup = new Group();
+    private final Group highlightGroup = new Group();
+    private final Group unitGroup = new Group();
+    private final Map<HexPos, Group> unitElements = new HashMap<>();
+
+    private HexPos selectedPos;
+    private Set<HexPos> reachableHexes = Set.of();
+
+    public BoardView(Game game) {
+        this.game = game;
+        worldRoot.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
+    }
+
+    public Group getWorldRoot() {
+        return worldRoot;
+    }
+
+    public Camera getCamera() {
+        return camera;
+    }
+
+    public HexPos getSelected() {
+        return selectedPos;
+    }
+
+    // ----- Drawing -----
+    public void redraw() {
+        drawBoard();
+        drawUnits();
+    }
+
+    private void drawBoard() {
+        boardGroup.getChildren().clear();
+        highlightGroup.getChildren().clear();
+
+        Board board = game.getBoard();
+
+        for (HexPos pos : board.getPositions()) {
+            double cx = hexMath.hexToPixelX(pos);
+            double cy = hexMath.hexToPixelY(pos);
+
+            Polygon hex = createHex(cx, cy);
+            hex.setFill(DEFAULT_TILE_COLOR);
+            hex.setStroke(Color.BLACK);
+            boardGroup.getChildren().add(hex);
+
+            if (selectedPos != null) {
+                if (selectedPos.equals(pos)) {
+                    Polygon outline = createHex(cx, cy);
+                    outline.setFill(Color.TRANSPARENT);
+                    outline.setStroke(Color.GOLD);
+                    outline.setStrokeWidth(4);
+                    outline.setStrokeType(StrokeType.INSIDE);
+                    outline.setMouseTransparent(true);
+                    highlightGroup.getChildren().add(outline);
+                } else if (reachableHexes.contains(pos)) {
+                    Polygon highlight = createHex(cx, cy);
+                    highlight.setFill(Color.rgb(0, 0, 0, 0.3));
+                    Unit selectedUnit = game.getUnitAt(selectedPos);
+                    Unit unitInRange = game.getUnitAt(pos);
+                    if (unitInRange != null && !selectedUnit.getOwner().equals(unitInRange.getOwner())) {
+                        highlight.setStroke(Color.RED);
+                        highlight.setStrokeWidth(2);
+                        highlight.setStrokeType(StrokeType.INSIDE);
+                    }
+                    highlightGroup.getChildren().add(highlight);
+                }
+            }
+        }
+    }
+
+    private void drawUnits() {
+        unitGroup.getChildren().clear();
+        unitElements.clear();
+
+        for (HexPos pos : game.getUnitPositions()) {
+            Group unitElement = drawUnitElement(pos);
+            unitElements.put(pos, unitElement);
+            unitGroup.getChildren().add(unitElement);
+        }
+    }
+
+    private Group drawUnitElement(HexPos pos) {
+        double cx = hexMath.hexToPixelX(pos);
+        double cy = hexMath.hexToPixelY(pos);
+
+        Group group = new Group();
+        Unit unit = game.getUnitAt(pos);
+
+        Circle body = new Circle(cx, cy, TILE_RADIUS * 0.35);
+        body.setFill(unit.getOwner() == tbs_game.player.Player.USER ? Color.BLUE : Color.RED);
+        body.setStroke(Color.BLACK);
+
+        double barWidth = TILE_RADIUS * 0.6;
+        double barHeight = 6;
+        double barX = cx - barWidth / 2;
+        double barY = cy + TILE_RADIUS * 0.45;
+
+        Rectangle bg = new Rectangle(barX, barY, barWidth, barHeight);
+        bg.setFill(Color.DARKRED);
+
+        double hpRatio = (double) unit.getHealth() / unit.getType().maxHp;
+        Rectangle fg = new Rectangle(barX, barY, barWidth * hpRatio, barHeight);
+        fg.setFill(Color.LIMEGREEN);
+
+        group.getChildren().addAll(body, bg, fg);
+        return group;
+    }
+
+    // ----- Interaction -----
+    public void handleClick(double mouseX, double mouseY) {
+        Point2D boardCoords = boardGroup.sceneToLocal(mouseX, mouseY);
+        Point2D adjustedCoords = camera.screenToWorld(boardCoords.getX(), boardCoords.getY());
+        HexPos clicked = hexMath.pixelToHex(adjustedCoords.getX(), adjustedCoords.getY());
+
+        if (!game.getBoard().isOnBoard(clicked)) {
+            clearSelection();
+            return;
+        }
+
+        Unit unit = game.getUnitAt(clicked);
+        boolean isFriendlyUnit = unit != null && unit.getOwner().equals(game.getCurrentPlayer());
+
+        if (this.selectedPos == null) {
+            if (isFriendlyUnit) {
+                selectPos(clicked);
+            }
+        } else {
+            if (reachableHexes.contains(clicked)) {
+                animateMove(this.selectedPos, clicked);
+            } else if (isFriendlyUnit) {
+                selectPos(clicked);
+            } else {
+                clearSelection();
+            }
+        }
+    }
+
+    private void selectPos(HexPos pos) {
+        this.selectedPos = pos;
+        this.reachableHexes = game.getReachableHexes(pos);
+        redraw();
+    }
+
+    private void clearSelection() {
+        this.selectedPos = null;
+        this.reachableHexes = Set.of();
+        redraw();
+    }
+
+    private void animateMove(HexPos from, HexPos to) {
+        Group unitElement = unitElements.get(from);
+        if (unitElement == null || !game.isValidMove(from, to)) {
+            return;
+        }
+
+        double startX = hexMath.hexToPixelX(from);
+        double startY = hexMath.hexToPixelY(from);
+        double endX = hexMath.hexToPixelX(to);
+        double endY = hexMath.hexToPixelY(to);
+
+        TranslateTransition tt = new TranslateTransition(Duration.millis(200), unitElement);
+        tt.setFromX(0);
+        tt.setFromY(0);
+        tt.setToX(endX - startX);
+        tt.setToY(endY - startY);
+        tt.setOnFinished(e -> {
+            unitElement.setTranslateX(0);
+            unitElement.setTranslateY(0);
+            unitElement.setLayoutX(endX);
+            unitElement.setLayoutY(endY);
+
+            unitElements.remove(from);
+            unitElements.put(to, unitElement);
+
+            // Update game state after animation
+            game.moveUnit(from, to);
+            clearSelection();
+            redraw();
+        });
+        tt.play();
+    }
+    // ----- Utility -----
+
+    private Polygon createHex(double cx, double cy) {
+        Polygon hex = new Polygon();
+        for (int i = 0; i < 6; i++) {
+            double angle = Math.toRadians(60 * i - 30); // pointy-top
+            double x = cx + TILE_RADIUS * Math.cos(angle);
+            double y = cy + TILE_RADIUS * Math.sin(angle);
+            hex.getPoints().addAll(x, y);
+        }
+        return hex;
+    }
+}
