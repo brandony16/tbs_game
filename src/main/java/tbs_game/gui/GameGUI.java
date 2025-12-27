@@ -5,12 +5,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javafx.animation.TranslateTransition;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -35,10 +33,11 @@ public class GameGUI {
     private final Game game;
 
     private final StackPane root;
-    private final Pane boardLayer;
+    private final StackPane boardLayer;
     private final StackPane hudLayer;
 
     // Board layer
+    private final Group boardRoot;
     private final Group boardGroup;
     private final Group highlightGroup;
     private final Group unitGroup;
@@ -57,30 +56,23 @@ public class GameGUI {
         this.game = game;
         this.root = new StackPane();
 
-        this.boardLayer = new Pane();
+        this.boardLayer = new StackPane();
         this.hudLayer = new StackPane();
         root.getChildren().addAll(boardLayer, hudLayer);
 
+        this.boardRoot = new Group();
         this.boardGroup = new Group();
         this.highlightGroup = new Group();
         this.unitGroup = new Group();
         this.unitElements = new HashMap<>();
-        boardLayer.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
+        boardRoot.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
+        boardLayer.getChildren().add(boardRoot);
 
         initHUD();
 
         root.setOnMouseClicked(e -> handleClick(e.getX(), e.getY()));
 
         redraw();
-
-        Bounds b = boardGroup.getBoundsInParent();
-
-        boardGroup.layoutXProperty().bind(root.widthProperty().subtract(b.getWidth()).divide(2).subtract(b.getMinX()));
-        boardGroup.layoutYProperty().bind(root.heightProperty().subtract(b.getHeight()).divide(2).subtract(b.getMinY()));
-        highlightGroup.layoutXProperty().bind(boardGroup.layoutXProperty());
-        highlightGroup.layoutYProperty().bind(boardGroup.layoutYProperty());
-        unitGroup.layoutXProperty().bind(boardGroup.layoutXProperty());
-        unitGroup.layoutYProperty().bind(boardGroup.layoutYProperty());
     }
 
     public StackPane getRoot() {
