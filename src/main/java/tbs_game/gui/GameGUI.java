@@ -5,8 +5,13 @@ import java.util.Map;
 import java.util.Set;
 
 import javafx.animation.TranslateTransition;
+import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
@@ -27,48 +32,65 @@ public class GameGUI {
     private static final double SQRT3 = Math.sqrt(3);
     private static final Color HUD_BG = Color.rgb(200, 160, 105);
 
-    private final Pane root;
     private final Game game;
+
+    private final StackPane root;
+    private final Pane boardLayer;
+    private final StackPane hudLayer;
+
+    // Board layer
     private final Group boardGroup;
     private final Group highlightGroup;
-
     private final Group unitGroup;
     private final Map<HexPos, Group> unitElements;
 
-    private Group hudGroup;
+    // HUD layer
     private Text turnText;
     private Text unitInfoText;
-    private Group unitInfoHUD;
+    private Group unitInfo;
+    private Group turnInfo;
 
     private HexPos selectedPos;
     private Set<HexPos> reachableHexes = Set.of();
 
     public GameGUI(Game game) {
         this.game = game;
-        this.root = new Pane();
+        this.root = new StackPane();
+
+        this.boardLayer = new Pane();
+        this.hudLayer = new StackPane();
+        root.getChildren().addAll(boardLayer, hudLayer);
+
         this.boardGroup = new Group();
         this.highlightGroup = new Group();
         this.unitGroup = new Group();
         this.unitElements = new HashMap<>();
-        root.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
+        boardLayer.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
 
         initHUD();
 
         root.setOnMouseClicked(e -> handleClick(e.getX(), e.getY()));
 
         redraw();
+
+        Bounds b = boardGroup.getBoundsInParent();
+
+        boardGroup.layoutXProperty().bind(root.widthProperty().subtract(b.getWidth()).divide(2).subtract(b.getMinX()));
+        boardGroup.layoutYProperty().bind(root.heightProperty().subtract(b.getHeight()).divide(2).subtract(b.getMinY()));
+        highlightGroup.layoutXProperty().bind(boardGroup.layoutXProperty());
+        highlightGroup.layoutYProperty().bind(boardGroup.layoutYProperty());
+        unitGroup.layoutXProperty().bind(boardGroup.layoutXProperty());
+        unitGroup.layoutYProperty().bind(boardGroup.layoutYProperty());
     }
 
-    public Pane getRoot() {
+    public StackPane getRoot() {
         return root;
     }
 
     private void handleClick(double mouseX, double mouseY) {
-        // Convert to "board space" w/ (0,0) being the center of the board
-        double localX = mouseX - boardGroup.getLayoutX();
-        double localY = mouseY - boardGroup.getLayoutY();
+        Point2D boardCoords = boardGroup.sceneToLocal(mouseX, mouseY);
 
-        HexPos clicked = pixelToHex(localX, localY);
+        HexPos clicked = pixelToHex(boardCoords.getX(), boardCoords.getY());
         if (!game.getBoard().isOnBoard(clicked)) {
             clearSelection();
             return;
@@ -104,59 +126,49 @@ public class GameGUI {
     }
 
     private void initHUD() {
-        hudGroup = new Group();
-
-        Group turnHudElement = initTurnHUD();
-        Group troopInfoElement = initTroopInfoHUD();
-
-        hudGroup.getChildren().addAll(turnHudElement, troopInfoElement);
+        initTurnHUD();
+        initTroopInfoHUD();
 
         // Add HUD on top of everything
-        root.getChildren().add(hudGroup);
+        hudLayer.getChildren().addAll(turnInfo, unitInfo);
+
+        // Set alignments
+        StackPane.setAlignment(turnInfo, Pos.TOP_LEFT);
+        StackPane.setMargin(turnInfo, new Insets(10));
+
+        StackPane.setAlignment(unitInfo, Pos.BOTTOM_LEFT);
+        StackPane.setMargin(unitInfo, new Insets(10));
     }
 
-    private Group initTurnHUD() {
-        Group turnHUD = new Group();
+    private void initTurnHUD() {
+        turnInfo = new Group();
 
         Rectangle bg = new Rectangle(300, 50, HUD_BG);
         turnText = new Text();
-        turnText.setFill(Color.BLACK);
-        turnText.setFont(new Font(20));
+        turnText.setFont(Font.font(20));
 
         double padding = 10;
         turnText.setX(padding);
         turnText.setY(bg.getHeight() / 2.0 + turnText.getFont().getSize() / 4.0);
 
-        turnHUD.getChildren().addAll(bg, turnText);
-
-        turnHUD.setLayoutX(0);
-        turnHUD.setLayoutY(0);
-
-        return turnHUD;
+        turnInfo.getChildren().addAll(bg, turnText);
     }
 
-    private Group initTroopInfoHUD() {
-        unitInfoHUD = new Group();
+    private void initTroopInfoHUD() {
+        unitInfo = new Group();
 
         Rectangle bg = new Rectangle(300, 200, HUD_BG);
         unitInfoText = new Text();
-
-        unitInfoText.setFill(Color.BLACK);
         unitInfoText.setFont(Font.font(16));
 
         double padding = 10;
         unitInfoText.setX(padding);
         unitInfoText.setY(bg.getHeight() / 2.0 + unitInfoText.getFont().getSize() / 4.0);
 
-        unitInfoHUD.getChildren().addAll(bg, unitInfoText);
+        unitInfo.getChildren().addAll(bg, unitInfoText);
 
-        unitInfoHUD.setLayoutX(0);
-        unitInfoHUD.layoutYProperty().bind(root.heightProperty().subtract(bg.getHeight()));
-
-        unitInfoHUD.setVisible(false);
-        unitInfoHUD.setManaged(false);
-
-        return unitInfoHUD;
+        unitInfo.setVisible(false);
+        unitInfo.setManaged(false);
     }
 
     private void drawBoard() {
@@ -164,11 +176,6 @@ public class GameGUI {
         highlightGroup.getChildren().clear();
 
         Board board = game.getBoard();
-
-        double minX = Double.MAX_VALUE;
-        double maxX = Double.MIN_VALUE;
-        double minY = Double.MAX_VALUE;
-        double maxY = Double.MIN_VALUE;
 
         for (HexPos pos : board.getPositions()) {
             double cx = hexToPixelX(pos);
@@ -203,20 +210,7 @@ public class GameGUI {
                     highlightGroup.getChildren().add(highlight);
                 }
             }
-
-            minX = Math.min(minX, cx);
-            maxX = Math.max(maxX, cx);
-            minY = Math.min(minY, cy);
-            maxY = Math.max(maxY, cy);
         }
-
-        double boardWidth = maxX - minX + TILE_RADIUS * 2;
-        double boardHeight = maxY - minY + TILE_RADIUS * 2;
-
-        boardGroup.layoutXProperty().bind(root.widthProperty().subtract(boardWidth).divide(2).subtract(minX));
-        boardGroup.layoutYProperty().bind(root.heightProperty().subtract(boardHeight).divide(2).subtract(minY));
-        highlightGroup.layoutXProperty().bind(boardGroup.layoutXProperty());
-        highlightGroup.layoutYProperty().bind(boardGroup.layoutYProperty());
     }
 
     private void drawUnits() {
@@ -229,9 +223,6 @@ public class GameGUI {
             unitElements.put(pos, unitElement);
             unitGroup.getChildren().add(unitElement);
         }
-
-        unitGroup.layoutXProperty().bind(boardGroup.layoutXProperty());
-        unitGroup.layoutYProperty().bind(boardGroup.layoutYProperty());
     }
 
     private Group drawUnitElement(HexPos pos) {
@@ -318,17 +309,17 @@ public class GameGUI {
                 unitInfoText.setText("Selected Unit: " + unit.getType().name()
                         + " HP: " + unit.getHealth()
                         + "/" + unit.getType().maxHp);
-                unitInfoHUD.setVisible(true);
-                unitInfoHUD.setManaged(true);
+                unitInfo.setVisible(true);
+                unitInfo.setManaged(true);
             } else {
                 unitInfoText.setText("");
-                unitInfoHUD.setVisible(false);
-                unitInfoHUD.setManaged(false);
+                unitInfo.setVisible(false);
+                unitInfo.setManaged(false);
             }
         } else {
             unitInfoText.setText("");
-            unitInfoHUD.setVisible(false);
-            unitInfoHUD.setManaged(false);
+            unitInfo.setVisible(false);
+            unitInfo.setManaged(false);
         }
     }
 
