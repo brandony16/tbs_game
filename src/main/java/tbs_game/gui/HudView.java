@@ -1,6 +1,5 @@
 package tbs_game.gui;
 
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.layout.StackPane;
@@ -26,6 +25,10 @@ public class HudView {
     private Group unitInfo;
     private Group turnInfo;
 
+    private Group battleInfo;
+    private Text attackerStats;
+    private Text defenderStats;
+
     public HudView(Game game) {
         this.game = game;
         hudLayer = new StackPane();
@@ -38,16 +41,15 @@ public class HudView {
     public void initHUD() {
         initTurnHUD();
         initTroopInfoHUD();
+        initBattleInfoHUD();
 
         // Add HUD on top of everything
-        hudLayer.getChildren().addAll(turnInfo, unitInfo);
+        hudLayer.getChildren().addAll(turnInfo, unitInfo, battleInfo);
 
         // Set alignments
         StackPane.setAlignment(turnInfo, Pos.TOP_LEFT);
-        StackPane.setMargin(turnInfo, new Insets(10));
-
         StackPane.setAlignment(unitInfo, Pos.BOTTOM_LEFT);
-        StackPane.setMargin(unitInfo, new Insets(10));
+        StackPane.setAlignment(battleInfo, Pos.BOTTOM_CENTER);
     }
 
     private void initTurnHUD() {
@@ -81,6 +83,28 @@ public class HudView {
         unitInfo.setManaged(false);
     }
 
+    private void initBattleInfoHUD() {
+        battleInfo = new Group();
+
+        Rectangle bg = new Rectangle(300, 200, HUD_BG);
+        attackerStats = new Text();
+        attackerStats.setFont(Font.font(16));
+
+        defenderStats = new Text();
+        defenderStats.setFont(Font.font(16));
+
+        double padding = 10;
+        attackerStats.setX(padding);
+        attackerStats.setY(bg.getHeight() / 2.0 + attackerStats.getFont().getSize() / 4.0);
+        defenderStats.setX(bg.getWidth() - padding);
+        defenderStats.setY(bg.getHeight() / 2.0 + defenderStats.getFont().getSize() / 4.0);
+
+        battleInfo.getChildren().addAll(bg, attackerStats);
+
+        battleInfo.setVisible(false);
+        battleInfo.setManaged(false);
+    }
+
     public void updateHUD(HexPos selected) {
         // Update player turn
         Player current = game.getCurrentPlayer();
@@ -106,5 +130,28 @@ public class HudView {
             unitInfo.setVisible(false);
             unitInfo.setManaged(false);
         }
+    }
+
+    public void showCombatPreview(HoverContext context) {
+        if (!context.canAttack()) {
+            battleInfo.setVisible(false);
+            return;
+        }
+        
+        System.out.println("showing preview");
+        updateCombatPreview(context);
+        battleInfo.setVisible(true);
+    }
+
+    private void updateCombatPreview(HoverContext context) {
+        Unit attacker = game.getUnitAt(context.selected());
+        Unit defender = game.getUnitAt(context.hovered());
+
+        if (attacker == null || defender == null) {
+            throw new Error("Combat preview must have attacker and defender units");
+        }
+
+        attackerStats.setText("This is the attacker");
+        defenderStats.setText("This is the defender");
     }
 }

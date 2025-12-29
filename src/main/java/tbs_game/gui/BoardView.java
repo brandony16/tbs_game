@@ -2,7 +2,9 @@ package tbs_game.gui;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Point2D;
@@ -36,6 +38,9 @@ public class BoardView {
     private HexPos selectedPos;
     private Set<HexPos> reachableHexes = Set.of();
 
+    private HexPos hoveredPos;
+    private Consumer<HoverContext> onHoverChanged;
+
     public BoardView(Game game) {
         this.game = game;
         worldRoot.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
@@ -57,6 +62,15 @@ public class BoardView {
     public void redraw() {
         drawBoard();
         drawUnits();
+    }
+
+    public void handleMouseMoved(double mouseX, double mouseY) {
+        HexPos pos = getHexPosAt(mouseX, mouseY);
+
+        if (!Objects.equals(pos, hoveredPos)) {
+            hoveredPos = pos;
+            notifyHoverChanged();
+        }
     }
 
     private void drawBoard() {
@@ -139,9 +153,7 @@ public class BoardView {
 
     // ----- Interaction -----
     public ClickResult handleClick(double mouseX, double mouseY) {
-        Point2D boardCoords = boardGroup.sceneToLocal(mouseX, mouseY);
-        Point2D adjustedCoords = camera.screenToWorld(boardCoords.getX(), boardCoords.getY());
-        HexPos clicked = hexMath.pixelToHex(adjustedCoords.getX(), adjustedCoords.getY());
+        HexPos clicked = getHexPosAt(mouseX, mouseY);
 
         if (!game.getBoard().isOnBoard(clicked)) {
             clearSelection();
@@ -219,6 +231,27 @@ public class BoardView {
         });
         tt.play();
     }
+
+    public void setOnHoverChanged(Consumer<HoverContext> handler) {
+        this.onHoverChanged = handler;
+    }
+
+    private void notifyHoverChanged() {
+        if (onHoverChanged == null) {
+            return;
+        }
+
+        if (selectedPos == null || hoveredPos == null) {
+            onHoverChanged.accept(null);
+            return;
+        }
+
+        boolean canAttack = game.isValidMove(hoveredPos, selectedPos);
+
+        onHoverChanged.accept(
+                new HoverContext(selectedPos, hoveredPos, canAttack)
+        );
+    }
     // ----- Utility -----
 
     private Polygon createHex(double cx, double cy) {
@@ -230,6 +263,12 @@ public class BoardView {
             hex.getPoints().addAll(x, y);
         }
         return hex;
+    }
+
+    private HexPos getHexPosAt(double mouseX, double mouseY) {
+        Point2D boardCoords = boardGroup.sceneToLocal(mouseX, mouseY);
+        Point2D adjustedCoords = camera.screenToWorld(boardCoords.getX(), boardCoords.getY());
+        return hexMath.pixelToHex(adjustedCoords.getX(), adjustedCoords.getY());
     }
 
     // Used for notifying when a turn's animation is over.

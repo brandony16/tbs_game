@@ -24,7 +24,14 @@ public class GameGUI {
             hudView.updateHUD(boardView.getSelected());
         });
 
+        boardView.setOnHoverChanged(ctx -> {
+            if (ctx != null) {
+                hudView.showCombatPreview(ctx);
+            }
+        });
+
         root.setOnMouseClicked(e -> handleClick(e.getX(), e.getY()));
+        root.setOnMouseMoved(e -> boardView.handleMouseMoved(e.getX(), e.getY()));
 
         hudView.initHUD();
         boardView.redraw();
