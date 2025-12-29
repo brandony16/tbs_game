@@ -138,32 +138,39 @@ public class BoardView {
     }
 
     // ----- Interaction -----
-    public void handleClick(double mouseX, double mouseY) {
+    public ClickResult handleClick(double mouseX, double mouseY) {
         Point2D boardCoords = boardGroup.sceneToLocal(mouseX, mouseY);
         Point2D adjustedCoords = camera.screenToWorld(boardCoords.getX(), boardCoords.getY());
         HexPos clicked = hexMath.pixelToHex(adjustedCoords.getX(), adjustedCoords.getY());
 
         if (!game.getBoard().isOnBoard(clicked)) {
             clearSelection();
-            return;
+            return ClickResult.SELECTION_CHANGED;
         }
 
         Unit unit = game.getUnitAt(clicked);
         boolean isFriendlyUnit = unit != null && unit.getOwner().equals(game.getCurrentPlayer());
 
-        if (this.selectedPos == null) {
+        if (selectedPos == null && isFriendlyUnit) {
+            selectPos(clicked);
+            return ClickResult.SELECTION_CHANGED;
+        }
+
+        if (selectedPos != null) {
+            if (reachableHexes.contains(clicked)) {
+                animateMove(selectedPos, clicked);
+                return ClickResult.MOVE_STARTED;
+            }
+
             if (isFriendlyUnit) {
                 selectPos(clicked);
+                return ClickResult.SELECTION_CHANGED;
             }
-        } else {
-            if (reachableHexes.contains(clicked)) {
-                animateMove(this.selectedPos, clicked);
-            } else if (isFriendlyUnit) {
-                selectPos(clicked);
-            } else {
-                clearSelection();
-            }
+
+            clearSelection();
+            return ClickResult.SELECTION_CHANGED;
         }
+        return ClickResult.NONE;
     }
 
     private void selectPos(HexPos pos) {
@@ -207,6 +214,8 @@ public class BoardView {
             game.moveUnit(from, to);
             clearSelection();
             redraw();
+
+            onTurnResolved.run();
         });
         tt.play();
     }
@@ -221,5 +230,13 @@ public class BoardView {
             hex.getPoints().addAll(x, y);
         }
         return hex;
+    }
+
+    // Used for notifying when a turn's animation is over.
+    private Runnable onTurnResolved = () -> {
+    };
+
+    public void setOnTurnResolved(Runnable callback) {
+        this.onTurnResolved = callback;
     }
 }
