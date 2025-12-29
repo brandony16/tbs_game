@@ -246,7 +246,7 @@ public class BoardView {
             return;
         }
 
-        boolean canAttack = game.isValidMove(hoveredPos, selectedPos);
+        boolean canAttack = game.canAttack(selectedPos, hoveredPos);
 
         onHoverChanged.accept(
                 new HoverContext(selectedPos, hoveredPos, canAttack)

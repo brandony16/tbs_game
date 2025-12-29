@@ -8,8 +8,8 @@ import tbs_game.gui.GameGUI;
 
 public class Main extends Application {
 
-    private static final int WINDOW_WIDTH = 1200;
-    private static final int WINDOW_HEIGHT = 800;
+    private static final int WINDOW_WIDTH = 1960;
+    private static final int WINDOW_HEIGHT = 1080;
 
     @Override
     public void start(Stage stage) {

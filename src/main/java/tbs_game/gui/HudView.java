@@ -1,8 +1,11 @@
 package tbs_game.gui;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -22,10 +25,10 @@ public class HudView {
     // HUD layer
     private Text turnText;
     private Text unitInfoText;
-    private Group unitInfo;
-    private Group turnInfo;
+    private StackPane unitInfo;
+    private StackPane turnInfo;
 
-    private Group battleInfo;
+    private StackPane battleInfo;
     private Text attackerStats;
     private Text defenderStats;
 
@@ -53,56 +56,51 @@ public class HudView {
     }
 
     private void initTurnHUD() {
-        turnInfo = new Group();
+        turnInfo = createHudPanel(300, 50);
 
-        Rectangle bg = new Rectangle(300, 50, HUD_BG);
         turnText = new Text();
         turnText.setFont(Font.font(20));
 
-        double padding = 10;
-        turnText.setX(padding);
-        turnText.setY(bg.getHeight() / 2.0 + turnText.getFont().getSize() / 4.0);
+        StackPane.setAlignment(turnText, Pos.CENTER_LEFT);
 
-        turnInfo.getChildren().addAll(bg, turnText);
+        turnInfo.getChildren().add(turnText);
     }
 
     private void initTroopInfoHUD() {
-        unitInfo = new Group();
+        unitInfo = createHudPanel(300, 200);
 
-        Rectangle bg = new Rectangle(300, 200, HUD_BG);
         unitInfoText = new Text();
         unitInfoText.setFont(Font.font(16));
+        unitInfoText.setWrappingWidth(260);
 
-        double padding = 10;
-        unitInfoText.setX(padding);
-        unitInfoText.setY(bg.getHeight() / 2.0 + unitInfoText.getFont().getSize() / 4.0);
+        StackPane.setAlignment(unitInfoText, Pos.TOP_LEFT);
 
-        unitInfo.getChildren().addAll(bg, unitInfoText);
+        unitInfo.getChildren().add(unitInfoText);
 
         unitInfo.setVisible(false);
-        unitInfo.setManaged(false);
     }
 
     private void initBattleInfoHUD() {
-        battleInfo = new Group();
+        battleInfo = createHudPanel(360, 200);
 
-        Rectangle bg = new Rectangle(300, 200, HUD_BG);
+        VBox content = new VBox(10);
+        content.setAlignment(Pos.CENTER);
+
+        HBox statsRow = new HBox(20);
+        statsRow.setAlignment(Pos.CENTER);
+
         attackerStats = new Text();
         attackerStats.setFont(Font.font(16));
 
         defenderStats = new Text();
         defenderStats.setFont(Font.font(16));
 
-        double padding = 10;
-        attackerStats.setX(padding);
-        attackerStats.setY(bg.getHeight() / 2.0 + attackerStats.getFont().getSize() / 4.0);
-        defenderStats.setX(bg.getWidth() - padding);
-        defenderStats.setY(bg.getHeight() / 2.0 + defenderStats.getFont().getSize() / 4.0);
+        statsRow.getChildren().addAll(attackerStats, defenderStats);
+        content.getChildren().add(statsRow);
 
-        battleInfo.getChildren().addAll(bg, attackerStats);
+        battleInfo.getChildren().add(content);
 
         battleInfo.setVisible(false);
-        battleInfo.setManaged(false);
     }
 
     public void updateHUD(HexPos selected) {
@@ -132,13 +130,16 @@ public class HudView {
         }
     }
 
+    public void hideCombatPreview() {
+        battleInfo.setVisible(false);
+    }
+
     public void showCombatPreview(HoverContext context) {
         if (!context.canAttack()) {
             battleInfo.setVisible(false);
             return;
         }
-        
-        System.out.println("showing preview");
+
         updateCombatPreview(context);
         battleInfo.setVisible(true);
     }
@@ -153,5 +154,21 @@ public class HudView {
 
         attackerStats.setText("This is the attacker");
         defenderStats.setText("This is the defender");
+    }
+
+    private StackPane createHudPanel(double width, double height) {
+        StackPane panel = new StackPane();
+
+        panel.setPrefSize(width, height);
+        panel.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+
+        Rectangle bg = new Rectangle(width, height, HUD_BG);
+        bg.setArcWidth(12);
+        bg.setArcHeight(12);
+
+        panel.getChildren().add(bg);
+        panel.setPadding(new Insets(10));
+
+        return panel;
     }
 }

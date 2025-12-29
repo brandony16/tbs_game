@@ -53,13 +53,34 @@ public class Game {
 
     public boolean isValidMove(HexPos from, HexPos to) {
         Unit unit = getUnitAt(from);
+        Unit other = getUnitAt(to);
         if (unit == null) {
             return false;
         }
         if (!unit.getOwner().equals(currentPlayer)) {
             return false; // Not this units turn
         }
+        if (other != null && other.getOwner().equals(unit.getOwner())) {
+            return false; // Moving to tile occupied by friendly unit
+        }
+
+        // Distance check
         return validMove(unit, from, to);
+    }
+
+    public boolean canAttack(HexPos attackFrom, HexPos attackTo) {
+        Unit unit = getUnitAt(attackFrom);
+        Unit other = getUnitAt(attackTo);
+        if (unit == null || other == null) {
+            return false;
+        }
+        if (unit.getOwner().equals(other.getOwner())) {
+            return false;
+        }
+
+        int range = unit.getType().attackRange;
+        int dist = attackFrom.distanceTo(attackTo);
+        return dist <= range;
     }
 
     public boolean moveUnit(HexPos from, HexPos to) {

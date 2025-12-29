@@ -22,6 +22,7 @@ public class GameGUI {
 
         boardView.setOnTurnResolved(() -> {
             hudView.updateHUD(boardView.getSelected());
+            hudView.hideCombatPreview();
         });
 
         boardView.setOnHoverChanged(ctx -> {
