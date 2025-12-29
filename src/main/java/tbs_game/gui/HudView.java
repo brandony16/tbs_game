@@ -3,30 +3,27 @@ package tbs_game.gui;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import tbs_game.HexPos;
 import tbs_game.game.Game;
+import tbs_game.gui.hud_elements.PanelFactory;
+import tbs_game.gui.hud_elements.UnitInfo;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
 
 public class HudView {
-
-    private static final Color HUD_BG = Color.rgb(200, 160, 105);
 
     private final Game game;
     private final StackPane hudLayer;
 
     // HUD layer
     private Text turnText;
-    private Text unitInfoText;
-    private StackPane unitInfo;
     private StackPane turnInfo;
+    private UnitInfo unitInfo;
 
     private StackPane battleInfo;
     private Text attackerStats;
@@ -34,7 +31,8 @@ public class HudView {
 
     public HudView(Game game) {
         this.game = game;
-        hudLayer = new StackPane();
+        this.hudLayer = new StackPane();
+        this.unitInfo = new UnitInfo();
     }
 
     public StackPane getHudRoot() {
@@ -43,45 +41,31 @@ public class HudView {
 
     public void initHUD() {
         initTurnHUD();
-        initTroopInfoHUD();
         initBattleInfoHUD();
 
         // Add HUD on top of everything
-        hudLayer.getChildren().addAll(turnInfo, unitInfo, battleInfo);
+        hudLayer.getChildren().addAll(turnInfo, unitInfo.getRoot(), battleInfo);
 
         // Set alignments
         StackPane.setAlignment(turnInfo, Pos.TOP_LEFT);
-        StackPane.setAlignment(unitInfo, Pos.BOTTOM_LEFT);
+        StackPane.setAlignment(unitInfo.getRoot(), Pos.BOTTOM_LEFT);
         StackPane.setAlignment(battleInfo, Pos.BOTTOM_CENTER);
     }
 
     private void initTurnHUD() {
-        turnInfo = createHudPanel(300, 50);
+        turnInfo = PanelFactory.createHudPanel(300, 50);
 
         turnText = new Text();
         turnText.setFont(Font.font(20));
 
         StackPane.setAlignment(turnText, Pos.CENTER_LEFT);
+        StackPane.setMargin(turnText, new Insets(10));
 
         turnInfo.getChildren().add(turnText);
     }
 
-    private void initTroopInfoHUD() {
-        unitInfo = createHudPanel(300, 200);
-
-        unitInfoText = new Text();
-        unitInfoText.setFont(Font.font(16));
-        unitInfoText.setWrappingWidth(260);
-
-        StackPane.setAlignment(unitInfoText, Pos.TOP_LEFT);
-
-        unitInfo.getChildren().add(unitInfoText);
-
-        unitInfo.setVisible(false);
-    }
-
     private void initBattleInfoHUD() {
-        battleInfo = createHudPanel(360, 200);
+        battleInfo = PanelFactory.createHudPanel(360, 200);
 
         VBox content = new VBox(10);
         content.setAlignment(Pos.CENTER);
@@ -112,21 +96,10 @@ public class HudView {
         // Update selected unit info
         if (selected != null) {
             Unit unit = game.getUnitAt(selected);
-            if (unit != null) {
-                unitInfoText.setText("Selected Unit: " + unit.getType().name()
-                        + " HP: " + unit.getHealth()
-                        + "/" + unit.getType().maxHp);
-                unitInfo.setVisible(true);
-                unitInfo.setManaged(true);
-            } else {
-                unitInfoText.setText("");
-                unitInfo.setVisible(false);
-                unitInfo.setManaged(false);
-            }
+            unitInfo.updateInfo(unit);
+            unitInfo.setVisibility(true);
         } else {
-            unitInfoText.setText("");
-            unitInfo.setVisible(false);
-            unitInfo.setManaged(false);
+            unitInfo.setVisibility(false);
         }
     }
 
@@ -154,21 +127,5 @@ public class HudView {
 
         attackerStats.setText("This is the attacker");
         defenderStats.setText("This is the defender");
-    }
-
-    private StackPane createHudPanel(double width, double height) {
-        StackPane panel = new StackPane();
-
-        panel.setPrefSize(width, height);
-        panel.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-
-        Rectangle bg = new Rectangle(width, height, HUD_BG);
-        bg.setArcWidth(12);
-        bg.setArcHeight(12);
-
-        panel.getChildren().add(bg);
-        panel.setPadding(new Insets(10));
-
-        return panel;
     }
 }
