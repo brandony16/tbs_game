@@ -1,28 +1,31 @@
 package tbs_game.gui;
 
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import tbs_game.HexPos;
 import tbs_game.game.Game;
 import tbs_game.gui.hud_elements.PanelFactory;
+import tbs_game.gui.hud_elements.TurnInfo;
 import tbs_game.gui.hud_elements.UnitInfo;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
 
 public class HudView {
 
+    public static final String FONT_FAMILTY = "System";
+    public static final int FONT_SIZE = 16;
+    public static final Font HUD_FONT = Font.font(FONT_FAMILTY, FontWeight.NORMAL, FONT_SIZE);
+
     private final Game game;
     private final StackPane hudLayer;
 
     // HUD layer
-    private Text turnText;
-    private StackPane turnInfo;
+    private TurnInfo turnInfo;
     private UnitInfo unitInfo;
 
     private StackPane battleInfo;
@@ -33,6 +36,7 @@ public class HudView {
         this.game = game;
         this.hudLayer = new StackPane();
         this.unitInfo = new UnitInfo();
+        this.turnInfo = new TurnInfo();
     }
 
     public StackPane getHudRoot() {
@@ -40,28 +44,15 @@ public class HudView {
     }
 
     public void initHUD() {
-        initTurnHUD();
         initBattleInfoHUD();
 
         // Add HUD on top of everything
-        hudLayer.getChildren().addAll(turnInfo, unitInfo.getRoot(), battleInfo);
+        hudLayer.getChildren().addAll(turnInfo.getRoot(), unitInfo.getRoot(), battleInfo);
 
         // Set alignments
-        StackPane.setAlignment(turnInfo, Pos.TOP_LEFT);
+        StackPane.setAlignment(turnInfo.getRoot(), Pos.TOP_LEFT);
         StackPane.setAlignment(unitInfo.getRoot(), Pos.BOTTOM_LEFT);
         StackPane.setAlignment(battleInfo, Pos.BOTTOM_CENTER);
-    }
-
-    private void initTurnHUD() {
-        turnInfo = PanelFactory.createHudPanel(300, 50);
-
-        turnText = new Text();
-        turnText.setFont(Font.font(20));
-
-        StackPane.setAlignment(turnText, Pos.CENTER_LEFT);
-        StackPane.setMargin(turnText, new Insets(10));
-
-        turnInfo.getChildren().add(turnText);
     }
 
     private void initBattleInfoHUD() {
@@ -90,8 +81,7 @@ public class HudView {
     public void updateHUD(HexPos selected) {
         // Update player turn
         Player current = game.getCurrentPlayer();
-        turnText.setText("Player Turn: " + current.name());
-        turnText.setFill(current == Player.USER ? Color.BLACK : Color.DARKRED);
+        turnInfo.updateInfo(current);
 
         // Update selected unit info
         if (selected != null) {

@@ -17,7 +17,9 @@ public class Main extends Application {
         GameGUI gui = new GameGUI(game);
 
         Scene scene = new Scene(gui.getRoot(), WINDOW_WIDTH, WINDOW_HEIGHT);
+
         stage.setTitle("Budget Polytopia");
+        // stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
     }
