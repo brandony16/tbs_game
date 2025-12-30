@@ -173,5 +173,10 @@ public class Game {
             placeUnitAt(new HexPos(i - 4, 4), unit);
             placeUnitAt(new HexPos(i, -4), aiUnit);
         }
+
+        Unit unit = new Unit(UnitType.SOLDIER, player1);
+        Unit aiUnit = new Unit(UnitType.SOLDIER, player2);
+        placeUnitAt(new HexPos(0, 0), unit);
+        placeUnitAt(new HexPos(0, 1), aiUnit);
     }
 }

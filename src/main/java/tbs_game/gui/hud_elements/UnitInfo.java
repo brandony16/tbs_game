@@ -6,8 +6,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import tbs_game.gui.HudView;
 import tbs_game.units.Unit;
@@ -61,7 +59,7 @@ public class UnitInfo {
         content.setAlignment(Pos.TOP_LEFT);
 
         unitName = new Text();
-        unitName.setFont(Font.font(HudView.FONT_FAMILTY, FontWeight.BOLD, 24));
+        unitName.setFont(HudView.HEADER_FONT);
         unitName.setWrappingWidth(260);
 
         unitHealth = new Text();

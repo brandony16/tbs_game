@@ -26,6 +26,10 @@ public class Unit {
         return this.hp;
     }
 
+    public int getStrength() {
+        return type.attackDamage;
+    }
+
     @Override
     public String toString() {
         return type.toString();
