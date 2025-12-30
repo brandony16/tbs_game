@@ -141,6 +141,12 @@ public class Game {
         return reachableHexes;
     }
 
+    public boolean canEndTurn() {
+        return unitsByPlayer.get(currentPlayer)
+                .stream()
+                .noneMatch(Unit::canAct);
+    }
+
     public void endTurn() {
         this.currentPlayer = (currentPlayer.equals(player1))
                 ? player2
@@ -201,8 +207,8 @@ public class Game {
             placeUnitAt(new HexPos(i, -4), aiUnit);
         }
 
-        Unit unit = new Unit(UnitType.SOLDIER, player1);
-        Unit aiUnit = new Unit(UnitType.SOLDIER, player2);
+        Unit unit = new Unit(UnitType.CAVALRY, player1);
+        Unit aiUnit = new Unit(UnitType.CAVALRY, player2);
         placeUnitAt(new HexPos(0, 0), unit);
         placeUnitAt(new HexPos(0, 1), aiUnit);
     }

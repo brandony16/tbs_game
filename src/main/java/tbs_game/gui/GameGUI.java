@@ -20,6 +20,8 @@ public class GameGUI {
 
         root.getChildren().addAll(boardView.getWorldRoot(), hudView.getHudRoot());
 
+        hudView.setOnEndTurn(() -> endTurn());
+
         boardView.setOnTurnResolved(() -> {
             hudView.updateHUD(boardView.getSelected());
             hudView.hideCombatPreview();
@@ -48,6 +50,15 @@ public class GameGUI {
 
         if (result == ClickResult.SELECTION_CHANGED) {
             hudView.updateHUD(boardView.getSelected());
+        }
+    }
+
+    private void endTurn() {
+        if (game.canEndTurn()) {
+            game.endTurn();
+            boardView.nextTurn();
+            hudView.updateHUD(null);
+            hudView.hideCombatPreview();
         }
     }
 }

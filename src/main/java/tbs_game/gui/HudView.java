@@ -1,12 +1,14 @@
 package tbs_game.gui;
 
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import tbs_game.HexPos;
 import tbs_game.game.Game;
 import tbs_game.gui.hud_elements.BattlePreview;
+import tbs_game.gui.hud_elements.NextTurn;
 import tbs_game.gui.hud_elements.TurnInfo;
 import tbs_game.gui.hud_elements.UnitInfo;
 import tbs_game.player.Player;
@@ -27,6 +29,7 @@ public class HudView {
     private final TurnInfo turnInfo;
     private final UnitInfo unitInfo;
     private final BattlePreview battlePreview;
+    private final NextTurn nextTurn;
 
     public HudView(Game game) {
         this.game = game;
@@ -34,6 +37,7 @@ public class HudView {
         this.unitInfo = new UnitInfo();
         this.turnInfo = new TurnInfo();
         this.battlePreview = new BattlePreview();
+        this.nextTurn = new NextTurn();
     }
 
     public StackPane getHudRoot() {
@@ -43,12 +47,16 @@ public class HudView {
     public void initHUD() {
 
         // Add HUD on top of everything
-        hudLayer.getChildren().addAll(turnInfo.getRoot(), unitInfo.getRoot(), battlePreview.getRoot());
+        hudLayer.getChildren().addAll(turnInfo.getRoot(), unitInfo.getRoot(), battlePreview.getRoot(), nextTurn.getRoot());
 
         // Set alignments
         StackPane.setAlignment(turnInfo.getRoot(), Pos.TOP_LEFT);
         StackPane.setAlignment(unitInfo.getRoot(), Pos.BOTTOM_LEFT);
         StackPane.setAlignment(battlePreview.getRoot(), Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(nextTurn.getRoot(), Pos.BOTTOM_RIGHT);
+
+        Button nextTurnButton = nextTurn.getButton();
+        nextTurnButton.setOnAction(e -> handleEndTurn());
     }
 
     public void updateHUD(HexPos selected) {
@@ -81,5 +89,18 @@ public class HudView {
 
         battlePreview.updateCombatPreview(attacker, defender);
         battlePreview.setVisibility(true);
+    }
+
+    private Runnable onEndTurn;
+
+    public void setOnEndTurn(Runnable handler) {
+        this.onEndTurn = handler;
+    }
+
+    // Called by the NextTurn button internally
+    private void handleEndTurn() {
+        if (onEndTurn != null) {
+            onEndTurn.run();
+        }
     }
 }

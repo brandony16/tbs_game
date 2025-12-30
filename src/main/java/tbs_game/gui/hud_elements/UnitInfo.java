@@ -20,6 +20,8 @@ public class UnitInfo {
     private Text unitAttack;
 
     public UnitInfo() {
+        unitInfo = PanelFactory.createHudPanel(300, 200);
+
         initTroopInfoHUD();
     }
 
@@ -36,7 +38,7 @@ public class UnitInfo {
 
         unitName.setText(type.name());
         unitHealth.setText("HP: " + unit.getHealth() + "/" + type.maxHp);
-        unitMove.setText("Movement: " + type.moveRange);
+        unitMove.setText("Movement: " + unit.getMovementPoints() + "/" + unit.getMaxMovementPoints());
         unitAttack.setText("Strength: " + type.attackDamage);
     }
 
@@ -52,8 +54,6 @@ public class UnitInfo {
     }
 
     private void initTroopInfoHUD() {
-        unitInfo = PanelFactory.createHudPanel(300, 200);
-
         VBox content = new VBox(6);
         content.setPadding(new Insets(10));
         content.setAlignment(Pos.TOP_LEFT);

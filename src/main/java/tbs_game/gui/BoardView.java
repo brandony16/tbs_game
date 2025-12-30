@@ -59,6 +59,10 @@ public class BoardView {
     }
 
     // ----- Drawing -----
+    public void nextTurn() {
+        clearSelection();
+    }
+
     public void redraw() {
         drawBoard();
         drawUnits();

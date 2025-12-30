@@ -19,6 +19,8 @@ public class Main extends Application {
         Scene scene = new Scene(gui.getRoot(), WINDOW_WIDTH, WINDOW_HEIGHT);
 
         stage.setTitle("Budget Polytopia");
+        scene.getStylesheets().add(getClass().getResource("/hud.css").toExternalForm());
+
         // stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
