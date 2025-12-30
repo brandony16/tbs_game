@@ -16,6 +16,7 @@ public class Game {
 
     private final Board board;
     private final Map<HexPos, Unit> units;
+    private final Map<Player, Set<Unit>> unitsByPlayer;
 
     private final Player player1;
     private final Player player2;
@@ -24,9 +25,13 @@ public class Game {
     public Game(int radius) {
         this.board = new Board(radius);
         this.units = new HashMap<>();
+        this.unitsByPlayer = new HashMap<>();
         this.player1 = Player.USER;
         this.player2 = Player.AI;
         this.currentPlayer = player1;
+
+        unitsByPlayer.put(player1, new HashSet<>());
+        unitsByPlayer.put(player2, new HashSet<>());
 
         setUpGame();
     }
@@ -49,6 +54,7 @@ public class Game {
 
     public void placeUnitAt(HexPos pos, Unit unit) {
         this.units.put(pos, unit);
+        this.unitsByPlayer.get(unit.getOwner()).add(unit);
     }
 
     public boolean isValidMove(HexPos from, HexPos to) {
@@ -63,9 +69,12 @@ public class Game {
         if (other != null && other.getOwner().equals(unit.getOwner())) {
             return false; // Moving to tile occupied by friendly unit
         }
+        if (unit.hasAttacked() || unit.getMovementPoints() == 0) {
+            return false;
+        }
 
         // Distance check
-        return validMove(unit, from, to);
+        return canUnitMoveDistance(unit, from, to);
     }
 
     public boolean canAttack(HexPos attackFrom, HexPos attackTo) {
@@ -75,6 +84,9 @@ public class Game {
             return false;
         }
         if (unit.getOwner().equals(other.getOwner())) {
+            return false;
+        }
+        if (unit.hasAttacked()) {
             return false;
         }
 
@@ -91,7 +103,10 @@ public class Game {
         if (!unit.getOwner().equals(currentPlayer)) {
             return false; // Not this units turn
         }
-        if (!validMove(unit, from, to)) {
+        if (unit.hasAttacked() || unit.getMovementPoints() == 0) {
+            return false;
+        }
+        if (!canUnitMoveDistance(unit, from, to)) {
             return false;
         }
 
@@ -102,7 +117,6 @@ public class Game {
             handleAttack(unit, otherUnit, from, to);
         }
 
-        endTurn();
         return true;
     }
 
@@ -115,7 +129,7 @@ public class Game {
             return reachableHexes;
         }
 
-        int range = unit.getType().moveRange;
+        int range = unit.getMovementPoints();
 
         // See if each hex is in range of the unit
         for (HexPos pos : board.getPositions()) {
@@ -127,13 +141,20 @@ public class Game {
         return reachableHexes;
     }
 
+    public void endTurn() {
+        this.currentPlayer = (currentPlayer.equals(player1))
+                ? player2
+                : player1;
+        startTurn(this.currentPlayer);
+    }
+
     private boolean isFriendly(HexPos pos, Player player) {
         Unit unit = getUnitAt(pos);
         return unit != null && unit.getOwner().equals(player);
     }
 
-    private boolean validMove(Unit unit, HexPos from, HexPos to) {
-        int maxMoveDist = unit.getType().moveRange;
+    private boolean canUnitMoveDistance(Unit unit, HexPos from, HexPos to) {
+        int maxMoveDist = unit.getMovementPoints();
         int moveDist = from.distanceTo(to);
 
         return moveDist <= maxMoveDist;
@@ -142,8 +163,11 @@ public class Game {
     private void handleAttack(Unit attacker, Unit defender, HexPos attackSq, HexPos defenseSq) {
         int attackDamage = attacker.getType().attackDamage;
         defender.dealDamage(attackDamage);
+        attacker.markAttacked();
 
         if (defender.isDead()) {
+            unitsByPlayer.get(defender.getOwner()).remove(defender);
+            units.remove(defenseSq);
             handleMove(attackSq, defenseSq);
         }
     }
@@ -154,15 +178,18 @@ public class Game {
             return;
         }
 
+        int dist = from.distanceTo(to);
+        mover.spendMovementPoints(dist);
+
         // Remove unit from previous square and move it to new square
         units.remove(from);
         units.put(to, mover);
     }
 
-    private void endTurn() {
-        currentPlayer = (currentPlayer.equals(player1))
-                ? player2
-                : player1;
+    private void startTurn(Player player) {
+        for (Unit u : unitsByPlayer.get(player)) {
+            u.resetTurnState();
+        }
     }
 
     private void setUpGame() {

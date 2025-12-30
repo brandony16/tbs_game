@@ -13,8 +13,8 @@ public class BattlePreview {
 
     private StackPane battleInfo;
 
-    private StatRow healthRow;
-    private StatRow damageRow;
+    private final StatRow healthRow;
+    private final StatRow damageRow;
 
     public BattlePreview() {
         this.healthRow = new StatRow(HudView.HUD_FONT);

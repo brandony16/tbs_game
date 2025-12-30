@@ -8,10 +8,17 @@ public class Unit {
     private int hp;
     private Player owner;
 
+    private final int maxMovementPoints;
+    private int remainingMovementPoints;
+    private boolean hasAttacked;
+
     public Unit(UnitType type, Player owner) {
         this.type = type;
         this.hp = type.maxHp;
         this.owner = owner;
+
+        this.maxMovementPoints = type.moveRange;
+        this.remainingMovementPoints = maxMovementPoints;
     }
 
     public Player getOwner() {
@@ -28,6 +35,37 @@ public class Unit {
 
     public int getStrength() {
         return type.attackDamage;
+    }
+
+    public int getMaxMovementPoints() {
+        return this.maxMovementPoints;
+    }
+
+    public int getMovementPoints() {
+        return this.remainingMovementPoints;
+    }
+
+    public boolean hasAttacked() {
+        return this.hasAttacked;
+    }
+
+    // Unit cannot do anything else after attacking
+    public void markAttacked() {
+        this.hasAttacked = true;
+        this.remainingMovementPoints = 0;
+    }
+
+    public void spendMovementPoints(int movementCost) {
+        this.remainingMovementPoints = Math.max(0, remainingMovementPoints - movementCost);
+    }
+
+    public void resetTurnState() {
+        this.remainingMovementPoints = this.maxMovementPoints;
+        this.hasAttacked = false;
+    }
+
+    public boolean canAct() {
+        return this.remainingMovementPoints != 0 && !this.hasAttacked;
     }
 
     @Override
