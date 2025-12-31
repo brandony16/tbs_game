@@ -5,12 +5,12 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import tbs_game.HexPos;
 import tbs_game.game.Game;
 import tbs_game.gui.hud_elements.BattlePreview;
 import tbs_game.gui.hud_elements.NextTurn;
 import tbs_game.gui.hud_elements.TurnInfo;
 import tbs_game.gui.hud_elements.UnitInfo;
+import tbs_game.hexes.HexPos;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
 

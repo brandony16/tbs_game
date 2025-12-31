@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import tbs_game.HexPos;
 import tbs_game.board.Board;
+import tbs_game.hexes.HexPos;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;

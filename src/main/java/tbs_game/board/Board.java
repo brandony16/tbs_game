@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import tbs_game.HexPos;
+import tbs_game.hexes.HexPos;
 
 public class Board {
 
@@ -42,18 +42,15 @@ public class Board {
     private void initializeTiles() {
         // Fill tile array with default terrain (PLAINS)
         // Replace with actualy generation at some point 
-        for (int q = 0; q < width; q++) {
-            for (int r = 0; r < height; r++) {
+        int top = -height / 2;
+        int bottom = height / 2;
+        int left = -width / 2;
+        int right = width / 2;
+        for (int r = top; r <= bottom; r++) { // pointy top
+            int r_offset = (int) Math.floor(r / 2.0); // or r>>1
+            for (int q = left - r_offset; q <= right - r_offset; q++) {
                 tiles.put(new HexPos(q, r), new Tile(Terrain.PLAINS));
             }
         }
-        // int q0 = -width / 2;
-        // int r0 = -height / 2;
-
-        // for (int q = q0; q < q0 + width; q++) {
-        //     for (int r = r0; r < r0 + height; r++) {
-        //         tiles.put(new HexPos(q, r), new Tile(Terrain.PLAINS));
-        //     }
-        // }
     }
 }

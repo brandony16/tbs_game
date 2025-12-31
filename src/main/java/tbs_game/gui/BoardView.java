@@ -16,9 +16,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import tbs_game.HexPos;
 import tbs_game.board.Board;
 import tbs_game.game.Game;
+import tbs_game.hexes.HexPos;
 import tbs_game.units.Unit;
 
 public class BoardView {
@@ -42,8 +42,11 @@ public class BoardView {
     private HexPos hoveredPos;
     private Consumer<HoverContext> onHoverChanged;
 
+    private final boolean showTileCoords;
+
     public BoardView(Game game) {
         this.game = game;
+        this.showTileCoords = false;
         worldRoot.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
     }
 
@@ -91,13 +94,12 @@ public class BoardView {
             Polygon hex = createHex(cx, cy);
             hex.setFill(DEFAULT_TILE_COLOR);
             hex.setStroke(Color.BLACK);
+            boardGroup.getChildren().add(hex);
 
-            Text text = new Text();
-            text.setText(pos.q() + " , " + pos.r());
-            text.setX(cx - 10);
-            text.setY(cy);
-
-            boardGroup.getChildren().addAll(hex, text);
+            if (showTileCoords) {
+                Text coord = getTileCoord(pos, cx, cy);
+                boardGroup.getChildren().add(coord);
+            }
 
             if (selectedPos != null) {
                 if (selectedPos.equals(pos)) {
@@ -162,12 +164,18 @@ public class BoardView {
         return group;
     }
 
+    private Text getTileCoord(HexPos pos, double cx, double cy) {
+        Text coord = new Text();
+        coord.setText(pos.q() + " , " + pos.r());
+        coord.setX(cx - 10);
+        coord.setY(cy);
+
+        return coord;
+    }
+
     // ----- Interaction -----
     public ClickResult handleClick(double mouseX, double mouseY) {
         HexPos clicked = getHexPosAt(mouseX, mouseY);
-        Point2D boardCoords = boardGroup.sceneToLocal(mouseX, mouseY);
-        System.out.println("BOARD COORDS:" + boardCoords.getX() + " , " + boardCoords.getY());
-        System.out.println("ADJUSTED: " + clicked.q() + " , " + clicked.r());
 
         if (!game.getBoard().isOnBoard(clicked)) {
             clearSelection();
