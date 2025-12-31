@@ -22,8 +22,8 @@ public class Game {
     private final Player player2;
     private Player currentPlayer;
 
-    public Game(int radius) {
-        this.board = new Board(radius);
+    public Game(int width, int height) {
+        this.board = new Board(width, height);
         this.units = new HashMap<>();
         this.unitsByPlayer = new HashMap<>();
         this.player1 = Player.USER;

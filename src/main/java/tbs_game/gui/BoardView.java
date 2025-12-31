@@ -14,6 +14,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import tbs_game.HexPos;
 import tbs_game.board.Board;
@@ -90,7 +91,13 @@ public class BoardView {
             Polygon hex = createHex(cx, cy);
             hex.setFill(DEFAULT_TILE_COLOR);
             hex.setStroke(Color.BLACK);
-            boardGroup.getChildren().add(hex);
+
+            Text text = new Text();
+            text.setText(pos.q() + " , " + pos.r());
+            text.setX(cx - 10);
+            text.setY(cy);
+
+            boardGroup.getChildren().addAll(hex, text);
 
             if (selectedPos != null) {
                 if (selectedPos.equals(pos)) {
@@ -158,6 +165,9 @@ public class BoardView {
     // ----- Interaction -----
     public ClickResult handleClick(double mouseX, double mouseY) {
         HexPos clicked = getHexPosAt(mouseX, mouseY);
+        Point2D boardCoords = boardGroup.sceneToLocal(mouseX, mouseY);
+        System.out.println("BOARD COORDS:" + boardCoords.getX() + " , " + boardCoords.getY());
+        System.out.println("ADJUSTED: " + clicked.q() + " , " + clicked.r());
 
         if (!game.getBoard().isOnBoard(clicked)) {
             clearSelection();

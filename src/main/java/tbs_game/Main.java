@@ -13,7 +13,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        Game game = new Game(4);
+        Game game = new Game(20, 10);
         GameGUI gui = new GameGUI(game);
 
         Scene scene = new Scene(gui.getRoot(), WINDOW_WIDTH, WINDOW_HEIGHT);

@@ -8,11 +8,13 @@ import tbs_game.HexPos;
 
 public class Board {
 
-    private final int radius;
+    private final int width;
+    private final int height;
     private final Map<HexPos, Tile> tiles;
 
-    public Board(int radius) {
-        this.radius = radius;
+    public Board(int width, int height) {
+        this.width = width;
+        this.height = height;
         this.tiles = new HashMap<>();
         initializeTiles();
     }
@@ -25,8 +27,12 @@ public class Board {
         return tiles.get(pos);
     }
 
-    public int getRadius() {
-        return radius;
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     public boolean isOnBoard(HexPos pos) {
@@ -36,13 +42,18 @@ public class Board {
     private void initializeTiles() {
         // Fill tile array with default terrain (PLAINS)
         // Replace with actualy generation at some point 
-        for (int q = -radius; q <= radius; q++) {
-            for (int r = -radius; r <= radius; r++) {
-                int s = -q - r; // "3rd" axis of hex
-                if (Math.abs(s) <= radius) {
-                    tiles.put(new HexPos(q, r), new Tile(Terrain.PLAINS));
-                }
+        for (int q = 0; q < width; q++) {
+            for (int r = 0; r < height; r++) {
+                tiles.put(new HexPos(q, r), new Tile(Terrain.PLAINS));
             }
         }
+        // int q0 = -width / 2;
+        // int r0 = -height / 2;
+
+        // for (int q = q0; q < q0 + width; q++) {
+        //     for (int r = r0; r < r0 + height; r++) {
+        //         tiles.put(new HexPos(q, r), new Tile(Terrain.PLAINS));
+        //     }
+        // }
     }
 }
