@@ -72,6 +72,8 @@ public class HudView {
         } else {
             unitInfo.setVisibility(false);
         }
+
+        nextTurn.updateTurnText(game);
     }
 
     public void hideCombatPreview() {
