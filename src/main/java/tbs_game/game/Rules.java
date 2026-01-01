@@ -14,8 +14,8 @@ public class Rules {
         if (!unit.getOwner().equals(game.getCurrentPlayer())) {
             return false; // Not this units turn
         }
-        if (other != null && other.getOwner().equals(unit.getOwner())) {
-            return false; // Moving to tile occupied by friendly unit
+        if (other != null) {
+            return false; // Moving to tile occupied by an unit
         }
         if (unit.hasAttacked() || unit.getMovementPoints() == 0) {
             return false;

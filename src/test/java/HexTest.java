@@ -1,14 +1,13 @@
 
-
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.HexPos;
 
-public class HexTests {
+public class HexTest {
     // static public void equalOffsetcoord(String name, OffsetCoord a, OffsetCoord b)
     // {
     //     if (!(a.col == b.col && a.row == b.row))
@@ -17,64 +16,64 @@ public class HexTests {
     //     }
     // }
 
-    public void equalHexArray(String name, ArrayList<HexPos> a, ArrayList<HexPos> b) {
-        assertEquals(name, a.size(), b.size());
+    public void equalHexArray(ArrayList<HexPos> a, ArrayList<HexPos> b) {
+        assertEquals(a.size(), b.size());
         for (int i = 0; i < a.size(); i++) {
-            assertEquals(name, a.get(i), b.get(i));
+            assertEquals(a.get(i), b.get(i));
         }
     }
 
     @Test
-    public void testHexArithmetic() {
-        assertEquals("hex_add", new HexPos(4, -10), new HexPos(1, -3).add(new HexPos(3, -7)));
-        assertEquals("hex_subtract", new HexPos(-2, 4), new HexPos(1, -3).subtract(new HexPos(3, -7)));
+    void testHexArithmetic() {
+        assertEquals(new HexPos(4, -10), new HexPos(1, -3).add(new HexPos(3, -7)));
+        assertEquals(new HexPos(-2, 4), new HexPos(1, -3).subtract(new HexPos(3, -7)));
     }
 
     @Test
-    public void testHexDirection() {
-        assertEquals("hex_direction", new HexPos(0, -1), HexPos.direction(2));
+    void testHexDirection() {
+        assertEquals(new HexPos(0, -1), HexPos.direction(2));
     }
 
     @Test
-    public void testHexNeighbor() {
-        assertEquals("hex_neighbor", new HexPos(1, -3), new HexPos(1, -2).neighbor(2));
+    void testHexNeighbor() {
+        assertEquals(new HexPos(1, -3), new HexPos(1, -2).neighbor(2));
     }
 
     @Test
-    public void testHexDiagonal() {
-        assertEquals("hex_diagonal", new HexPos(-1, -1), new HexPos(1, -2).diagonalNeighbor(3));
+    void testHexDiagonal() {
+        assertEquals(new HexPos(-1, -1), new HexPos(1, -2).diagonalNeighbor(3));
     }
 
     @Test
-    public void testHexDistance() {
-        assertEquals("hex_distance", 7, new HexPos(3, -7).distanceTo(new HexPos(0, 0)));
+    void testHexDistance() {
+        assertEquals(7, new HexPos(3, -7).distanceTo(new HexPos(0, 0)));
     }
 
     @Test
-    public void testHexRotateRight() {
-        assertEquals("hex_rotate_right", new HexPos(1, -3).rotateRight(), new HexPos(3, -2));
+    void testHexRotateRight() {
+        assertEquals(new HexPos(1, -3).rotateRight(), new HexPos(3, -2));
     }
 
     @Test
-    public void testHexRotateLeft() {
-        assertEquals("hex_rotate_left", new HexPos(1, -3).rotateLeft(), new HexPos(-2, -1));
+    void testHexRotateLeft() {
+        assertEquals(new HexPos(1, -3).rotateLeft(), new HexPos(-2, -1));
     }
 
     @Test
-    public void testHexRound() {
+    void testHexRound() {
         FractionalHex a = new FractionalHex(0.0, 0.0);
         FractionalHex b = new FractionalHex(1.0, -1.0);
         FractionalHex c = new FractionalHex(0.0, -1.0);
-        assertEquals("hex_round 1", new HexPos(5, -10), new FractionalHex(0.0, 0.0).hexLerp(new FractionalHex(10.0, -20.0), 0.5).hexRound());
-        assertEquals("hex_round 2", a.hexRound(), a.hexLerp(b, 0.499).hexRound());
-        assertEquals("hex_round 3", b.hexRound(), a.hexLerp(b, 0.501).hexRound());
-        assertEquals("hex_round 4", a.hexRound(), new FractionalHex(a.q * 0.4 + b.q * 0.3 + c.q * 0.3, a.r * 0.4 + b.r * 0.3 + c.r * 0.3).hexRound());
-        assertEquals("hex_round 5", c.hexRound(), new FractionalHex(a.q * 0.3 + b.q * 0.3 + c.q * 0.4, a.r * 0.3 + b.r * 0.3 + c.r * 0.4).hexRound());
+        assertEquals(new HexPos(5, -10), new FractionalHex(0.0, 0.0).hexLerp(new FractionalHex(10.0, -20.0), 0.5).hexRound());
+        assertEquals(a.hexRound(), a.hexLerp(b, 0.499).hexRound());
+        assertEquals(b.hexRound(), a.hexLerp(b, 0.501).hexRound());
+        assertEquals(a.hexRound(), new FractionalHex(a.q * 0.4 + b.q * 0.3 + c.q * 0.3, a.r * 0.4 + b.r * 0.3 + c.r * 0.3).hexRound());
+        assertEquals(c.hexRound(), new FractionalHex(a.q * 0.3 + b.q * 0.3 + c.q * 0.4, a.r * 0.3 + b.r * 0.3 + c.r * 0.4).hexRound());
     }
 
     @Test
-    public void testHexLinedraw() {
-        equalHexArray("hex_linedraw", new ArrayList<HexPos>() {
+    void testHexLinedraw() {
+        equalHexArray(new ArrayList<HexPos>() {
             {
                 add(new HexPos(0, 0));
                 add(new HexPos(0, -1));

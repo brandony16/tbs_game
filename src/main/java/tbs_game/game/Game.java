@@ -69,6 +69,10 @@ public class Game {
     }
 
     public void placeUnitAt(HexPos pos, Unit unit) {
+        if (getUnitAt(pos) != null) {
+            return;
+        }
+
         this.units.put(pos, unit);
         this.unitsByPlayer.get(unit.getOwner()).add(unit);
     }
