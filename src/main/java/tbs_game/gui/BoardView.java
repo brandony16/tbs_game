@@ -1,11 +1,13 @@
 package tbs_game.gui;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -43,10 +45,12 @@ public class BoardView {
     private Consumer<HoverContext> onHoverChanged;
 
     private final boolean showTileCoords;
+    private boolean isAnimating;
 
     public BoardView(Game game) {
         this.game = game;
         this.showTileCoords = false;
+        this.isAnimating = false;
         worldRoot.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
     }
 
@@ -175,6 +179,10 @@ public class BoardView {
 
     // ----- Interaction -----
     public ClickResult handleClick(double mouseX, double mouseY) {
+        if (isAnimating) {
+            return ClickResult.NONE;
+        }
+
         HexPos clicked = getHexPosAt(mouseX, mouseY);
 
         if (!game.getBoard().isOnBoard(clicked)) {
@@ -192,7 +200,12 @@ public class BoardView {
 
         if (selectedPos != null) {
             if (reachableHexes.contains(clicked)) {
-                animateMove(selectedPos, clicked);
+                List<HexPos> path = game.moveUnit(selectedPos, clicked);
+                if (path == null) {
+                    return ClickResult.NONE;
+                }
+
+                animateMove(path);
                 return ClickResult.MOVE_STARTED;
             }
 
@@ -219,39 +232,39 @@ public class BoardView {
         redraw();
     }
 
-    private void animateMove(HexPos from, HexPos to) {
-        Group unitElement = unitElements.get(from);
-        if (unitElement == null || !game.isValidMove(from, to)) {
-            return;
+    private void animateMove(List<HexPos> path) {
+        HexPos start = path.get(0);
+        HexPos end = path.get(path.size() - 1);
+        Group unitElement = unitElements.get(start);
+
+        SequentialTransition sequence = new SequentialTransition(unitElement);
+
+        for (int i = 1; i < path.size(); i++) {
+            HexPos a = path.get(i - 1);
+            HexPos b = path.get(i);
+
+            double dx = hexMath.hexToPixelX(b) - hexMath.hexToPixelX(a);
+            double dy = hexMath.hexToPixelY(b) - hexMath.hexToPixelY(a);
+
+            TranslateTransition tt = new TranslateTransition(Duration.millis(200));
+            tt.setByX(dx);
+            tt.setByY(dy);
+
+            sequence.getChildren().add(tt);
         }
 
-        double startX = hexMath.hexToPixelX(from);
-        double startY = hexMath.hexToPixelY(from);
-        double endX = hexMath.hexToPixelX(to);
-        double endY = hexMath.hexToPixelY(to);
+        sequence.setOnFinished(e -> {
+            unitElements.remove(start);
+            unitElements.put(end, unitElement);
 
-        TranslateTransition tt = new TranslateTransition(Duration.millis(200), unitElement);
-        tt.setFromX(0);
-        tt.setFromY(0);
-        tt.setToX(endX - startX);
-        tt.setToY(endY - startY);
-        tt.setOnFinished(e -> {
-            unitElement.setTranslateX(0);
-            unitElement.setTranslateY(0);
-            unitElement.setLayoutX(endX);
-            unitElement.setLayoutY(endY);
-
-            unitElements.remove(from);
-            unitElements.put(to, unitElement);
-
-            // Update game state after animation
-            game.moveUnit(from, to);
             clearSelection();
             redraw();
-
             onTurnResolved.run();
+            this.isAnimating = false;
         });
-        tt.play();
+
+        this.isAnimating = true;
+        sequence.play();
     }
 
     public void setOnHoverChanged(Consumer<HoverContext> handler) {

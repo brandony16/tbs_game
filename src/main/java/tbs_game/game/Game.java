@@ -3,10 +3,12 @@ package tbs_game.game;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import tbs_game.board.Board;
+import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.HexPos;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
@@ -95,29 +97,32 @@ public class Game {
         return dist <= range;
     }
 
-    public boolean moveUnit(HexPos from, HexPos to) {
+    public List<HexPos> moveUnit(HexPos from, HexPos to) {
         Unit unit = getUnitAt(from);
         if (unit == null) {
-            return false;
+            return null;
         }
         if (!unit.getOwner().equals(currentPlayer)) {
-            return false; // Not this units turn
+            return null; // Not this units turn
         }
         if (unit.hasAttacked() || unit.getMovementPoints() == 0) {
-            return false;
+            return null; // No moves available
         }
         if (!canUnitMoveDistance(unit, from, to)) {
-            return false;
+            return null;
         }
 
         Unit otherUnit = getUnitAt(to);
         if (otherUnit == null) {
             handleMove(from, to);
         } else if (!unit.getOwner().equals(otherUnit.getOwner())) {
-            handleAttack(unit, otherUnit, from, to);
+            boolean success = handleAttack(unit, otherUnit, from, to);
+            if (!success) {
+                return null;
+            }
         }
 
-        return true;
+        return FractionalHex.hexLinedraw(from, to);
     }
 
     public Set<HexPos> getReachableHexes(HexPos from) {
@@ -166,16 +171,31 @@ public class Game {
         return moveDist <= maxMoveDist;
     }
 
-    private void handleAttack(Unit attacker, Unit defender, HexPos attackSq, HexPos defenseSq) {
+    private boolean handleAttack(Unit attacker, Unit defender, HexPos attackSq, HexPos defenseSq) {
+        if (attackSq.distanceTo(defenseSq) > 1) {
+            // Move to tile next to attack. If 2 tiles away, move 1 tile closer, then attack
+            List<HexPos> tilePath = FractionalHex.hexLinedraw(attackSq, defenseSq);
+            HexPos dest = tilePath.get(tilePath.size() - 2);
+            if (!isValidMove(attackSq, dest)) {
+                return false;
+            }
+
+            handleMove(attackSq, dest);
+        }
+
         int attackDamage = attacker.getType().attackDamage;
         defender.dealDamage(attackDamage);
         attacker.markAttacked();
 
         if (defender.isDead()) {
             unitsByPlayer.get(defender.getOwner()).remove(defender);
+
+            units.remove(attackSq);
             units.remove(defenseSq);
-            handleMove(attackSq, defenseSq);
+            units.put(defenseSq, attacker);
         }
+
+        return true;
     }
 
     private void handleMove(HexPos from, HexPos to) {
@@ -201,8 +221,8 @@ public class Game {
     private void setUpGame() {
         // Line of soldiers
         for (int i = 0; i < 5; i++) {
-            Unit unit = new Unit(UnitType.SOLDIER, player1);
-            Unit aiUnit = new Unit(UnitType.SOLDIER, player2);
+            Unit unit = new Unit(UnitType.CAVALRY, player1);
+            Unit aiUnit = new Unit(UnitType.CAVALRY, player2);
             placeUnitAt(new HexPos(i - 4, 4), unit);
             placeUnitAt(new HexPos(i, -4), aiUnit);
         }
