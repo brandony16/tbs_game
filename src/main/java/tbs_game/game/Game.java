@@ -3,12 +3,10 @@ package tbs_game.game;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import tbs_game.board.Board;
-import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.HexPos;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
@@ -20,6 +18,9 @@ public class Game {
     private final Map<HexPos, Unit> units;
     private final Map<Player, Set<Unit>> unitsByPlayer;
 
+    private final Movement movement;
+    private final Combat combat;
+
     private final Player player1;
     private final Player player2;
     private Player currentPlayer;
@@ -28,14 +29,16 @@ public class Game {
         this.board = new Board(width, height);
         this.units = new HashMap<>();
         this.unitsByPlayer = new HashMap<>();
+
+        this.movement = new Movement();
+        this.combat = new Combat();
+
         this.player1 = Player.USER;
         this.player2 = Player.AI;
         this.currentPlayer = player1;
 
         unitsByPlayer.put(player1, new HashSet<>());
         unitsByPlayer.put(player2, new HashSet<>());
-
-        setUpGame();
     }
 
     public Board getBoard() {
@@ -44,6 +47,17 @@ public class Game {
 
     public Player getCurrentPlayer() {
         return this.currentPlayer;
+    }
+
+    public Player getPlayer(int i) {
+        if (i == 1) {
+            return this.player1;
+        }
+        if (i == 2) {
+            return this.player2;
+        }
+
+        return null;
     }
 
     public Collection<HexPos> getUnitPositions() {
@@ -59,91 +73,60 @@ public class Game {
         this.unitsByPlayer.get(unit.getOwner()).add(unit);
     }
 
-    public boolean isValidMove(HexPos from, HexPos to) {
-        Unit unit = getUnitAt(from);
-        Unit other = getUnitAt(to);
-        if (unit == null) {
-            return false;
+    public void removeUnitAt(HexPos pos) {
+        Unit unit = units.remove(pos);
+        if (unit != null) {
+            unitsByPlayer.get(unit.getOwner()).remove(unit);
         }
-        if (!unit.getOwner().equals(currentPlayer)) {
-            return false; // Not this units turn
-        }
-        if (other != null && other.getOwner().equals(unit.getOwner())) {
-            return false; // Moving to tile occupied by friendly unit
-        }
-        if (unit.hasAttacked() || unit.getMovementPoints() == 0) {
-            return false;
-        }
+    }
 
-        // Distance check
-        return canUnitMoveDistance(unit, from, to);
+    public void captureUnit(HexPos attackerPos, HexPos defenderPos) {
+        removeUnitAt(defenderPos);
+        moveUnitInternal(attackerPos, defenderPos);
+    }
+
+    public void moveUnitInternal(HexPos from, HexPos to) {
+        Unit unit = units.remove(from);
+        units.put(to, unit);
+    }
+
+    public boolean canMove(HexPos from, HexPos to) {
+        return Rules.canMove(this, from, to);
     }
 
     public boolean canAttack(HexPos attackFrom, HexPos attackTo) {
-        Unit unit = getUnitAt(attackFrom);
-        Unit other = getUnitAt(attackTo);
-        if (unit == null || other == null) {
-            return false;
-        }
-        if (unit.getOwner().equals(other.getOwner())) {
-            return false;
-        }
-        if (unit.hasAttacked()) {
-            return false;
-        }
-
-        int range = unit.getType().attackRange;
-        int dist = attackFrom.distanceTo(attackTo);
-        return dist <= range;
+        return Rules.canAttack(this, attackFrom, attackTo);
     }
 
-    public List<HexPos> moveUnit(HexPos from, HexPos to) {
-        Unit unit = getUnitAt(from);
-        if (unit == null) {
-            return null;
-        }
-        if (!unit.getOwner().equals(currentPlayer)) {
-            return null; // Not this units turn
-        }
-        if (unit.hasAttacked() || unit.getMovementPoints() == 0) {
-            return null; // No moves available
-        }
-        if (!canUnitMoveDistance(unit, from, to)) {
-            return null;
+    public boolean canPerform(ActionType action, HexPos from, HexPos to) {
+        return switch (action) {
+            case MOVE ->
+                canMove(from, to);
+            case ATTACK ->
+                canAttack(from, to);
+        };
+    }
+
+    public boolean moveUnit(HexPos from, HexPos to) {
+        if (!Rules.canMove(this, from, to)) {
+            return false;
         }
 
-        Unit otherUnit = getUnitAt(to);
-        if (otherUnit == null) {
-            handleMove(from, to);
-        } else if (!unit.getOwner().equals(otherUnit.getOwner())) {
-            boolean success = handleAttack(unit, otherUnit, from, to);
-            if (!success) {
-                return null;
-            }
+        movement.move(this, from, to);
+        return true;
+    }
+
+    public boolean attackUnit(HexPos from, HexPos to) {
+        if (!Rules.canAttack(this, from, to)) {
+            return false;
         }
 
-        return FractionalHex.hexLinedraw(from, to);
+        combat.attack(this, from, to);
+        return true;
     }
 
     public Set<HexPos> getReachableHexes(HexPos from) {
-        Set<HexPos> reachableHexes = new HashSet<>();
-
-        // Confirm a unit is at the tile
-        Unit unit = units.get(from);
-        if (unit == null) {
-            return reachableHexes;
-        }
-
-        int range = unit.getMovementPoints();
-
-        // See if each hex is in range of the unit
-        for (HexPos pos : board.getPositions()) {
-            if (from.distanceTo(pos) <= range && !isFriendly(pos, unit.getOwner())) {
-                reachableHexes.add(pos);
-            }
-        }
-
-        return reachableHexes;
+        return movement.getReachableHexes(this, from);
     }
 
     public boolean canEndTurn() {
@@ -159,57 +142,9 @@ public class Game {
         startTurn(this.currentPlayer);
     }
 
-    private boolean isFriendly(HexPos pos, Player player) {
+    public boolean isFriendly(HexPos pos, Player player) {
         Unit unit = getUnitAt(pos);
         return unit != null && unit.getOwner().equals(player);
-    }
-
-    private boolean canUnitMoveDistance(Unit unit, HexPos from, HexPos to) {
-        int maxMoveDist = unit.getMovementPoints();
-        int moveDist = from.distanceTo(to);
-
-        return moveDist <= maxMoveDist;
-    }
-
-    private boolean handleAttack(Unit attacker, Unit defender, HexPos attackSq, HexPos defenseSq) {
-        if (attackSq.distanceTo(defenseSq) > 1) {
-            // Move to tile next to attack. If 2 tiles away, move 1 tile closer, then attack
-            List<HexPos> tilePath = FractionalHex.hexLinedraw(attackSq, defenseSq);
-            HexPos dest = tilePath.get(tilePath.size() - 2);
-            if (!isValidMove(attackSq, dest)) {
-                return false;
-            }
-
-            handleMove(attackSq, dest);
-        }
-
-        int attackDamage = attacker.getType().attackDamage;
-        defender.dealDamage(attackDamage);
-        attacker.markAttacked();
-
-        if (defender.isDead()) {
-            unitsByPlayer.get(defender.getOwner()).remove(defender);
-
-            units.remove(attackSq);
-            units.remove(defenseSq);
-            units.put(defenseSq, attacker);
-        }
-
-        return true;
-    }
-
-    private void handleMove(HexPos from, HexPos to) {
-        Unit mover = units.get(from);
-        if (mover == null) {
-            return;
-        }
-
-        int dist = from.distanceTo(to);
-        mover.spendMovementPoints(dist);
-
-        // Remove unit from previous square and move it to new square
-        units.remove(from);
-        units.put(to, mover);
     }
 
     private void startTurn(Player player) {
@@ -218,7 +153,7 @@ public class Game {
         }
     }
 
-    private void setUpGame() {
+    public void setUpGame() {
         // Line of soldiers
         for (int i = 0; i < 5; i++) {
             Unit unit = new Unit(UnitType.CAVALRY, player1);

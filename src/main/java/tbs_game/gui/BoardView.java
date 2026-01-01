@@ -20,6 +20,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 import tbs_game.board.Board;
 import tbs_game.game.Game;
+import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.HexPos;
 import tbs_game.units.Unit;
 
@@ -200,11 +201,11 @@ public class BoardView {
 
         if (selectedPos != null) {
             if (reachableHexes.contains(clicked)) {
-                List<HexPos> path = game.moveUnit(selectedPos, clicked);
-                if (path == null) {
+                if (!game.moveUnit(selectedPos, clicked)) {
                     return ClickResult.NONE;
                 }
 
+                List<HexPos> path = FractionalHex.hexLinedraw(selectedPos, clicked);
                 animateMove(path);
                 return ClickResult.MOVE_STARTED;
             }
