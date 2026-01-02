@@ -1,13 +1,22 @@
 package tbs_game.player;
 
-public enum Player {
-  USER("u", "blue"),
-  AI("ai", "red");
+import javafx.scene.paint.Color;
 
-  public String symbol;
-  public String color;
+public class Player {
 
-  Player(String symbol, String color) {
-    this.symbol = symbol;
-  }
+    public String symbol;
+    public Color color;
+
+    public Player(String symbol, Color color) {
+        this.symbol = symbol;
+        this.color = color;
+    }
+
+    public String getSymbol() {
+        return this.symbol;
+    }
+
+    public Color getColor() {
+        return this.color;
+    }
 }

@@ -25,7 +25,7 @@ public class MovementTest {
 
     @BeforeEach
     void init() {
-        game = new Game(10, 10);
+        game = new Game(10, 10, 2);
         movement = new Movement();
         unitPos = new HexPos(0, 0);
     }
@@ -38,17 +38,17 @@ public class MovementTest {
     }
 
     private void setUpSoloUnit() {
-        Unit unit = new Unit(UnitType.CAVALRY, game.getPlayer(1));
+        Unit unit = new Unit(UnitType.CAVALRY, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
     }
 
     private void setUpFriendlyBlocker(HexPos pos) {
-        Unit friendly = new Unit(UnitType.CAVALRY, game.getPlayer(1));
+        Unit friendly = new Unit(UnitType.CAVALRY, game.getPlayer(0));
         game.placeUnitAt(pos, friendly);
     }
 
     private void setUpEnemyUnit(HexPos pos) {
-        Unit enemy = new Unit(UnitType.CAVALRY, game.getPlayer(2));
+        Unit enemy = new Unit(UnitType.CAVALRY, game.getPlayer(1));
         game.placeUnitAt(pos, enemy);
     }
 

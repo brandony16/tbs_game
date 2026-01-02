@@ -7,14 +7,24 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javafx.scene.paint.Color;
 import tbs_game.board.Board;
 import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.HexPos;
+import tbs_game.player.AI;
 import tbs_game.player.Player;
+import tbs_game.player.User;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
 public class Game {
+
+    public static final int SEED = 16;
+
+    private static final int MAX_PLAYERS = 10;
+    private static final int MIN_PLAYERS = 2;
+
+    private final SetupHandler setup;
 
     private final Board board;
     private final Map<HexPos, Unit> units;
@@ -23,11 +33,12 @@ public class Game {
     private final Movement movement;
     private final Combat combat;
 
-    private final Player player1;
-    private final Player player2;
-    private Player currentPlayer;
+    private final ArrayList<Player> playerList;
+    private final int numPlayers;
+    private int currentPlayerIdx;
 
-    public Game(int width, int height) {
+    public Game(int width, int height, int numPlayers) {
+        this.setup = new SetupHandler();
         this.board = new Board(width, height);
         this.units = new HashMap<>();
         this.unitsByPlayer = new HashMap<>();
@@ -35,12 +46,19 @@ public class Game {
         this.movement = new Movement();
         this.combat = new Combat();
 
-        this.player1 = Player.USER;
-        this.player2 = Player.AI;
-        this.currentPlayer = player1;
-
-        unitsByPlayer.put(player1, new HashSet<>());
-        unitsByPlayer.put(player2, new HashSet<>());
+        assert (numPlayers >= MIN_PLAYERS);
+        assert (numPlayers <= MAX_PLAYERS);
+        this.numPlayers = numPlayers;
+        playerList = new ArrayList<>(numPlayers);
+        for (int i = 0; i < numPlayers; i++) {
+            Player newPlayer = new AI("i", Color.DARKRED);
+            if (i == 0) {
+                newPlayer = new User();
+            }
+            playerList.add(newPlayer);
+            unitsByPlayer.put(newPlayer, new HashSet<>());
+        }
+        this.currentPlayerIdx = 0;
     }
 
     public Board getBoard() {
@@ -48,18 +66,15 @@ public class Game {
     }
 
     public Player getCurrentPlayer() {
-        return this.currentPlayer;
+        return playerList.get(currentPlayerIdx);
     }
 
     public Player getPlayer(int i) {
-        if (i == 1) {
-            return this.player1;
-        }
-        if (i == 2) {
-            return this.player2;
-        }
+        return playerList.get(i);
+    }
 
-        return null;
+    public int getNumPlayers() {
+        return this.numPlayers;
     }
 
     public Collection<HexPos> getUnitPositions() {
@@ -113,6 +128,7 @@ public class Game {
         };
     }
 
+    // MOVE TO SOMETHING IDK WHAT
     public boolean resolveAction(HexPos from, HexPos to) {
         if (!Rules.canDoAction(this, from, to)) {
             return false;
@@ -158,16 +174,14 @@ public class Game {
     }
 
     public boolean canEndTurn() {
-        return unitsByPlayer.get(currentPlayer)
+        return unitsByPlayer.get(getCurrentPlayer())
                 .stream()
                 .noneMatch(Unit::canAct);
     }
 
     public void endTurn() {
-        this.currentPlayer = (currentPlayer.equals(player1))
-                ? player2
-                : player1;
-        startTurn(this.currentPlayer);
+        this.currentPlayerIdx = (currentPlayerIdx + 1) % numPlayers;
+        startTurn(this.currentPlayerIdx);
     }
 
     public boolean isFriendly(HexPos pos, Player player) {
@@ -175,24 +189,33 @@ public class Game {
         return unit != null && unit.getOwner().equals(player);
     }
 
-    private void startTurn(Player player) {
+    private void startTurn(int playerIdx) {
+        Player player = playerList.get(playerIdx);
         for (Unit u : unitsByPlayer.get(player)) {
             u.resetTurnState();
         }
     }
 
-    public void setUpGame() {
+    public void setUpBattleGame() {
         // Line of soldiers
         for (int i = 0; i < 5; i++) {
-            Unit unit = new Unit(UnitType.CAVALRY, player1);
-            Unit aiUnit = new Unit(UnitType.CAVALRY, player2);
+            Unit unit = new Unit(UnitType.CAVALRY, getPlayer(0));
+            Unit aiUnit = new Unit(UnitType.CAVALRY, getPlayer(1));
             placeUnitAt(new HexPos(i - 4, 4), unit);
             placeUnitAt(new HexPos(i, -4), aiUnit);
         }
 
-        Unit unit = new Unit(UnitType.CAVALRY, player1);
-        Unit aiUnit = new Unit(UnitType.CAVALRY, player2);
+        Unit unit = new Unit(UnitType.CAVALRY, getPlayer(0));
+        Unit aiUnit = new Unit(UnitType.CAVALRY, getPlayer(1));
         placeUnitAt(new HexPos(0, 0), unit);
         placeUnitAt(new HexPos(0, 1), aiUnit);
+    }
+
+    public void setUpGame() {
+        ArrayList<HexPos> spawnLocations = setup.generateSpawnSpots(this, SEED);
+        for (int i = 0; i < numPlayers; i++) {
+            Unit settler = new Unit(UnitType.SETTLER, getPlayer(i));
+            placeUnitAt(spawnLocations.get(i), settler);
+        }
     }
 }

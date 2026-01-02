@@ -25,12 +25,12 @@ public class RulesTest {
 
     @BeforeEach
     void init() {
-        game = new Game(10, 10);
+        game = new Game(10, 10, 2);
     }
 
     @AfterEach
     void reset() {
-        this.game = new Game(10, 10);
+        this.game = new Game(10, 10, 2);
         this.unitPos = null;
         this.otherPos = null;
     }
@@ -39,7 +39,7 @@ public class RulesTest {
         reset();
 
         unitPos = new HexPos(0, 0);
-        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
     }
 
@@ -47,11 +47,11 @@ public class RulesTest {
         reset();
 
         unitPos = new HexPos(0, 0);
-        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
         otherPos = new HexPos(0, 1);
-        Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(2));
+        Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
 
@@ -59,11 +59,11 @@ public class RulesTest {
         reset();
 
         unitPos = new HexPos(0, 0);
-        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
         otherPos = new HexPos(0, 1);
-        Unit friendlyUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit friendlyUnit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(otherPos, friendlyUnit);
     }
 
@@ -159,7 +159,7 @@ public class RulesTest {
         setUpBattle();
         // Place defender out of attack range
         HexPos farPos = new HexPos(1, 1);
-        Unit distantUnit = new Unit(UnitType.SOLDIER, game.getPlayer(2));
+        Unit distantUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(farPos, distantUnit);
 
         assertFalse(Rules.canAttack(game, unitPos, farPos));
@@ -210,5 +210,78 @@ public class RulesTest {
         // Move one further than allowed
         HexPos target = new HexPos(unitPos.q() + range + 1, unitPos.r());
         assertFalse(Rules.canUnitMoveDistance(unit, unitPos, target));
+    }
+
+    // ----- canDoAction -----
+    @Test
+    void testCanDoActionNoUnitAtSource() {
+        setUpBattle();
+        HexPos empty = new HexPos(2, 2);
+        assertFalse(Rules.canDoAction(game, empty, otherPos));
+    }
+
+    @Test
+    void testCanDoActionMoveOnly() {
+        setUpSolo();
+        HexPos target = new HexPos(1, 0);
+        assertTrue(Rules.canDoAction(game, unitPos, target));
+    }
+
+    @Test
+    void testCanDoActionAttackInRange() {
+        setUpBattle();
+        assertTrue(Rules.canDoAction(game, unitPos, otherPos));
+    }
+
+    @Test
+    void testCanDoActionEnemyOutOfRangeButReachableToAttack() {
+        setUpBattle();
+
+        Unit unit = game.getUnitAt(unitPos);
+        int attackRange = unit.getType().attackRange;
+
+        // Place enemy just outside attack range
+        HexPos farEnemy = new HexPos(attackRange + 1, 0);
+        Unit enemy = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        game.placeUnitAt(farEnemy, enemy);
+
+        // Should be able to move closer and then attack
+        assertTrue(Rules.canDoAction(game, unitPos, farEnemy));
+    }
+
+    @Test
+    void testCanDoActionEnemyTooFarToReachAttackRange() {
+        setUpBattle();
+
+        Unit unit = game.getUnitAt(unitPos);
+        int attackRange = unit.getType().attackRange;
+        int moveRange = unit.getMovementPoints();
+
+        // Needs more movement than available to reach attack range
+        HexPos unreachable = new HexPos(attackRange + moveRange + 1, 0);
+        Unit enemy = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        game.placeUnitAt(unreachable, enemy);
+
+        assertFalse(Rules.canDoAction(game, unitPos, unreachable));
+    }
+
+    @Test
+    void testCanDoActionFriendlyTarget() {
+        setUpFriendly();
+        assertFalse(Rules.canDoAction(game, unitPos, otherPos));
+    }
+
+    @Test
+    void testCanDoActionWrongTurn() {
+        setUpBattle();
+        game.endTurn(); // now unitPos unit is not current player
+        assertFalse(Rules.canDoAction(game, unitPos, otherPos));
+    }
+
+    @Test
+    void testCanDoActionUnitAlreadyAttacked() {
+        setUpBattle();
+        game.getUnitAt(unitPos).markAttacked();
+        assertFalse(Rules.canDoAction(game, unitPos, otherPos));
     }
 }

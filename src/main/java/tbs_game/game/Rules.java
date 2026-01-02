@@ -31,6 +31,9 @@ public class Rules {
         if (unit == null || other == null) {
             return false;
         }
+        if (!unit.getOwner().equals(game.getCurrentPlayer())) {
+            return false; // Not this units turn
+        }
         if (unit.getOwner().equals(other.getOwner())) {
             return false;
         }
@@ -66,13 +69,16 @@ public class Rules {
             return canAttack(game, from, to);
         }
 
-        // Now just a multimove attack
+        // Not correct turn or moving to friendly unit
         if (!unit.getOwner().equals(game.getCurrentPlayer()) || unit.getOwner().equals(other.getOwner())) {
             return false;
         }
 
-        // If can move x tiles, then can move x - 1 tiles then attack
-        return canUnitMoveDistance(unit, from, to);
+        int attackRange = unit.getType().attackRange;
+        int moveRange = unit.getMovementPoints();
+
+        // Can unit move close enough to attack
+        return dist - attackRange <= moveRange;
     }
 
 }

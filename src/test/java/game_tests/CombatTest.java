@@ -23,7 +23,7 @@ public class CombatTest {
 
     @BeforeEach
     void init() {
-        game = new Game(10, 10);
+        game = new Game(10, 10, 2);
         combat = new Combat();
 
         attackerPos = new HexPos(0, 0);
@@ -39,8 +39,8 @@ public class CombatTest {
     }
 
     private Unit setUpBattle() {
-        Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(1));
-        Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(2));
+        Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(1));
 
         game.placeUnitAt(attackerPos, attacker);
         game.placeUnitAt(defenderPos, defender);
@@ -89,7 +89,7 @@ public class CombatTest {
 
         Unit defender = game.getUnitAt(defenderPos);
         assertNotNull(defender);
-        assertEquals(game.getPlayer(2), defender.getOwner());
+        assertEquals(game.getPlayer(1), defender.getOwner());
     }
 
     @Test
@@ -101,6 +101,6 @@ public class CombatTest {
 
         assertNull(game.getUnitAt(attackerPos));
         assertNotNull(game.getUnitAt(defenderPos));
-        assertEquals(game.getPlayer(1), game.getUnitAt(defenderPos).getOwner());
+        assertEquals(game.getPlayer(0), game.getUnitAt(defenderPos).getOwner());
     }
 }

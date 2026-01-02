@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import tbs_game.game.Game;
@@ -14,10 +15,15 @@ import tbs_game.units.UnitType;
 
 public class GameTest {
 
+    private Game game;
+
+    @BeforeEach
+    void init() {
+        game = new Game(10, 10, 2);
+    }
+
     @Test
     void placeUnit() {
-        Game game = new Game(10, 10);
-
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
         HexPos from = new HexPos(0, 0);
 
@@ -29,8 +35,6 @@ public class GameTest {
 
     @Test
     void moveCorrectlyUpdatesState() {
-        Game game = new Game(10, 10);
-
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
         HexPos from = new HexPos(0, 0);
         game.placeUnitAt(from, unit);
@@ -45,9 +49,7 @@ public class GameTest {
 
     @Test
     void unitCannotMoveOnOtherPlayersTurn() {
-        Game game = new Game(10, 10);
-
-        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(2));
+        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         HexPos from = new HexPos(0, 0);
         game.placeUnitAt(from, unit);
 
@@ -59,8 +61,6 @@ public class GameTest {
 
     @Test
     void unitCannotMoveWithoutMovementPoints() {
-        Game game = new Game(10, 10);
-
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
         HexPos from = new HexPos(0, 0);
         game.placeUnitAt(from, unit);
@@ -74,14 +74,12 @@ public class GameTest {
 
     @Test
     void unitCannotAttackTwiceInOneTurn() {
-        Game game = new Game(10, 10);
-
         HexPos attackerPos = new HexPos(0, 0);
-        Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(attackerPos, attacker);
 
         HexPos defenderPos = new HexPos(0, 1);
-        Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(2));
+        Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(defenderPos, defender);
 
         assertTrue(game.canAttack(attackerPos, defenderPos));
@@ -93,14 +91,12 @@ public class GameTest {
 
     @Test
     void killingAUnitRemovesItFromBoard() {
-        Game game = new Game(10, 10);
-
         HexPos attackerPos = new HexPos(0, 0);
-        Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(attackerPos, attacker);
 
         HexPos defenderPos = new HexPos(0, 1);
-        Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(2));
+        Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(defenderPos, defender);
 
         defender.dealDamage(defender.getHealth());
@@ -115,8 +111,6 @@ public class GameTest {
 
     @Test
     void endingTurnResetsUnits() {
-        Game game = new Game(10, 10);
-
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
         HexPos from = new HexPos(0, 0);
         game.placeUnitAt(from, unit);

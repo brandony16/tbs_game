@@ -27,7 +27,6 @@ import tbs_game.units.Unit;
 public class BoardView {
 
     private static final int TILE_RADIUS = 40;
-    private static final Color DEFAULT_TILE_COLOR = Color.GREEN;
     private final HexMath hexMath = new HexMath(TILE_RADIUS);
 
     private final Game game;
@@ -97,7 +96,7 @@ public class BoardView {
             double cy = hexMath.hexToPixelY(pos);
 
             Polygon hex = createHex(cx, cy);
-            hex.setFill(DEFAULT_TILE_COLOR);
+            hex.setFill(board.getTile(pos).getTerrain().color);
             hex.setStroke(Color.BLACK);
             boardGroup.getChildren().add(hex);
 
@@ -150,7 +149,7 @@ public class BoardView {
         Unit unit = game.getUnitAt(pos);
 
         Circle body = new Circle(cx, cy, TILE_RADIUS * 0.35);
-        body.setFill(unit.getOwner() == tbs_game.player.Player.USER ? Color.BLUE : Color.RED);
+        body.setFill(unit.getOwner().color);
         body.setStroke(Color.BLACK);
 
         double barWidth = TILE_RADIUS * 0.6;

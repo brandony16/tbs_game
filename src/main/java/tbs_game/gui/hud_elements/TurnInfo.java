@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import tbs_game.gui.HudView;
 import tbs_game.player.Player;
+import tbs_game.player.User;
 
 public class TurnInfo {
 
@@ -22,8 +23,8 @@ public class TurnInfo {
     }
 
     public void updateInfo(Player current) {
-        turnText.setText("Player Turn: " + current.name());
-        turnText.setFill(current == Player.USER ? Color.BLACK : Color.DARKRED);
+        turnText.setText("Player Turn: " + current.symbol);
+        turnText.setFill(current.getClass().equals(User.class) ? Color.BLACK : Color.DARKRED);
     }
 
     private void initTurnHUD() {
