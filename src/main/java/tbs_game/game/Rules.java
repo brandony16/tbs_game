@@ -50,4 +50,29 @@ public class Rules {
         return moveDist <= maxMoveDist;
     }
 
+    public static boolean canDoAction(Game game, HexPos from, HexPos to) {
+        Unit unit = game.getUnitAt(from);
+        Unit other = game.getUnitAt(to);
+
+        if (unit == null) {
+            return false;
+        }
+        if (other == null) {
+            return canMove(game, from, to);
+        }
+
+        int dist = from.distanceTo(to);
+        if (dist <= unit.getType().attackRange) {
+            return canAttack(game, from, to);
+        }
+
+        // Now just a multimove attack
+        if (!unit.getOwner().equals(game.getCurrentPlayer()) || unit.getOwner().equals(other.getOwner())) {
+            return false;
+        }
+
+        // If can move x tiles, then can move x - 1 tiles then attack
+        return canUnitMoveDistance(unit, from, to);
+    }
+
 }

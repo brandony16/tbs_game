@@ -201,7 +201,7 @@ public class BoardView {
 
         if (selectedPos != null) {
             if (reachableHexes.contains(clicked)) {
-                if (!game.moveUnit(selectedPos, clicked)) {
+                if (!game.resolveAction(selectedPos, clicked)) {
                     return ClickResult.NONE;
                 }
 

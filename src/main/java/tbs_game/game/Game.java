@@ -1,5 +1,6 @@
 package tbs_game.game;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import tbs_game.board.Board;
+import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.HexPos;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
@@ -109,6 +111,28 @@ public class Game {
             case ATTACK ->
                 canAttack(from, to);
         };
+    }
+
+    public boolean resolveAction(HexPos from, HexPos to) {
+        if (!Rules.canDoAction(this, from, to)) {
+            return false;
+        }
+
+        int dist = from.distanceTo(to);
+        Unit defender = getUnitAt(to);
+        if (defender == null) {
+            return moveUnit(from, to);
+        }
+        if (dist == 1) {
+            return attackUnit(from, to);
+        }
+
+        ArrayList<HexPos> path = FractionalHex.hexLinedraw(from, to);
+        HexPos penultimatePos = path.get(path.size() - 2);
+        if (!moveUnit(from, penultimatePos)) {
+            return false;
+        }
+        return attackUnit(penultimatePos, to);
     }
 
     public boolean moveUnit(HexPos from, HexPos to) {
