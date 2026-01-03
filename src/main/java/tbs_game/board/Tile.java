@@ -4,7 +4,7 @@ public class Tile {
 
     private Terrain terrain;
 
-    Tile(Terrain terrain) {
+    public Tile(Terrain terrain) {
         this.terrain = terrain;
     }
 

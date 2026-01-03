@@ -34,6 +34,10 @@ public class Board {
         return tiles.get(pos);
     }
 
+    public Tile putTile(HexPos pos, Tile tile) {
+        return tiles.put(pos, tile);
+    }
+
     public int getWidth() {
         return width;
     }

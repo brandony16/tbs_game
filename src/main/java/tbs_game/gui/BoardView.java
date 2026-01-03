@@ -20,6 +20,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 import tbs_game.board.Board;
 import tbs_game.game.Game;
+import tbs_game.game.SetupHandler;
 import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.HexPos;
 import tbs_game.units.Unit;
@@ -44,14 +45,21 @@ public class BoardView {
     private HexPos hoveredPos;
     private Consumer<HoverContext> onHoverChanged;
 
-    private final boolean showTileCoords;
+    private boolean showTileCoords;
+    private boolean showSpawnScore;
     private boolean isAnimating;
 
     public BoardView(Game game) {
         this.game = game;
         this.showTileCoords = false;
+        this.showSpawnScore = true;
         this.isAnimating = false;
         worldRoot.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
+    }
+
+    public void showDebug() {
+        this.showTileCoords = true;
+        this.showSpawnScore = true;
     }
 
     public Group getWorldRoot() {
@@ -103,6 +111,9 @@ public class BoardView {
             if (showTileCoords) {
                 Text coord = getTileCoord(pos, cx, cy);
                 boardGroup.getChildren().add(coord);
+            } else if (showSpawnScore) {
+                Text spawnScore = getSpawnScore(pos, cx, cy);
+                boardGroup.getChildren().add(spawnScore);
             }
 
             if (selectedPos != null) {
@@ -175,6 +186,20 @@ public class BoardView {
         coord.setY(cy);
 
         return coord;
+    }
+
+    private Text getSpawnScore(HexPos pos, double cx, double cy) {
+        Text score = new Text();
+        int spawnScore = SetupHandler.getSpawnScore(pos, game.getBoard());
+        if (spawnScore == Integer.MIN_VALUE) {
+            return score;
+        }
+        
+        score.setText("" + spawnScore);
+        score.setX(cx - 10);
+        score.setY(cy);
+
+        return score;
     }
 
     // ----- Interaction -----
