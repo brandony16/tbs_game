@@ -79,6 +79,10 @@ public class SetupHandler {
         if (!tile.getTerrain().passable) {
             return false;
         }
+        if (board.getHeight() < 10) {
+            return true; // Very small board - dont restrict vertical spawns
+        }
+
         int distToEdge = board.getHeight() / 2;
         int maxEquatorDist = distToEdge - MIN_EDGE_DIST;
         return Math.abs(pos.r()) <= maxEquatorDist;
