@@ -20,7 +20,7 @@ public class HexMath {
     }
 
     public HexPos pixelToHex(double x, double y) {
-        double q = (Math.sqrt(3) / 3 * x - 1.0 / 3 * y) / TILE_RADIUS;
+        double q = (SQRT3 / 3 * x - 1.0 / 3 * y) / TILE_RADIUS;
         double r = (2.0 / 3 * y) / TILE_RADIUS;
         return hexRound(q, r);
     }

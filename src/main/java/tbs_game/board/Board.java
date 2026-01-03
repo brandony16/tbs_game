@@ -1,5 +1,6 @@
 package tbs_game.board;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +49,26 @@ public class Board {
 
     public boolean isOnBoard(HexPos pos) {
         return tiles.get(pos) != null;
+    }
+
+    public ArrayList<HexPos> getNeighbors(HexPos pos) {
+        ArrayList<HexPos> neighbors = new ArrayList<>();
+
+        for (HexPos dir : HexPos.directions) {
+            HexPos neighbor = pos.add(dir);
+            if (isOnBoard(neighbor)) {
+                neighbors.add(neighbor);
+            }
+        }
+
+        return neighbors;
+    }
+
+    public void makeAllPlains() {
+        for (Map.Entry<HexPos, Tile> entry : tiles.entrySet()) {
+            Tile tile = entry.getValue();
+            tile.setTerrain(Terrain.PLAINS);
+        }
     }
 
     private void initializeTiles() {

@@ -26,6 +26,7 @@ public class MovementTest {
     @BeforeEach
     void init() {
         game = new Game(10, 10, 2);
+        game.getBoard().makeAllPlains(); // Make the whole map a plains map;
         movement = new Movement();
         unitPos = new HexPos(0, 0);
     }

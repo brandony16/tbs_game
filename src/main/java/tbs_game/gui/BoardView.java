@@ -13,8 +13,10 @@ import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
@@ -51,8 +53,8 @@ public class BoardView {
 
     public BoardView(Game game) {
         this.game = game;
-        this.showTileCoords = false;
-        this.showSpawnScore = true;
+        this.showTileCoords = true;
+        this.showSpawnScore = false;
         this.isAnimating = false;
         worldRoot.getChildren().addAll(boardGroup, highlightGroup, unitGroup);
     }
@@ -99,6 +101,7 @@ public class BoardView {
 
         Board board = game.getBoard();
 
+
         for (HexPos pos : board.getPositions()) {
             double cx = hexMath.hexToPixelX(pos);
             double cy = hexMath.hexToPixelY(pos);
@@ -126,19 +129,44 @@ public class BoardView {
                     outline.setMouseTransparent(true);
                     highlightGroup.getChildren().add(outline);
                 } else if (reachableHexes.contains(pos)) {
-                    Polygon highlight = createHex(cx, cy);
-                    highlight.setFill(Color.rgb(0, 0, 0, 0.3));
-                    Unit selectedUnit = game.getUnitAt(selectedPos);
-                    Unit unitInRange = game.getUnitAt(pos);
-                    if (unitInRange != null && !selectedUnit.getOwner().equals(unitInRange.getOwner())) {
-                        highlight.setStroke(Color.RED);
-                        highlight.setStrokeWidth(2);
-                        highlight.setStrokeType(StrokeType.INSIDE);
+
+                    Point2D[] corners = hexCorners(cx, cy);
+
+                    for (int edge = 0; edge < 6; edge++) {
+                        HexPos neighbor = pos.neighbor(edge);
+
+                        if (reachableHexes.contains(neighbor)) {
+                            continue; // interior edge
+                        }
+
+                        Point2D a = corners[edge];
+                        Point2D b = corners[(edge + 1) % 6];
+
+                        Line line = new Line(a.getX(), a.getY(), b.getX(), b.getY());
+                        line.setStroke(Color.LIGHTBLUE);
+                        line.setStrokeWidth(4);
+                        line.setStrokeLineCap(StrokeLineCap.ROUND);
+
+                        highlightGroup.getChildren().add(line);
                     }
-                    highlightGroup.getChildren().add(highlight);
                 }
             }
         }
+    }
+
+    private void debug() {
+        // Throw somewhere to debug something when necessary
+    }
+
+    private Point2D[] hexCorners(double cx, double cy) {
+        Point2D[] corners = new Point2D[6];
+        for (int i = 0; i < 6; i++) {
+            double angleRad = Math.toRadians(60 * i - 30);
+            double x = cx + TILE_RADIUS * Math.cos(angleRad);
+            double y = cy - TILE_RADIUS * Math.sin(angleRad);
+            corners[i] = new Point2D(x, y);
+        }
+        return corners;
     }
 
     private void drawUnits() {
@@ -194,7 +222,7 @@ public class BoardView {
         if (spawnScore == Integer.MIN_VALUE) {
             return score;
         }
-        
+
         score.setText("" + spawnScore);
         score.setX(cx - 10);
         score.setY(cy);
@@ -248,6 +276,7 @@ public class BoardView {
     private void selectPos(HexPos pos) {
         this.selectedPos = pos;
         this.reachableHexes = game.getReachableHexes(pos);
+        this.reachableHexes.add(pos); // Include current pos
         redraw();
     }
 
