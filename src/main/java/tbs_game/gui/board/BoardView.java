@@ -13,7 +13,6 @@ import tbs_game.gui.Camera;
 import tbs_game.gui.ClickResult;
 import tbs_game.gui.HexMath;
 import tbs_game.gui.HoverContext;
-import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.HexPos;
 import tbs_game.units.Unit;
 
@@ -25,12 +24,11 @@ public class BoardView {
     private final Camera camera = new Camera();
 
     private final Group worldRoot = new Group(); // all board content
-    
+
     private final BoardLayer boardLayer;
     private final HighlightLayer highlightLayer;
     private final UnitLayer unitLayer;
     private final DebugLayer debugLayer;
-
 
     private HexPos selectedPos;
     private Set<HexPos> reachableHexes = Set.of();
@@ -125,7 +123,7 @@ public class BoardView {
                     return ClickResult.NONE;
                 }
 
-                List<HexPos> path = FractionalHex.hexLinedraw(selectedPos, clicked);
+                List<HexPos> path = game.getMoveCache().get(selectedPos, clicked).path;
                 animateMove(path);
                 return ClickResult.MOVE_STARTED;
             }
@@ -145,12 +143,14 @@ public class BoardView {
         this.selectedPos = pos;
         this.reachableHexes = game.getReachableHexes(pos);
         this.reachableHexes.add(pos); // Include current pos
+        game.getMoveCache().clear();
         redraw();
     }
 
     private void clearSelection() {
         this.selectedPos = null;
         this.reachableHexes = Set.of();
+        game.getMoveCache().clear();
         redraw();
     }
 
