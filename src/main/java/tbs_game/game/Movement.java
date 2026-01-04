@@ -18,13 +18,37 @@ public final class Movement {
 
     private static final int INF = Integer.MAX_VALUE / 4;
 
+    public static Move planMove(Game game, HexPos from, HexPos to) {
+        ArrayList<HexPos> path = findPath(from, to, game);
+        if (path == null) {
+            return null;
+        }
+
+        int cost = countMovementCost(path, game);
+        return new Move(from, to, path, cost);
+    }
+
     public void move(Game game, HexPos from, HexPos to) {
+        Move move = game.getMoveCache().get(from, to);
+        if (move == null) {
+            move = planMove(game, from, to);
+        }
+
         Unit mover = game.getUnitAt(from);
-        int dist = from.distanceTo(to);
+        ArrayList<HexPos> path = move.path;
+        HexPos prev = path.get(0);
+        for (int i = 1; i < path.size(); i++) {
+            HexPos step = path.get(i);
+            int cost = game.getBoard().getTile(step).moveCost();
 
-        mover.spendMovementPoints(dist);
+            if (mover.getMovementPoints() < cost) {
+                break;
+            }
 
-        game.moveUnitInternal(from, to);
+            game.moveUnitInternal(prev, step);
+            mover.spendMovementPoints(cost);
+            prev = step;
+        }
     }
 
     public Set<HexPos> getReachableHexes(Game game, HexPos from) {
@@ -84,7 +108,16 @@ public final class Movement {
      * @param end - The pos to end at
      * @return Ordered list of HexPos that represent the path found
      */
-    public ArrayList<HexPos> findPath(HexPos start, HexPos end, Game game) {
+    public static ArrayList<HexPos> findPath(HexPos start, HexPos end, Game game) {
+        if (start.distanceTo(end) == 1) { // Adjacent tiles
+            return new ArrayList<HexPos>() {
+                {
+                    add(start);
+                    add(end);
+                }
+            };
+        }
+
         Map<HexPos, HexPos> cameFrom = new HashMap<>();
         Map<HexPos, Integer> gScore = new HashMap<>();
         Map<HexPos, Integer> fScore = new HashMap<>();
@@ -129,6 +162,17 @@ public final class Movement {
         }
 
         return null; // unreachable
+    }
+
+    public static int countMovementCost(ArrayList<HexPos> path, Game game) {
+        int count = 0;
+        for (int i = 1; i < path.size(); i++) { // Skip first tile
+            HexPos pos = path.get(i);
+            int cost = game.getBoard().getTile(pos).moveCost();
+            count += cost;
+        }
+
+        return count;
     }
 
     private static int heuristic(HexPos a, HexPos b) {

@@ -75,4 +75,9 @@ public record HexPos(int q, int r) {
     public int distanceTo(HexPos other) {
         return subtract(other).length();
     }
+
+    @Override
+    public String toString() {
+        return "(" + q + ", " + r + ")";
+    }
 }

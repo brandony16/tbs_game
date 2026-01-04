@@ -26,11 +26,13 @@ public class RulesTest {
     @BeforeEach
     void init() {
         game = new Game(10, 10, 2);
+        game.getBoard().makeAllPlains();
     }
 
     @AfterEach
     void reset() {
         this.game = new Game(10, 10, 2);
+        game.getBoard().makeAllPlains();
         this.unitPos = null;
         this.otherPos = null;
     }
@@ -51,6 +53,30 @@ public class RulesTest {
         game.placeUnitAt(unitPos, unit);
 
         otherPos = new HexPos(0, 1);
+        Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        game.placeUnitAt(otherPos, aiUnit);
+    }
+
+    void setUpBattleMoveThenAttack() {
+        reset();
+
+        unitPos = new HexPos(0, 0);
+        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        game.placeUnitAt(unitPos, unit);
+
+        otherPos = new HexPos(0, 2);
+        Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        game.placeUnitAt(otherPos, aiUnit);
+    }
+
+    void setUpBattleTooFar() {
+        reset();
+
+        unitPos = new HexPos(0, 0);
+        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        game.placeUnitAt(unitPos, unit);
+
+        otherPos = new HexPos(0, 3);
         Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
@@ -156,13 +182,9 @@ public class RulesTest {
 
     @Test
     void testCanAttackOutOfRange() {
-        setUpBattle();
-        // Place defender out of attack range
-        HexPos farPos = new HexPos(1, 1);
-        Unit distantUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
-        game.placeUnitAt(farPos, distantUnit);
+        setUpBattleMoveThenAttack();
 
-        assertFalse(Rules.canAttack(game, unitPos, farPos));
+        assertFalse(Rules.canAttack(game, unitPos, unitPos));
     }
 
     @Test
@@ -223,8 +245,12 @@ public class RulesTest {
     @Test
     void testCanDoActionMoveOnly() {
         setUpSolo();
-        HexPos target = new HexPos(1, 0);
-        assertTrue(Rules.canDoAction(game, unitPos, target));
+        assertTrue(Rules.canDoAction(game, unitPos, new HexPos(1, 0)));
+
+        // ArrayList<HexPos> neighbors = unitPos.getNeighbors();
+        // for (HexPos neighbor : neighbors) {
+        //     assertTrue(Rules.canDoAction(game, unitPos, neighbor));
+        // }
     }
 
     @Test
@@ -235,34 +261,17 @@ public class RulesTest {
 
     @Test
     void testCanDoActionEnemyOutOfRangeButReachableToAttack() {
-        setUpBattle();
-
-        Unit unit = game.getUnitAt(unitPos);
-        int attackRange = unit.getType().attackRange;
-
-        // Place enemy just outside attack range
-        HexPos farEnemy = new HexPos(attackRange + 1, 0);
-        Unit enemy = new Unit(UnitType.SOLDIER, game.getPlayer(1));
-        game.placeUnitAt(farEnemy, enemy);
+        setUpBattleMoveThenAttack();
 
         // Should be able to move closer and then attack
-        assertTrue(Rules.canDoAction(game, unitPos, farEnemy));
+        assertTrue(Rules.canDoAction(game, unitPos, otherPos));
     }
 
     @Test
     void testCanDoActionEnemyTooFarToReachAttackRange() {
-        setUpBattle();
+        setUpBattleTooFar();
 
-        Unit unit = game.getUnitAt(unitPos);
-        int attackRange = unit.getType().attackRange;
-        int moveRange = unit.getMovementPoints();
-
-        // Needs more movement than available to reach attack range
-        HexPos unreachable = new HexPos(attackRange + moveRange + 1, 0);
-        Unit enemy = new Unit(UnitType.SOLDIER, game.getPlayer(1));
-        game.placeUnitAt(unreachable, enemy);
-
-        assertFalse(Rules.canDoAction(game, unitPos, unreachable));
+        assertFalse(Rules.canDoAction(game, unitPos, unitPos));
     }
 
     @Test

@@ -26,15 +26,8 @@ class SetupTest {
     @BeforeEach
     void setUp() {
         game = new Game(7, 7, 3); // 3 players
+        game.getBoard().makeAllPlains();
         board = game.getBoard();
-
-        // Create a simple 7x7 land grid
-        for (int q = -3; q <= 3; q++) {
-            for (int r = -3; r <= 3; r++) {
-                HexPos pos = new HexPos(q, r);
-                board.putTile(pos, new Tile(Terrain.PLAINS));
-            }
-        }
 
         setup = new SetupHandler();
     }

@@ -24,6 +24,8 @@ public class CombatTest {
     @BeforeEach
     void init() {
         game = new Game(10, 10, 2);
+        game.getBoard().makeAllPlains();
+
         combat = new Combat();
 
         attackerPos = new HexPos(0, 0);

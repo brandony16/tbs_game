@@ -31,6 +31,8 @@ public class Game {
     private final Map<Player, Set<Unit>> unitsByPlayer;
 
     private final Movement movement;
+    private MoveCache moveCache = new MoveCache();
+
     private final Combat combat;
 
     private final ArrayList<Player> playerList;
@@ -126,6 +128,10 @@ public class Game {
             case ATTACK ->
                 canAttack(from, to);
         };
+    }
+
+    public MoveCache getMoveCache() {
+        return this.moveCache;
     }
 
     // MOVE TO SOMETHING IDK WHAT

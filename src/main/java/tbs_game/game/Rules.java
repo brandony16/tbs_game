@@ -1,6 +1,7 @@
 package tbs_game.game;
 
 import tbs_game.hexes.HexPos;
+import tbs_game.units.AttackType;
 import tbs_game.units.Unit;
 
 public class Rules {
@@ -21,14 +22,27 @@ public class Rules {
             return false;
         }
 
-        // Distance check
-        return canUnitMoveDistance(unit, from, to);
+        // Determine if there is a path
+        Move move = Movement.planMove(game, from, to);
+        if (move == null) {
+            return false;
+        }
+
+        if (move.cost > unit.getMovementPoints()) {
+            return false;
+        }
+
+        game.getMoveCache().store(move);
+        return true;
     }
 
     public static boolean canAttack(Game game, HexPos attackFrom, HexPos attackTo) {
         Unit unit = game.getUnitAt(attackFrom);
         Unit other = game.getUnitAt(attackTo);
         if (unit == null || other == null) {
+            return false;
+        }
+        if (unit.getAttackType() == AttackType.NONE) {
             return false;
         }
         if (!unit.getOwner().equals(game.getCurrentPlayer())) {
@@ -40,7 +54,11 @@ public class Rules {
         if (unit.hasAttacked()) {
             return false;
         }
+        if (unit.getAttackType() == AttackType.MELEE) {
+            return unit.getMovementPoints() >= game.getBoard().getTile(attackTo).moveCost();
+        }
 
+        // Ranged attack
         int range = unit.getType().attackRange;
         int dist = attackFrom.distanceTo(attackTo);
         return dist <= range;
@@ -64,21 +82,32 @@ public class Rules {
             return canMove(game, from, to);
         }
 
-        int dist = from.distanceTo(to);
-        if (dist <= unit.getType().attackRange) {
-            return canAttack(game, from, to);
-        }
-
         // Not correct turn or moving to friendly unit
         if (!unit.getOwner().equals(game.getCurrentPlayer()) || unit.getOwner().equals(other.getOwner())) {
             return false;
         }
 
-        int attackRange = unit.getType().attackRange;
-        int moveRange = unit.getMovementPoints();
+        int dist = from.distanceTo(to);
+        if (dist <= unit.getType().attackRange) {
+            return canAttack(game, from, to);
+        }
 
-        // Can unit move close enough to attack
-        return dist - attackRange <= moveRange;
+        if (unit.getAttackType() == AttackType.RANGED) {
+            return false; // No moving then attacking in one move for ranged units
+        }
+        if (unit.getAttackType() == AttackType.NONE) {
+            return false;
+        }
+
+        // Melee units have to be able to move to end pos to attack that pos
+        Move move = Movement.planMove(game, from, to);
+        int moveRange = unit.getMovementPoints();
+        if (move.cost > moveRange) {
+            return false;
+        }
+
+        game.getMoveCache().store(move);
+        return true;
     }
 
 }

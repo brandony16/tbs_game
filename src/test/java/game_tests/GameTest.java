@@ -20,6 +20,7 @@ public class GameTest {
     @BeforeEach
     void init() {
         game = new Game(10, 10, 2);
+        game.getBoard().makeAllPlains();
     }
 
     @Test

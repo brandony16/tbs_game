@@ -33,6 +33,10 @@ public class Unit {
         return this.hp;
     }
 
+    public AttackType getAttackType() {
+        return this.type.attackType;
+    }
+
     public int getStrength() {
         return type.attackDamage;
     }
