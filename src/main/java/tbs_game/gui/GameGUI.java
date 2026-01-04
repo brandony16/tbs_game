@@ -2,6 +2,7 @@ package tbs_game.gui;
 
 import javafx.scene.layout.StackPane;
 import tbs_game.game.Game;
+import tbs_game.gui.board.BoardView;
 
 public class GameGUI {
 
