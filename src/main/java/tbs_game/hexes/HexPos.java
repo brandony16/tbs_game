@@ -1,6 +1,8 @@
 package tbs_game.hexes;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 public record HexPos(int q, int r) {
 
@@ -41,6 +43,14 @@ public record HexPos(int q, int r) {
 
     public HexPos neighbor(int direction) {
         return add(HexPos.direction(direction));
+    }
+
+    public ArrayList<HexPos> getNeighbors() {
+        ArrayList<HexPos> neighbors = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            neighbors.add(neighbor(i));
+        }
+        return neighbors;
     }
 
     static public ArrayList<HexPos> diagonals = new ArrayList<HexPos>() {

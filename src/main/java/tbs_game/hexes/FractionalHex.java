@@ -37,11 +37,12 @@ public class FractionalHex {
         return new FractionalHex(q * (1.0 - t) + b.q * t, r * (1.0 - t) + b.r * t);
     }
 
+    // Draws a "straight" line between two hexes
     static public ArrayList<HexPos> hexLinedraw(HexPos a, HexPos b) {
         int N = a.distanceTo(b);
         FractionalHex a_nudge = new FractionalHex(a.q() + 1e-06, a.r() + 1e-06);
         FractionalHex b_nudge = new FractionalHex(b.q() + 1e-06, b.r() + 1e-06);
-        
+
         ArrayList<HexPos> results = new ArrayList<HexPos>() {
             {
             }
