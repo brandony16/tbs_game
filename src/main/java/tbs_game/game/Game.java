@@ -224,4 +224,11 @@ public class Game {
             placeUnitAt(spawnLocations.get(i), settler);
         }
     }
+
+    public static Game allPlains(int width, int height, int numPlayers) {
+        Game game = new Game(width, height, numPlayers);
+        game.getBoard().makeAllPlains();
+
+        return game;
+    }
 }

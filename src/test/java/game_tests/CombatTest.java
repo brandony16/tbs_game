@@ -23,8 +23,7 @@ public class CombatTest {
 
     @BeforeEach
     void init() {
-        game = new Game(10, 10, 2);
-        game.getBoard().makeAllPlains();
+        game = Game.allPlains(10, 10, 2);
 
         combat = new Combat();
 

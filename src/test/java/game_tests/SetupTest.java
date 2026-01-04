@@ -25,8 +25,7 @@ class SetupTest {
 
     @BeforeEach
     void setUp() {
-        game = new Game(7, 7, 3); // 3 players
-        game.getBoard().makeAllPlains();
+        game = Game.allPlains(7, 7, 3);
         board = game.getBoard();
 
         setup = new SetupHandler();

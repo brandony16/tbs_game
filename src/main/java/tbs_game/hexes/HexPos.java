@@ -1,8 +1,6 @@
 package tbs_game.hexes;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public record HexPos(int q, int r) {
 

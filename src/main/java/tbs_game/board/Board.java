@@ -64,13 +64,6 @@ public class Board {
         return neighbors;
     }
 
-    public void makeAllPlains() {
-        for (Map.Entry<HexPos, Tile> entry : tiles.entrySet()) {
-            Tile tile = entry.getValue();
-            tile.setTerrain(Terrain.PLAINS);
-        }
-    }
-
     private void initializeTiles() {
         int top = -height / 2;
         int bottom = height / 2;
@@ -155,5 +148,20 @@ public class Board {
         }
 
         return count;
+    }
+
+    public void makeAllPlains() {
+        for (Map.Entry<HexPos, Tile> entry : tiles.entrySet()) {
+            Tile tile = entry.getValue();
+            tile.setTerrain(Terrain.PLAINS);
+        }
+    }
+
+    public void createDebugMap() {
+        makeAllPlains();
+        tiles.get(new HexPos(1, 0)).setTerrain(Terrain.PLAINS);
+        tiles.get(new HexPos(1, -1)).setTerrain(Terrain.FOREST);
+        tiles.get(new HexPos(0, -1)).setTerrain(Terrain.WATER);
+        tiles.get(new HexPos(-1, 0)).setTerrain(Terrain.MOUNTAIN);
     }
 }

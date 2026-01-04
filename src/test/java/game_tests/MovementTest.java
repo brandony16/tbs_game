@@ -19,14 +19,16 @@ import tbs_game.units.UnitType;
 
 public class MovementTest {
 
+    // All tests are under the assumption that movement cost = hex distance, 
+    // which is true on maps with tiles that all have a movement cost of 1.
+    // Tests for different terrain are in TerrainTest.
     private Game game;
     private Movement movement;
     private HexPos unitPos;
 
     @BeforeEach
     void init() {
-        game = new Game(10, 10, 2);
-        game.getBoard().makeAllPlains(); // Make the whole map a plains map;
+        game = Game.allPlains(10, 10, 2);
         movement = new Movement();
         unitPos = new HexPos(0, 0);
     }

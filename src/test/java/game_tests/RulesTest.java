@@ -25,14 +25,12 @@ public class RulesTest {
 
     @BeforeEach
     void init() {
-        game = new Game(10, 10, 2);
-        game.getBoard().makeAllPlains();
+        this.game = Game.allPlains(10, 10, 2);
     }
 
     @AfterEach
     void reset() {
-        this.game = new Game(10, 10, 2);
-        game.getBoard().makeAllPlains();
+        this.game = Game.allPlains(10, 10, 2);
         this.unitPos = null;
         this.otherPos = null;
     }
