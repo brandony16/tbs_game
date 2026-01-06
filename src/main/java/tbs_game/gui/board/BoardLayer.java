@@ -1,5 +1,9 @@
 package tbs_game.gui.board;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
@@ -49,13 +53,25 @@ public class BoardLayer {
             Node baseTerrain = TerrainRenderer.renderBaseTerrain(terrain, cx, cy);
             baseTerrain.setClip(clipHex);
 
-            Node overlayTerrain = TerrainRenderer.renderOverlayTerrain(terrain, cx, cy);
-
             baseLayer.getChildren().addAll(baseTerrain, outlineHex);
+
+            Node overlayTerrain = TerrainRenderer.renderOverlayTerrain(terrain, cx, cy);
             if (overlayTerrain != null) {
+                overlayTerrain.setUserData(cy);
                 overlayLayer.getChildren().add(overlayTerrain);
             }
-
         }
+
+        sortOverlayLayer();
+    }
+
+    private void sortOverlayLayer() {
+        List<Node> sorted = new ArrayList<>(overlayLayer.getChildren());
+
+        sorted.sort(Comparator.comparingDouble(node
+                -> (double) node.getUserData()
+        ));
+
+        overlayLayer.getChildren().setAll(sorted);
     }
 }

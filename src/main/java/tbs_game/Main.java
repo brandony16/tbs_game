@@ -14,8 +14,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         Game game = new Game(25, 15, 10);
-        // game.setUpGame();
-        game.getBoard().makeAllForest();
+        game.setUpGame();
 
         GameGUI gui = new GameGUI(game);
 

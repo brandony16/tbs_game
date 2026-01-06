@@ -23,7 +23,7 @@ public class BoardView {
     private final Game game;
     private final Camera camera = new Camera();
 
-    private final Group worldRoot = new Group(); // all board content
+    private final Group worldRoot = new Group();
 
     private final BoardLayer boardLayer;
     private final HighlightLayer highlightLayer;
@@ -81,8 +81,13 @@ public class BoardView {
         clearSelection();
     }
 
-    public void redraw() {
+    public void drawInitial() {
         boardLayer.drawBoard();
+        highlightLayer.drawHighlights(selectedPos, reachableHexes);
+        unitLayer.drawUnits();
+    }
+
+    public void redraw() {
         highlightLayer.drawHighlights(selectedPos, reachableHexes);
         unitLayer.drawUnits();
     }

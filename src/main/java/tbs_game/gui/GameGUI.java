@@ -38,7 +38,7 @@ public class GameGUI {
         root.setOnMouseMoved(e -> boardView.handleMouseMoved(e.getX(), e.getY()));
 
         hudView.initHUD();
-        boardView.redraw();
+        boardView.drawInitial();
         hudView.updateHUD(boardView.getSelected());
     }
 

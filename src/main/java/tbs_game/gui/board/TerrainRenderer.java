@@ -52,7 +52,7 @@ public final class TerrainRenderer {
                 return "/terrain/plains.png";
             }
             case MOUNTAIN -> {
-                return "/terrain/mountainBase.png";
+                return "/terrain/plains.png";
             }
             default ->
                 throw new AssertionError();
@@ -66,8 +66,8 @@ public final class TerrainRenderer {
         int targetTrees = 6;
 
         double hexRadius = BoardView.TILE_RADIUS;
-        double maxRadius = hexRadius * 0.55;   // stay mostly inside hex
-        double minDist = hexRadius * 0.35;     // spacing between trees
+        double maxRadius = hexRadius * 0.65;   // stay mostly inside hex
+        double minDist = hexRadius * 0.5;     // spacing between trees
         double verticalBias = hexRadius * 0.25;
 
         List<Point2D> placed = new ArrayList<>();
@@ -78,7 +78,6 @@ public final class TerrainRenderer {
         while (placed.size() < targetTrees && attempts < maxAttempts) {
             attempts++;
 
-            // Use sqrt for uniform area distribution
             double r = Math.sqrt(rand.nextDouble()) * maxRadius;
             double angle = rand.nextDouble() * Math.PI * 2;
 
@@ -110,7 +109,6 @@ public final class TerrainRenderer {
 
             double scale = 0.85 + rand.nextDouble() * 0.3;
             double height = hexRadius * scale;
-
             tree.setFitHeight(height);
             tree.setPreserveRatio(true);
             tree.setSmooth(true);
@@ -137,7 +135,7 @@ public final class TerrainRenderer {
         mountain.setFitHeight(size);
 
         double x = cx - size / 2;
-        double y = cy - size / 2 - 10; // -10 so the mountain starts a bit higher
+        double y = cy - size / 2 - BoardView.TILE_RADIUS / 4;
 
         mountain.setX(x);
         mountain.setY(y);
