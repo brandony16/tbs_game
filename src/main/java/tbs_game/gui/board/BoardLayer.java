@@ -1,9 +1,11 @@
 package tbs_game.gui.board;
 
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import tbs_game.board.Board;
+import tbs_game.board.Terrain;
 import tbs_game.game.Game;
 import tbs_game.gui.HexMath;
 import tbs_game.hexes.HexPos;
@@ -30,10 +32,26 @@ public class BoardLayer {
             double cx = HexMath.hexToPixelX(pos);
             double cy = HexMath.hexToPixelY(pos);
 
-            Polygon hex = HexFactory.createHex(cx, cy);
-            hex.setFill(board.getTile(pos).getTerrain().color);
-            hex.setStroke(Color.BLACK);
-            boardRoot.getChildren().add(hex);
+            // Visible outline hex
+            Polygon outlineHex = HexFactory.createHex(cx, cy);
+            outlineHex.setFill(Color.TRANSPARENT);
+            outlineHex.setStroke(Color.BLACK);
+
+            // Separate hex for clipping
+            Polygon clipHex = HexFactory.createHex(cx, cy);
+
+            Terrain terrain = board.getTile(pos).getTerrain();
+            Node baseTerrain = TerrainRenderer.renderBaseTerrain(terrain, cx, cy);
+            baseTerrain.setClip(clipHex);
+
+            Node overlayTerrain = TerrainRenderer.renderOverlayTerrain(terrain, cx, cy);
+
+            boardRoot.getChildren().add(baseTerrain);
+            boardRoot.getChildren().add(outlineHex);
+            if (overlayTerrain != null) {
+                boardRoot.getChildren().add(overlayTerrain);
+            }
+
         }
     }
 }
