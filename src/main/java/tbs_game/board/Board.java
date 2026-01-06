@@ -157,6 +157,13 @@ public class Board {
         }
     }
 
+    public void makeAllForest() {
+        for (Map.Entry<HexPos, Tile> entry : tiles.entrySet()) {
+            Tile tile = entry.getValue();
+            tile.setTerrain(Terrain.FOREST);
+        }
+    }
+
     public void createDebugMap() {
         makeAllPlains();
         tiles.get(new HexPos(1, 0)).setTerrain(Terrain.PLAINS);

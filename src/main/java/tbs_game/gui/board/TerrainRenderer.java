@@ -1,8 +1,12 @@
 package tbs_game.gui.board;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -59,21 +63,61 @@ public final class TerrainRenderer {
         Group group = new Group();
         Random rand = new Random(Objects.hash(cx, cy));
 
-        for (int i = 0; i < 5; i++) {
+        int targetTrees = 6;
+
+        double hexRadius = BoardView.TILE_RADIUS;
+        double maxRadius = hexRadius * 0.55;   // stay mostly inside hex
+        double minDist = hexRadius * 0.35;     // spacing between trees
+        double verticalBias = hexRadius * 0.25;
+
+        List<Point2D> placed = new ArrayList<>();
+
+        int attempts = 0;
+        int maxAttempts = 40;
+
+        while (placed.size() < targetTrees && attempts < maxAttempts) {
+            attempts++;
+
+            // Use sqrt for uniform area distribution
+            double r = Math.sqrt(rand.nextDouble()) * maxRadius;
+            double angle = rand.nextDouble() * Math.PI * 2;
+
+            double x = cx + r * Math.cos(angle);
+            double y = cy + r * Math.sin(angle);
+
+            y += verticalBias;
+
+            boolean tooClose = false;
+            for (Point2D p : placed) {
+                if (p.distance(x, y) < minDist) {
+                    tooClose = true;
+                    break;
+                }
+            }
+
+            if (tooClose) {
+                continue;
+            }
+
+            placed.add(new Point2D(x, y));
+        }
+
+        placed.sort(Comparator.comparingDouble(Point2D::getY));
+        for (Point2D point : placed) {
             ImageView tree = new ImageView(
                     AssetManager.getImage("/terrain/tree.png")
             );
 
-            double scale = 0.8 + rand.nextDouble() * 0.4;
-            tree.setFitWidth(BoardView.TILE_RADIUS * scale);
-            tree.setFitHeight(BoardView.TILE_RADIUS * scale);
+            double scale = 0.85 + rand.nextDouble() * 0.3;
+            double height = hexRadius * scale;
 
-            double x = cx - BoardView.TILE_RADIUS + rand.nextDouble() * BoardView.TILE_RADIUS * 2;
-            double y = cy - BoardView.TILE_RADIUS + rand.nextDouble() * BoardView.TILE_RADIUS * 2;
+            tree.setFitHeight(height);
+            tree.setPreserveRatio(true);
+            tree.setSmooth(true);
 
-            tree.setX(x);
-            tree.setY(y);
-
+            // Anchor tree to ground (bottom-center)
+            tree.setX(point.getX() - tree.getFitWidth() / 2);
+            tree.setY(point.getY() - tree.getFitHeight());
             group.getChildren().add(tree);
         }
 
@@ -93,7 +137,7 @@ public final class TerrainRenderer {
         mountain.setFitHeight(size);
 
         double x = cx - size / 2;
-        double y = cy - size / 2 - 10;
+        double y = cy - size / 2 - 10; // -10 so the mountain starts a bit higher
 
         mountain.setX(x);
         mountain.setY(y);

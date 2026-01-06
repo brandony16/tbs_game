@@ -15,8 +15,12 @@ public class BoardLayer {
     private final Game game;
     private final Group boardRoot = new Group();
 
+    private final Group baseLayer = new Group();
+    private final Group overlayLayer = new Group();
+
     public BoardLayer(Game game) {
         this.game = game;
+        boardRoot.getChildren().addAll(baseLayer, overlayLayer);
     }
 
     public Group getRoot() {
@@ -24,7 +28,8 @@ public class BoardLayer {
     }
 
     public void drawBoard() {
-        boardRoot.getChildren().clear();
+        baseLayer.getChildren().clear();
+        overlayLayer.getChildren().clear();
 
         Board board = game.getBoard();
 
@@ -46,10 +51,9 @@ public class BoardLayer {
 
             Node overlayTerrain = TerrainRenderer.renderOverlayTerrain(terrain, cx, cy);
 
-            boardRoot.getChildren().add(baseTerrain);
-            boardRoot.getChildren().add(outlineHex);
+            baseLayer.getChildren().addAll(baseTerrain, outlineHex);
             if (overlayTerrain != null) {
-                boardRoot.getChildren().add(overlayTerrain);
+                overlayLayer.getChildren().add(overlayTerrain);
             }
 
         }
