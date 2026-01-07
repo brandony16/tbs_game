@@ -4,19 +4,29 @@ import javafx.scene.paint.Color;
 
 public class Player {
 
-    public String symbol;
+    public PlayerType type;
     public Color color;
+    public AI ai;
 
-    public Player(String symbol, Color color) {
-        this.symbol = symbol;
+    public Player(PlayerType type, Color color, AI ai) {
+        this.type = type;
         this.color = color;
+        this.ai = ai;
     }
 
-    public String getSymbol() {
-        return this.symbol;
+    public PlayerType getType() {
+        return this.type;
     }
 
     public Color getColor() {
         return this.color;
+    }
+
+    public boolean isAI() {
+        return type == PlayerType.AI;
+    }
+
+    public AI getAI() {
+        return this.ai;
     }
 }

@@ -11,9 +11,9 @@ import javafx.scene.paint.Color;
 import tbs_game.board.Board;
 import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.HexPos;
-import tbs_game.player.AI;
 import tbs_game.player.Player;
-import tbs_game.player.User;
+import tbs_game.player.PlayerType;
+import tbs_game.player.RandomAI;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
@@ -29,9 +29,10 @@ public class Game {
     private final Board board;
     private final Map<HexPos, Unit> units;
     private final Map<Player, Set<Unit>> unitsByPlayer;
+    private final Map<Player, Set<HexPos>> positionsByPlayer;
 
     private final Movement movement;
-    private MoveCache moveCache = new MoveCache();
+    private final MoveCache moveCache = new MoveCache();
 
     private final Combat combat;
 
@@ -44,6 +45,7 @@ public class Game {
         this.board = new Board(width, height);
         this.units = new HashMap<>();
         this.unitsByPlayer = new HashMap<>();
+        this.positionsByPlayer = new HashMap<>();
 
         this.movement = new Movement();
         this.combat = new Combat();
@@ -53,12 +55,13 @@ public class Game {
         this.numPlayers = numPlayers;
         playerList = new ArrayList<>(numPlayers);
         for (int i = 0; i < numPlayers; i++) {
-            Player newPlayer = new AI("i", Color.DARKRED);
+            Player newPlayer = new Player(PlayerType.AI, Color.DARKRED, new RandomAI());
             if (i == 0) {
-                newPlayer = new User();
+                newPlayer = new Player(PlayerType.USER, Color.BLUE, null);
             }
             playerList.add(newPlayer);
             unitsByPlayer.put(newPlayer, new HashSet<>());
+            positionsByPlayer.put(newPlayer, new HashSet<>());
         }
         this.currentPlayerIdx = 0;
     }
@@ -69,6 +72,10 @@ public class Game {
 
     public Player getCurrentPlayer() {
         return playerList.get(currentPlayerIdx);
+    }
+
+    public Set<HexPos> getPositionsForPlayer(Player player) {
+        return positionsByPlayer.get(player);
     }
 
     public Player getPlayer(int i) {
@@ -94,12 +101,14 @@ public class Game {
 
         this.units.put(pos, unit);
         this.unitsByPlayer.get(unit.getOwner()).add(unit);
+        this.positionsByPlayer.get(unit.getOwner()).add(pos);
     }
 
     public void removeUnitAt(HexPos pos) {
         Unit unit = units.remove(pos);
         if (unit != null) {
             unitsByPlayer.get(unit.getOwner()).remove(unit);
+            positionsByPlayer.get(unit.getOwner()).remove(pos);
         }
     }
 
@@ -111,6 +120,8 @@ public class Game {
     public void moveUnitInternal(HexPos from, HexPos to) {
         Unit unit = units.remove(from);
         units.put(to, unit);
+        positionsByPlayer.get(unit.getOwner()).remove(from);
+        positionsByPlayer.get(unit.getOwner()).add(to);
     }
 
     public boolean canMove(HexPos from, HexPos to) {
@@ -182,10 +193,14 @@ public class Game {
     public boolean canEndTurn() {
         return unitsByPlayer.get(getCurrentPlayer())
                 .stream()
-                .noneMatch(Unit::canAct);
+                .allMatch(Unit::hasActed);
     }
 
     public void endTurn() {
+        if (!canEndTurn()) {
+            return;
+        }
+
         this.currentPlayerIdx = (currentPlayerIdx + 1) % numPlayers;
         startTurn(this.currentPlayerIdx);
     }
@@ -199,6 +214,10 @@ public class Game {
         Player player = playerList.get(playerIdx);
         for (Unit u : unitsByPlayer.get(player)) {
             u.resetTurnState();
+        }
+
+        if (player.isAI()) {
+            player.getAI().doTurn(this, player);
         }
     }
 

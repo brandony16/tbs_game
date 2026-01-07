@@ -244,11 +244,6 @@ public class RulesTest {
     void testCanDoActionMoveOnly() {
         setUpSolo();
         assertTrue(Rules.canDoAction(game, unitPos, new HexPos(1, 0)));
-
-        // ArrayList<HexPos> neighbors = unitPos.getNeighbors();
-        // for (HexPos neighbor : neighbors) {
-        //     assertTrue(Rules.canDoAction(game, unitPos, neighbor));
-        // }
     }
 
     @Test
@@ -281,8 +276,9 @@ public class RulesTest {
     @Test
     void testCanDoActionWrongTurn() {
         setUpBattle();
-        game.endTurn(); // now unitPos unit is not current player
-        assertFalse(Rules.canDoAction(game, unitPos, otherPos));
+
+        // other unit trying to attack
+        assertFalse(Rules.canDoAction(game, otherPos, unitPos));
     }
 
     @Test

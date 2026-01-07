@@ -49,6 +49,10 @@ public class Unit {
         return this.remainingMovementPoints;
     }
 
+    public boolean hasActed() {
+        return this.remainingMovementPoints != this.maxMovementPoints;
+    }
+
     public boolean hasAttacked() {
         return this.hasAttacked;
     }

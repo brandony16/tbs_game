@@ -1,10 +1,9 @@
 package tbs_game.player;
 
-import javafx.scene.paint.Color;
+import tbs_game.game.Game;
 
-public class AI extends Player {
+public interface AI {
 
-    public AI(String symbol, Color color) {
-        super(symbol, color);
-    }
+    public void doTurn(Game game, Player player);
+
 }

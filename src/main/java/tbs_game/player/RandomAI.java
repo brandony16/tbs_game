@@ -1,0 +1,34 @@
+package tbs_game.player;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+import tbs_game.game.Game;
+import tbs_game.hexes.HexPos;
+
+public class RandomAI implements AI {
+
+    Random random = new Random(Game.SEED * 7);
+
+    public RandomAI() {
+
+    }
+
+    @Override
+    public void doTurn(Game game, Player player) {
+        ArrayList<HexPos> unitPositions = new ArrayList<>(game.getPositionsForPlayer(player));
+
+        for (HexPos pos : unitPositions) {
+            ArrayList<HexPos> reachable = new ArrayList<>(game.getReachableHexes(pos));
+            int randIdx = random.nextInt(reachable.size());
+            HexPos dest = reachable.get(randIdx);
+            game.moveUnit(pos, dest);
+        }
+
+        if (!game.canEndTurn()) {
+            throw new Error("Cannot end turn");
+        }
+
+        game.endTurn();
+    }
+}
