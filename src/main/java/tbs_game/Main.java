@@ -12,6 +12,8 @@ public class Main extends Application {
     private static final int WINDOW_WIDTH = 1960;
     private static final int WINDOW_HEIGHT = 1080;
 
+    private boolean isBusy = false;
+
     @Override
     public void start(Stage stage) {
         Game game = new Game(25, 15, 10);
@@ -31,11 +33,15 @@ public class Main extends Application {
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if (game.getActionQueue().isEmpty()) {
+                if (game.getActionQueue().isEmpty() || isBusy) {
                     return;
                 }
 
-                game.getActionQueue().performNextAction();
+                isBusy = true;
+                game.getActionQueue().performNextAction(gui, () -> {
+                    isBusy = false;
+                    gui.updateHUD();
+                });
             }
         };
         timer.start();

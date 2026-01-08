@@ -2,6 +2,7 @@ package tbs_game.gui;
 
 import javafx.scene.layout.StackPane;
 import tbs_game.game.Game;
+import tbs_game.game.Move;
 import tbs_game.gui.board.BoardView;
 
 public class GameGUI {
@@ -44,6 +45,14 @@ public class GameGUI {
 
     public StackPane getRoot() {
         return root;
+    }
+
+    public void animateAIMove(Move move, Runnable onFinish) {
+        this.boardView.animateAIMove(move, onFinish);
+    }
+
+    public void updateHUD() {
+        hudView.updateHUD(boardView.getSelected());
     }
 
     private void handleClick(double mouseX, double mouseY) {

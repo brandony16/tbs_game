@@ -9,6 +9,7 @@ import javafx.animation.SequentialTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import tbs_game.game.Game;
+import tbs_game.game.Move;
 import tbs_game.gui.Camera;
 import tbs_game.gui.ClickResult;
 import tbs_game.gui.HexMath;
@@ -172,6 +173,27 @@ public class BoardView {
             redraw();
             onTurnResolved.run();
             this.isAnimating = false;
+        });
+
+        this.isAnimating = true;
+        sequence.play();
+    }
+
+    public void animateAIMove(Move move, Runnable onFinish) {
+        List<HexPos> path = move.path;
+        HexPos start = path.get(0);
+        HexPos end = path.get(path.size() - 1);
+
+        SequentialTransition sequence = unitLayer.buildMoveAnimation(path);
+
+        sequence.setOnFinished(e -> {
+            unitLayer.moveUnitElement(start, end);
+
+            clearSelection();
+            redraw();
+            onTurnResolved.run();
+            this.isAnimating = false;
+            onFinish.run();
         });
 
         this.isAnimating = true;

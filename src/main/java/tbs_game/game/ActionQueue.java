@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 import tbs_game.game.actions.Action;
+import tbs_game.gui.GameGUI;
 
 public class ActionQueue {
 
@@ -21,7 +22,7 @@ public class ActionQueue {
         return queue.isEmpty();
     }
 
-    public void performNextAction() {
+    public void performNextAction(GameGUI gui, Runnable onComplete) {
         if (isEmpty()) {
             return;
         }
@@ -31,6 +32,6 @@ public class ActionQueue {
             return;
         }
 
-        act.execute();
+        act.execute(gui, onComplete);
     }
 }
