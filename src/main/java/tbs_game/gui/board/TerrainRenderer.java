@@ -12,12 +12,9 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import tbs_game.board.Terrain;
-import tbs_game.game.Game;
 import tbs_game.gui.AssetManager;
 
 public final class TerrainRenderer {
-
-    private static final Random RNG = new Random(Game.SEED);
 
     public static Node renderBaseTerrain(Terrain terrain, double cx, double cy) {
         Image img = AssetManager.getImage(getBaseTerrainPath(terrain));
