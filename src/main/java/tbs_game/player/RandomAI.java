@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import tbs_game.game.Game;
+import tbs_game.game.Movement;
+import tbs_game.game.actions.Action;
+import tbs_game.game.actions.EndTurnAction;
+import tbs_game.game.actions.MoveAction;
 import tbs_game.hexes.HexPos;
 
 public class RandomAI implements AI {
@@ -22,13 +26,11 @@ public class RandomAI implements AI {
             ArrayList<HexPos> reachable = new ArrayList<>(game.getReachableHexes(pos));
             int randIdx = random.nextInt(reachable.size());
             HexPos dest = reachable.get(randIdx);
-            game.moveUnit(pos, dest);
+
+            Action move = new MoveAction(game, Movement.planMove(game, pos, dest));
+            game.getActionQueue().addAction(move);
         }
 
-        if (!game.canEndTurn()) {
-            throw new Error("Cannot end turn");
-        }
-
-        game.endTurn();
+        game.getActionQueue().addAction(new EndTurnAction(game));
     }
 }

@@ -78,6 +78,10 @@ public final class Movement {
                 if (game.isFriendly(neighbor, unit.getOwner())) {
                     continue;
                 }
+                if (unit.getType().attackRange == 0 && game.getUnitAt(neighbor) != null) {
+                    continue;
+                }
+
                 Tile tile = board.getTile(neighbor);
                 if (!tile.getTerrain().passable) {
                     continue;

@@ -21,7 +21,7 @@ public class Game {
 
     public static final int SEED = 16;
 
-    private static final int MAX_PLAYERS = 10;
+    private static final int MAX_PLAYERS = 16;
     private static final int MIN_PLAYERS = 2;
 
     private final SetupHandler setup;
@@ -33,6 +33,7 @@ public class Game {
 
     private final Movement movement;
     private final MoveCache moveCache = new MoveCache();
+    private final ActionQueue actionQueue = new ActionQueue();
 
     private final Combat combat;
 
@@ -88,6 +89,10 @@ public class Game {
 
     public Collection<HexPos> getUnitPositions() {
         return units.keySet();
+    }
+
+    public ActionQueue getActionQueue() {
+        return this.actionQueue;
     }
 
     public Unit getUnitAt(HexPos pos) {

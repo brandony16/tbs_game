@@ -1,5 +1,6 @@
 package tbs_game;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -26,6 +27,18 @@ public class Main extends Application {
         // stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
+
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if (game.getActionQueue().isEmpty()) {
+                    return;
+                }
+
+                game.getActionQueue().performNextAction();
+            }
+        };
+        timer.start();
     }
 
     public static void main(String[] args) {
