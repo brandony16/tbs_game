@@ -226,26 +226,14 @@ public class Game {
         }
     }
 
-    public void setUpBattleGame() {
-        // Line of soldiers
-        for (int i = 0; i < 5; i++) {
-            Unit unit = new Unit(UnitType.CAVALRY, getPlayer(0));
-            Unit aiUnit = new Unit(UnitType.CAVALRY, getPlayer(1));
-            placeUnitAt(new HexPos(i - 4, 4), unit);
-            placeUnitAt(new HexPos(i, -4), aiUnit);
-        }
-
-        Unit unit = new Unit(UnitType.CAVALRY, getPlayer(0));
-        Unit aiUnit = new Unit(UnitType.CAVALRY, getPlayer(1));
-        placeUnitAt(new HexPos(0, 0), unit);
-        placeUnitAt(new HexPos(0, 1), aiUnit);
-    }
-
     public void setUpGame() {
         ArrayList<HexPos> spawnLocations = setup.generateSpawnSpots(this, SEED);
+        ArrayList<HexPos> soldierSpawns = setup.generateWarriorSpawns(this, spawnLocations, SEED);
         for (int i = 0; i < numPlayers; i++) {
             Unit settler = new Unit(UnitType.SETTLER, getPlayer(i));
+            Unit soldier = new Unit(UnitType.SOLDIER, getPlayer(i));
             placeUnitAt(spawnLocations.get(i), settler);
+            placeUnitAt(soldierSpawns.get(i), soldier);
         }
     }
 

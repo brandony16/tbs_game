@@ -51,6 +51,18 @@ public class SetupHandler {
         return spawnSpots;
     }
 
+    public ArrayList<HexPos> generateWarriorSpawns(Game game, ArrayList<HexPos> settlerLocations, int seed) {
+        Random random = new Random(seed);
+        ArrayList<HexPos> warriorSpawns = new ArrayList<>();
+        for (HexPos spawn : settlerLocations) {
+            ArrayList<HexPos> spawnableNeighbors = getSpawnableNeighbors(game, spawn);
+            int neighborIdx = random.nextInt(spawnableNeighbors.size());
+            warriorSpawns.add(spawnableNeighbors.get(neighborIdx));
+        }
+
+        return warriorSpawns;
+    }
+
     public ArrayList<HexPos> findSpawnableHexes(Board board) {
         ArrayList<HexPos> spawnableHexes = new ArrayList<>();
 
@@ -61,6 +73,18 @@ public class SetupHandler {
         }
 
         return spawnableHexes;
+    }
+
+    private ArrayList<HexPos> getSpawnableNeighbors(Game game, HexPos pos) {
+        ArrayList<HexPos> neighbors = pos.getNeighbors();
+        ArrayList<HexPos> locations = new ArrayList<>();
+        for (HexPos neighbor : neighbors) {
+            if (isValidSpawn(neighbor, game.getBoard())) {
+                locations.add(neighbor);
+            }
+        }
+
+        return locations;
     }
 
     private ArrayList<HexPos> updateSpawnableHexes(ArrayList<HexPos> prevList, HexPos newSpawnSpot) {
@@ -75,12 +99,16 @@ public class SetupHandler {
     }
 
     public boolean isValidSpawn(HexPos pos, Board board) {
+        if (!board.isOnBoard(pos)) {
+            return false;
+        }
+
         Tile tile = board.getTile(pos);
         if (!tile.getTerrain().passable) {
             return false;
         }
         if (board.getHeight() < 10) {
-            return true; // Very small board - dont restrict vertical spawns
+            return true; // small board - dont restrict vertical spawns
         }
 
         int distToEdge = board.getHeight() / 2;
@@ -92,7 +120,7 @@ public class SetupHandler {
         if (!board.getTile(pos).getTerrain().passable) {
             return Integer.MIN_VALUE;
         }
-        
+
         int score = 0;
 
         int forestNeighbors = board.countNeighbors(pos, Terrain.FOREST);

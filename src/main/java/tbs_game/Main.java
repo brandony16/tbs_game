@@ -16,7 +16,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        Game game = new Game(25, 15, 10);
+        Game game = new Game(25, 12, 10);
         game.setUpGame();
 
         GameGUI gui = new GameGUI(game);
