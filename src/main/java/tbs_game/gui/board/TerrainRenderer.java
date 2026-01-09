@@ -100,9 +100,8 @@ public final class TerrainRenderer {
 
         placed.sort(Comparator.comparingDouble(Point2D::getY));
         for (Point2D point : placed) {
-            ImageView tree = new ImageView(
-                    AssetManager.getImage("/terrain/tree.png")
-            );
+            Image img = AssetManager.getImage("/terrain/tree.png");
+            ImageView tree = new ImageView(img);
 
             double scale = 0.85 + rand.nextDouble() * 0.3;
             double height = hexRadius * scale;
@@ -111,7 +110,10 @@ public final class TerrainRenderer {
             tree.setSmooth(true);
 
             // Anchor tree to ground (bottom-center)
-            tree.setX(point.getX() - tree.getFitWidth() / 2);
+            double relativeScale = (height) / img.getHeight();
+            double width = relativeScale * img.getWidth();
+
+            tree.setX(point.getX() - width / 2);
             tree.setY(point.getY() - tree.getFitHeight());
             group.getChildren().add(tree);
         }

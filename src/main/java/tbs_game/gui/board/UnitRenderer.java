@@ -16,8 +16,12 @@ public class UnitRenderer {
         ImageView iv = new ImageView(img);
 
         iv.setFitHeight(BoardView.TILE_RADIUS * 1.25);
-        iv.setFitWidth(BoardView.TILE_RADIUS * 1.25);
-        iv.setX(cx - iv.getFitWidth() / 2);
+        iv.setPreserveRatio(true);
+
+        double scale = (BoardView.TILE_RADIUS * 1.25) / img.getHeight();
+        double width = img.getWidth() * scale;
+
+        iv.setX(cx - width / 2);
         iv.setY(cy - iv.getFitHeight() / 2);
 
         return iv;
