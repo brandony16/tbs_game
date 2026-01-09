@@ -1,0 +1,43 @@
+package tbs_game.gui.board;
+
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import tbs_game.gui.AssetManager;
+import tbs_game.units.Unit;
+
+public class UnitRenderer {
+
+    public static Node renderUnit(Unit unit, double cx, double cy) {
+        Image img = AssetManager.getImage(unit.getType().spritePath);
+        ImageView iv = new ImageView(img);
+
+        iv.setFitHeight(BoardView.TILE_RADIUS * 1.25);
+        iv.setFitWidth(BoardView.TILE_RADIUS * 1.25);
+        iv.setX(cx - iv.getFitWidth() / 2);
+        iv.setY(cy - iv.getFitHeight() / 2);
+
+        return iv;
+    }
+
+    public static Node renderHealthBar(Unit unit, double cx, double cy) {
+        double barWidth = BoardView.TILE_RADIUS * 0.6;
+        double barHeight = 6;
+        double barX = cx - barWidth / 2;
+        double barY = cy + BoardView.TILE_RADIUS * 0.45;
+
+        Rectangle bg = new Rectangle(barX, barY, barWidth, barHeight);
+        bg.setFill(Color.DARKRED);
+
+        double hpRatio = (double) unit.getHealth() / unit.getType().maxHp;
+        Rectangle fg = new Rectangle(barX, barY, barWidth * hpRatio, barHeight);
+        fg.setFill(Color.LIMEGREEN);
+
+        Group healthBar = new Group();
+        healthBar.getChildren().addAll(bg, fg);
+        return healthBar;
+    }
+}

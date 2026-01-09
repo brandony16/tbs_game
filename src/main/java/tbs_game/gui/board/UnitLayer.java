@@ -7,13 +7,9 @@ import java.util.Map;
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.Group;
-import javafx.scene.image.ImageView;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.Node;
 import javafx.util.Duration;
 import tbs_game.game.Game;
-import tbs_game.gui.AssetManager;
 import tbs_game.gui.HexMath;
 import tbs_game.hexes.HexPos;
 import tbs_game.units.Unit;
@@ -51,7 +47,7 @@ public class UnitLayer {
         for (HexPos pos : game.getUnitPositions()) {
             Group unitElement = drawUnitElement(pos);
             if (game.getUnitAt(pos).getType() == UnitType.SETTLER) {
-                unitElement = drawSettler(pos);
+                unitElement = drawUnitElement(pos);
             }
             unitElements.put(pos, unitElement);
             unitRoot.getChildren().add(unitElement);
@@ -65,53 +61,10 @@ public class UnitLayer {
         Group group = new Group();
         Unit unit = game.getUnitAt(pos);
 
-        Circle body = new Circle(cx, cy, BoardView.TILE_RADIUS * 0.35);
-        body.setFill(unit.getOwner().color);
-        body.setStroke(Color.BLACK);
+        Node unitSprite = UnitRenderer.renderUnit(unit, cx, cy);
+        Node healthBar = UnitRenderer.renderHealthBar(unit, cx, cy);
 
-        double barWidth = BoardView.TILE_RADIUS * 0.6;
-        double barHeight = 6;
-        double barX = cx - barWidth / 2;
-        double barY = cy + BoardView.TILE_RADIUS * 0.45;
-
-        Rectangle bg = new Rectangle(barX, barY, barWidth, barHeight);
-        bg.setFill(Color.DARKRED);
-
-        double hpRatio = (double) unit.getHealth() / unit.getType().maxHp;
-        Rectangle fg = new Rectangle(barX, barY, barWidth * hpRatio, barHeight);
-        fg.setFill(Color.LIMEGREEN);
-
-        group.getChildren().addAll(body, bg, fg);
-        return group;
-    }
-
-    private Group drawSettler(HexPos pos) {
-        double cx = HexMath.hexToPixelX(pos);
-        double cy = HexMath.hexToPixelY(pos);
-
-        Group group = new Group();
-        Unit unit = game.getUnitAt(pos);
-
-        ImageView settler = new ImageView(AssetManager.getImage("/units/settler.png"));
-        settler.setFitHeight(BoardView.TILE_RADIUS * 1.25);
-        settler.setFitWidth(BoardView.TILE_RADIUS * 1.25);
-
-        settler.setX(cx - settler.getFitWidth() / 2);
-        settler.setY(cy - settler.getFitHeight() / 2);
-
-        double barWidth = BoardView.TILE_RADIUS * 0.6;
-        double barHeight = 6;
-        double barX = cx - barWidth / 2;
-        double barY = cy + BoardView.TILE_RADIUS * 0.45;
-
-        Rectangle bg = new Rectangle(barX, barY, barWidth, barHeight);
-        bg.setFill(Color.DARKRED);
-
-        double hpRatio = (double) unit.getHealth() / unit.getType().maxHp;
-        Rectangle fg = new Rectangle(barX, barY, barWidth * hpRatio, barHeight);
-        fg.setFill(Color.LIMEGREEN);
-
-        group.getChildren().addAll(settler, bg, fg);
+        group.getChildren().addAll(unitSprite, healthBar);
         return group;
     }
 
