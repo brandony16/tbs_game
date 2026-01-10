@@ -46,8 +46,8 @@ class TerrainTest {
         HexPos mountain = new HexPos(0, 1);
         board.getTile(mountain).setTerrain(Terrain.MOUNTAIN);
 
-        assertFalse(Rules.canMove(game, start, water));
-        assertFalse(Rules.canMove(game, start, mountain));
+        assertFalse(Rules.canMove(game.getState(), start, water));
+        assertFalse(Rules.canMove(game.getState(), start, mountain));
     }
 
     @Test
@@ -55,7 +55,7 @@ class TerrainTest {
         HexPos plains = new HexPos(1, 0);
         board.getTile(plains).setTerrain(Terrain.PLAINS);
 
-        Move move = Movement.planMove(game, start, plains);
+        Move move = Movement.planMove(game.getState(), start, plains);
 
         assertNotNull(move);
         assertEquals(1, move.cost);
@@ -66,7 +66,7 @@ class TerrainTest {
         HexPos forest = new HexPos(1, 0);
         board.getTile(forest).setTerrain(Terrain.FOREST);
 
-        Move move = Movement.planMove(game, start, forest);
+        Move move = Movement.planMove(game.getState(), start, forest);
 
         assertNotNull(move);
         assertEquals(2, move.cost);
@@ -91,7 +91,7 @@ class TerrainTest {
 
         HexPos target = new HexPos(3, 0);
 
-        Move move = Movement.planMove(game, start, target);
+        Move move = Movement.planMove(game.getState(), start, target);
 
         assertNotNull(move);
         assertEquals(4, move.cost); // Longer but cheaper path
@@ -106,7 +106,7 @@ class TerrainTest {
             board.getTile(neighbor).setTerrain(Terrain.WATER);
         }
 
-        assertNull(Movement.planMove(game, start, target));
+        assertNull(Movement.planMove(game.getState(), start, target));
     }
 
     // ----- ReachableHexes -----
@@ -120,7 +120,7 @@ class TerrainTest {
         Unit unit = game.getUnitAt(start);
         unit.spendMovementPoints(unit.getMovementPoints() - 1); // 1 movement point left
 
-        Set<HexPos> reachable = movement.getReachableHexes(game, start);
+        Set<HexPos> reachable = movement.getReachableHexes(game.getState(), start);
 
         for (HexPos pos : start.getNeighbors()) {
             if (pos.equals(forest)) {

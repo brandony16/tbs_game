@@ -27,7 +27,7 @@ public class RandomAI implements AI {
             int randIdx = random.nextInt(reachable.size());
             HexPos dest = reachable.get(randIdx);
 
-            Action move = new MoveAction(game, Movement.planMove(game, pos, dest));
+            Action move = new MoveAction(game, Movement.planMove(game.getState(), pos, dest));
             game.getActionQueue().addAction(move);
         }
 

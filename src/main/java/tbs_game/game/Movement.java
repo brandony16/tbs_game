@@ -18,50 +18,47 @@ public final class Movement {
 
     private static final int INF = Integer.MAX_VALUE / 4;
 
-    public static Move planMove(Game game, HexPos from, HexPos to) {
-        ArrayList<HexPos> path = findPath(from, to, game);
+    public static Move planMove(GameState state, HexPos from, HexPos to) {
+        ArrayList<HexPos> path = findPath(from, to, state);
         if (path == null) {
             return null;
         }
 
-        int cost = countMovementCost(path, game);
+        int cost = countMovementCost(path, state);
         return new Move(from, to, path, cost);
     }
 
-    public void move(Game game, HexPos from, HexPos to) {
-        Move move = game.getMoveCache().get(from, to);
-        if (move == null) {
-            move = planMove(game, from, to);
-        }
+    public void move(GameState state, HexPos from, HexPos to) {
+        Move move = planMove(state, from, to);
 
-        Unit mover = game.getUnitAt(from);
+        Unit mover = state.getUnitAt(from);
         ArrayList<HexPos> path = move.path;
         HexPos prev = path.get(0);
         for (int i = 1; i < path.size(); i++) {
             HexPos step = path.get(i);
-            int cost = game.getBoard().getTile(step).moveCost();
+            int cost = state.getBoard().getTile(step).moveCost();
 
             if (mover.getMovementPoints() < cost) {
                 break;
             }
 
-            game.moveUnitInternal(prev, step);
+            state.moveUnitInternal(prev, step);
             mover.spendMovementPoints(cost);
             prev = step;
         }
     }
 
-    public Set<HexPos> getReachableHexes(Game game, HexPos from) {
+    public Set<HexPos> getReachableHexes(GameState state, HexPos from) {
         Set<HexPos> reachableHexes = new HashSet<>();
 
         // Confirm a unit is at the tile
-        Unit unit = game.getUnitAt(from);
+        Unit unit = state.getUnitAt(from);
         if (unit == null) {
             return reachableHexes;
         }
 
         int maxMove = unit.getMovementPoints();
-        Board board = game.getBoard();
+        Board board = state.getBoard();
 
         Map<HexPos, Integer> costSoFar = new HashMap<>();
         PriorityQueue<HexPos> frontier
@@ -75,10 +72,10 @@ public final class Movement {
             int currentCost = costSoFar.get(current);
 
             for (HexPos neighbor : board.getNeighbors(current)) {
-                if (game.isFriendly(neighbor, unit.getOwner())) {
+                if (state.isFriendly(neighbor, unit.getOwner())) {
                     continue;
                 }
-                if (unit.getType().attackRange == 0 && game.getUnitAt(neighbor) != null) {
+                if (unit.getType().attackRange == 0 && state.getUnitAt(neighbor) != null) {
                     continue;
                 }
 
@@ -112,7 +109,7 @@ public final class Movement {
      * @param end - The pos to end at
      * @return Ordered list of HexPos that represent the path found
      */
-    public static ArrayList<HexPos> findPath(HexPos start, HexPos end, Game game) {
+    public static ArrayList<HexPos> findPath(HexPos start, HexPos end, GameState state) {
         if (start.distanceTo(end) == 1) { // Adjacent tiles
             return new ArrayList<HexPos>() {
                 {
@@ -132,7 +129,7 @@ public final class Movement {
         fScore.put(start, heuristic(start, end));
         openSet.add(start);
 
-        Board board = game.getBoard();
+        Board board = state.getBoard();
         while (!openSet.isEmpty()) {
             HexPos current = openSet.poll();
 
@@ -168,11 +165,11 @@ public final class Movement {
         return null; // unreachable
     }
 
-    public static int countMovementCost(ArrayList<HexPos> path, Game game) {
+    public static int countMovementCost(ArrayList<HexPos> path, GameState state) {
         int count = 0;
         for (int i = 1; i < path.size(); i++) { // Skip first tile
             HexPos pos = path.get(i);
-            int cost = game.getBoard().getTile(pos).moveCost();
+            int cost = state.getBoard().getTile(pos).moveCost();
             count += cost;
         }
 

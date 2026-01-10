@@ -39,7 +39,7 @@ public class Game {
     public Game(int width, int height, int numPlayers) {
         this.setup = new SetupHandler();
         this.board = new Board(width, height);
-        this.state = new GameState();
+        this.state = new GameState(board);
 
         this.movement = new Movement();
         this.combat = new Combat();
@@ -62,6 +62,10 @@ public class Game {
 
     public Board getBoard() {
         return board;
+    }
+
+    public GameState getState() {
+        return this.state;
     }
 
     public Player getCurrentPlayer() {
@@ -101,8 +105,7 @@ public class Game {
     }
 
     public void captureUnit(HexPos attackerPos, HexPos defenderPos) {
-        removeUnitAt(defenderPos);
-        moveUnitInternal(attackerPos, defenderPos);
+        state.captureUnit(attackerPos, defenderPos);
     }
 
     public void moveUnitInternal(HexPos from, HexPos to) {
@@ -110,11 +113,11 @@ public class Game {
     }
 
     public boolean canMove(HexPos from, HexPos to) {
-        return Rules.canMove(this, from, to);
+        return Rules.canMove(state, from, to);
     }
 
     public boolean canAttack(HexPos attackFrom, HexPos attackTo) {
-        return Rules.canAttack(this, attackFrom, attackTo);
+        return Rules.canAttack(state, attackFrom, attackTo);
     }
 
     public boolean canPerform(ActionType action, HexPos from, HexPos to) {
@@ -132,7 +135,7 @@ public class Game {
 
     // MOVE TO SOMETHING IDK WHAT
     public boolean resolveAction(HexPos from, HexPos to) {
-        if (!Rules.canDoAction(this, from, to)) {
+        if (!Rules.canDoAction(state, from, to)) {
             return false;
         }
 
@@ -154,25 +157,25 @@ public class Game {
     }
 
     public boolean moveUnit(HexPos from, HexPos to) {
-        if (!Rules.canMove(this, from, to)) {
+        if (!Rules.canMove(state, from, to)) {
             return false;
         }
 
-        movement.move(this, from, to);
+        movement.move(state, from, to);
         return true;
     }
 
     public boolean attackUnit(HexPos from, HexPos to) {
-        if (!Rules.canAttack(this, from, to)) {
+        if (!Rules.canAttack(state, from, to)) {
             return false;
         }
 
-        combat.attack(this, from, to);
+        combat.attack(state, from, to);
         return true;
     }
 
     public Set<HexPos> getReachableHexes(HexPos from) {
-        return movement.getReachableHexes(this, from);
+        return movement.getReachableHexes(state, from);
     }
 
     public boolean canEndTurn() {
@@ -190,8 +193,7 @@ public class Game {
     }
 
     public boolean isFriendly(HexPos pos, Player player) {
-        Unit unit = state.getUnitAt(pos);
-        return unit != null && unit.getOwner().equals(player);
+        return state.isFriendly(pos, player);
     }
 
     private void startTurn() {

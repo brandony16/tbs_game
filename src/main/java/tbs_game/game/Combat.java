@@ -5,16 +5,16 @@ import tbs_game.units.Unit;
 
 public class Combat {
 
-    public void attack(Game game, HexPos attackSq, HexPos defenseSq) {
-        Unit attacker = game.getUnitAt(attackSq);
-        Unit defender = game.getUnitAt(defenseSq);
+    public void attack(GameState state, HexPos attackSq, HexPos defenseSq) {
+        Unit attacker = state.getUnitAt(attackSq);
+        Unit defender = state.getUnitAt(defenseSq);
 
         int attackDamage = attacker.getType().attackDamage;
         defender.dealDamage(attackDamage);
         attacker.markAttacked();
 
         if (defender.isDead()) {
-            game.captureUnit(attackSq, defenseSq);
+            state.captureUnit(attackSq, defenseSq);
         }
     }
 }

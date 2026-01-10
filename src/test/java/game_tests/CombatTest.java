@@ -55,7 +55,7 @@ public class CombatTest {
         Unit defender = setUpBattle();
         int startHP = defender.getHealth();
 
-        combat.attack(game, attackerPos, defenderPos);
+        combat.attack(game.getState(), attackerPos, defenderPos);
 
         assertTrue(defender.getHealth() < startHP);
     }
@@ -68,7 +68,7 @@ public class CombatTest {
         int expectedDamage = attacker.getType().attackDamage;
         int startHP = defender.getHealth();
 
-        combat.attack(game, attackerPos, defenderPos);
+        combat.attack(game.getState(), attackerPos, defenderPos);
 
         assertEquals(startHP - expectedDamage, defender.getHealth());
     }
@@ -78,7 +78,7 @@ public class CombatTest {
         setUpBattle();
         Unit attacker = game.getUnitAt(attackerPos);
 
-        combat.attack(game, attackerPos, defenderPos);
+        combat.attack(game.getState(), attackerPos, defenderPos);
 
         assertTrue(attacker.hasAttacked());
     }
@@ -86,7 +86,7 @@ public class CombatTest {
     @Test
     void testAttackDoesNotKillSurvivor() {
         setUpBattle();
-        combat.attack(game, attackerPos, defenderPos);
+        combat.attack(game.getState(), attackerPos, defenderPos);
 
         Unit defender = game.getUnitAt(defenderPos);
         assertNotNull(defender);
@@ -98,7 +98,7 @@ public class CombatTest {
         Unit defender = setUpBattle();
         defender.dealDamage(defender.getHealth()); // ensure death
 
-        combat.attack(game, attackerPos, defenderPos);
+        combat.attack(game.getState(), attackerPos, defenderPos);
 
         assertNull(game.getUnitAt(attackerPos));
         assertNotNull(game.getUnitAt(defenderPos));

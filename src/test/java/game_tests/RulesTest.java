@@ -93,7 +93,7 @@ public class RulesTest {
 
     void canMoveManyTiles(HexPos from, List<HexPos> tiles) {
         for (HexPos pos : tiles) {
-            assertTrue(Rules.canMove(game, from, pos));
+            assertTrue(Rules.canMove(game.getState(), from, pos));
         }
     }
 
@@ -102,47 +102,47 @@ public class RulesTest {
     void testCanMoveNoMover() {
         setUpSolo();
         // No unit at 2,2
-        assertFalse(Rules.canMove(game, new HexPos(2, 2), otherPos));
+        assertFalse(Rules.canMove(game.getState(), new HexPos(2, 2), otherPos));
     }
 
     @Test
     void testCanMoveWrongTurn() {
         setUpBattle();
         // Not that units turn
-        assertFalse(Rules.canMove(game, otherPos, new HexPos(0, 2)));
+        assertFalse(Rules.canMove(game.getState(), otherPos, new HexPos(0, 2)));
     }
 
     @Test
     void testCanMoveIntoOther() {
         setUpFriendly();
-        assertFalse(Rules.canMove(game, unitPos, otherPos));
+        assertFalse(Rules.canMove(game.getState(), unitPos, otherPos));
 
         setUpBattle();
-        assertFalse(Rules.canMove(game, unitPos, otherPos));
+        assertFalse(Rules.canMove(game.getState(), unitPos, otherPos));
     }
 
     @Test
     void testCanMoveNoActionsRemaining() {
         setUpSolo();
         game.getUnitAt(unitPos).markAttacked();
-        assertFalse(Rules.canMove(game, unitPos, new HexPos(-1, 0)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, new HexPos(-1, 0)));
 
         setUpSolo();
         Unit unit = game.getUnitAt(unitPos);
         unit.spendMovementPoints(unit.getMovementPoints());
-        assertFalse(Rules.canMove(game, unitPos, new HexPos(-1, 0)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, new HexPos(-1, 0)));
     }
 
     @Test
     void testCanMoveTooFar() {
-        assertFalse(Rules.canMove(game, unitPos, new HexPos(1, 1)));
-        assertFalse(Rules.canMove(game, unitPos, new HexPos(2, 0)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, new HexPos(1, 1)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, new HexPos(2, 0)));
     }
 
     @Test
     void testCanMoveValid() {
         setUpSolo();
-        Set<HexPos> reachableSet = new Movement().getReachableHexes(game, unitPos);
+        Set<HexPos> reachableSet = new Movement().getReachableHexes(game.getState(), unitPos);
         List<HexPos> movable = new ArrayList<>(reachableSet);
 
         canMoveManyTiles(unitPos, movable);
@@ -154,7 +154,7 @@ public class RulesTest {
         setUpBattle();
         // No unit at 2,2
         HexPos emptyPos = new HexPos(2, 2);
-        assertFalse(Rules.canAttack(game, emptyPos, otherPos));
+        assertFalse(Rules.canAttack(game.getState(), emptyPos, otherPos));
     }
 
     @Test
@@ -162,33 +162,33 @@ public class RulesTest {
         setUpSolo();
         // There is no unit at the target
         HexPos target = new HexPos(1, 0);
-        assertFalse(Rules.canAttack(game, unitPos, target));
+        assertFalse(Rules.canAttack(game.getState(), unitPos, target));
     }
 
     @Test
     void testCanAttackFriendly() {
         setUpFriendly();
-        assertFalse(Rules.canAttack(game, unitPos, otherPos));
+        assertFalse(Rules.canAttack(game.getState(), unitPos, otherPos));
     }
 
     @Test
     void testCanAttackAlreadyAttacked() {
         setUpBattle();
         game.getUnitAt(unitPos).markAttacked();
-        assertFalse(Rules.canAttack(game, unitPos, otherPos));
+        assertFalse(Rules.canAttack(game.getState(), unitPos, otherPos));
     }
 
     @Test
     void testCanAttackOutOfRange() {
         setUpBattleMoveThenAttack();
 
-        assertFalse(Rules.canAttack(game, unitPos, unitPos));
+        assertFalse(Rules.canAttack(game.getState(), unitPos, unitPos));
     }
 
     @Test
     void testCanAttackValid() {
         setUpBattle();
-        assertTrue(Rules.canAttack(game, unitPos, otherPos));
+        assertTrue(Rules.canAttack(game.getState(), unitPos, otherPos));
     }
 
     // ----- canUnitMoveDistance -----
@@ -237,19 +237,19 @@ public class RulesTest {
     void testCanDoActionNoUnitAtSource() {
         setUpBattle();
         HexPos empty = new HexPos(2, 2);
-        assertFalse(Rules.canDoAction(game, empty, otherPos));
+        assertFalse(Rules.canDoAction(game.getState(), empty, otherPos));
     }
 
     @Test
     void testCanDoActionMoveOnly() {
         setUpSolo();
-        assertTrue(Rules.canDoAction(game, unitPos, new HexPos(1, 0)));
+        assertTrue(Rules.canDoAction(game.getState(), unitPos, new HexPos(1, 0)));
     }
 
     @Test
     void testCanDoActionAttackInRange() {
         setUpBattle();
-        assertTrue(Rules.canDoAction(game, unitPos, otherPos));
+        assertTrue(Rules.canDoAction(game.getState(), unitPos, otherPos));
     }
 
     @Test
@@ -257,20 +257,20 @@ public class RulesTest {
         setUpBattleMoveThenAttack();
 
         // Should be able to move closer and then attack
-        assertTrue(Rules.canDoAction(game, unitPos, otherPos));
+        assertTrue(Rules.canDoAction(game.getState(), unitPos, otherPos));
     }
 
     @Test
     void testCanDoActionEnemyTooFarToReachAttackRange() {
         setUpBattleTooFar();
 
-        assertFalse(Rules.canDoAction(game, unitPos, unitPos));
+        assertFalse(Rules.canDoAction(game.getState(), unitPos, unitPos));
     }
 
     @Test
     void testCanDoActionFriendlyTarget() {
         setUpFriendly();
-        assertFalse(Rules.canDoAction(game, unitPos, otherPos));
+        assertFalse(Rules.canDoAction(game.getState(), unitPos, otherPos));
     }
 
     @Test
@@ -278,13 +278,13 @@ public class RulesTest {
         setUpBattle();
 
         // other unit trying to attack
-        assertFalse(Rules.canDoAction(game, otherPos, unitPos));
+        assertFalse(Rules.canDoAction(game.getState(), otherPos, unitPos));
     }
 
     @Test
     void testCanDoActionUnitAlreadyAttacked() {
         setUpBattle();
         game.getUnitAt(unitPos).markAttacked();
-        assertFalse(Rules.canDoAction(game, unitPos, otherPos));
+        assertFalse(Rules.canDoAction(game.getState(), unitPos, otherPos));
     }
 }

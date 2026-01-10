@@ -6,13 +6,13 @@ import tbs_game.units.Unit;
 
 public class Rules {
 
-    public static boolean canMove(Game game, HexPos from, HexPos to) {
-        Unit unit = game.getUnitAt(from);
-        Unit other = game.getUnitAt(to);
+    public static boolean canMove(GameState state, HexPos from, HexPos to) {
+        Unit unit = state.getUnitAt(from);
+        Unit other = state.getUnitAt(to);
         if (unit == null) {
             return false;
         }
-        if (!unit.getOwner().equals(game.getCurrentPlayer())) {
+        if (!unit.getOwner().equals(state.getCurrentPlayer())) {
             return false; // Not this units turn
         }
         if (other != null) {
@@ -23,29 +23,24 @@ public class Rules {
         }
 
         // Determine if there is a path
-        Move move = Movement.planMove(game, from, to);
+        Move move = Movement.planMove(state, from, to);
         if (move == null) {
             return false;
         }
 
-        if (move.cost > unit.getMovementPoints()) {
-            return false;
-        }
-
-        game.getMoveCache().store(move);
-        return true;
+        return move.cost <= unit.getMovementPoints();
     }
 
-    public static boolean canAttack(Game game, HexPos attackFrom, HexPos attackTo) {
-        Unit unit = game.getUnitAt(attackFrom);
-        Unit other = game.getUnitAt(attackTo);
+    public static boolean canAttack(GameState state, HexPos attackFrom, HexPos attackTo) {
+        Unit unit = state.getUnitAt(attackFrom);
+        Unit other = state.getUnitAt(attackTo);
         if (unit == null || other == null) {
             return false;
         }
         if (unit.getAttackType() == AttackType.NONE) {
             return false;
         }
-        if (!unit.getOwner().equals(game.getCurrentPlayer())) {
+        if (!unit.getOwner().equals(state.getCurrentPlayer())) {
             return false; // Not this units turn
         }
         if (unit.getOwner().equals(other.getOwner())) {
@@ -55,7 +50,7 @@ public class Rules {
             return false;
         }
         if (unit.getAttackType() == AttackType.MELEE) {
-            return unit.getMovementPoints() >= game.getBoard().getTile(attackTo).moveCost();
+            return unit.getMovementPoints() >= state.getBoard().getTile(attackTo).moveCost();
         }
 
         // Ranged attack
@@ -71,25 +66,25 @@ public class Rules {
         return moveDist <= maxMoveDist;
     }
 
-    public static boolean canDoAction(Game game, HexPos from, HexPos to) {
-        Unit unit = game.getUnitAt(from);
-        Unit other = game.getUnitAt(to);
+    public static boolean canDoAction(GameState state, HexPos from, HexPos to) {
+        Unit unit = state.getUnitAt(from);
+        Unit other = state.getUnitAt(to);
 
         if (unit == null) {
             return false;
         }
         if (other == null) {
-            return canMove(game, from, to);
+            return canMove(state, from, to);
         }
 
         // Not correct turn or moving to friendly unit
-        if (!unit.getOwner().equals(game.getCurrentPlayer()) || unit.getOwner().equals(other.getOwner())) {
+        if (!unit.getOwner().equals(state.getCurrentPlayer()) || unit.getOwner().equals(other.getOwner())) {
             return false;
         }
 
         int dist = from.distanceTo(to);
         if (dist <= unit.getType().attackRange) {
-            return canAttack(game, from, to);
+            return canAttack(state, from, to);
         }
 
         if (unit.getAttackType() == AttackType.RANGED) {
@@ -100,14 +95,10 @@ public class Rules {
         }
 
         // Melee units have to be able to move to end pos to attack that pos
-        Move move = Movement.planMove(game, from, to);
+        Move move = Movement.planMove(state, from, to);
         int moveRange = unit.getMovementPoints();
-        if (move.cost > moveRange) {
-            return false;
-        }
 
-        game.getMoveCache().store(move);
-        return true;
+        return move.cost <= moveRange;
     }
 
 }

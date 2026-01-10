@@ -6,11 +6,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import tbs_game.board.Board;
 import tbs_game.hexes.HexPos;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
 
 public class GameState {
+
+    private final Board board;
 
     private final Map<HexPos, Unit> units;
     private final Map<Player, Set<Unit>> unitsByPlayer;
@@ -18,10 +21,26 @@ public class GameState {
 
     private Player currentPlayer;
 
-    public GameState() {
+    public GameState(Board board) {
+        this.board = board;
+
         this.units = new HashMap<>();
         this.unitsByPlayer = new HashMap<>();
         this.positionsByPlayer = new HashMap<>();
+    }
+
+    public boolean isFriendly(HexPos pos, Player player) {
+        Unit unit = getUnitAt(pos);
+        return unit != null && unit.getOwner().equals(player);
+    }
+
+    public void captureUnit(HexPos attackerPos, HexPos defenderPos) {
+        removeUnitAt(defenderPos);
+        moveUnitInternal(attackerPos, defenderPos);
+    }
+
+    public Board getBoard() {
+        return this.board;
     }
 
     public Player getCurrentPlayer() {
