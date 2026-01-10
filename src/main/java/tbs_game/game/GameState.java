@@ -108,4 +108,51 @@ public class GameState {
             u.resetTurnState();
         }
     }
+
+    // ----- COPYING FOR SIMLUATION -----
+    private GameState(
+            Board board,
+            Map<HexPos, Unit> units,
+            Map<Player, Set<Unit>> unitsByPlayer,
+            Map<Player, Set<HexPos>> positionsByPlayer,
+            Player currentPlayer
+    ) {
+        this.board = board;
+        this.units = units;
+        this.unitsByPlayer = unitsByPlayer;
+        this.positionsByPlayer = positionsByPlayer;
+        this.currentPlayer = currentPlayer;
+    }
+
+    public GameState createSimluationCopy() {
+        Map<HexPos, Unit> unitsCopy = new HashMap<>();
+        Map<Player, Set<Unit>> unitsByPlayerCopy = new HashMap<>();
+        Map<Player, Set<HexPos>> positionsByPlayerCopy = new HashMap<>();
+
+        // Initialize player maps
+        for (Player p : unitsByPlayer.keySet()) {
+            unitsByPlayerCopy.put(p, new HashSet<>());
+            positionsByPlayerCopy.put(p, new HashSet<>());
+        }
+
+        // Copy units + positions
+        for (Map.Entry<HexPos, Unit> entry : units.entrySet()) {
+            HexPos pos = entry.getKey();
+            Unit original = entry.getValue();
+
+            Unit unitCopy = original.createCopy();
+
+            unitsCopy.put(pos, unitCopy);
+            unitsByPlayerCopy.get(unitCopy.getOwner()).add(unitCopy);
+            positionsByPlayerCopy.get(unitCopy.getOwner()).add(pos);
+        }
+
+        return new GameState(
+                board,
+                unitsCopy,
+                unitsByPlayerCopy,
+                positionsByPlayerCopy,
+                currentPlayer
+        );
+    }
 }

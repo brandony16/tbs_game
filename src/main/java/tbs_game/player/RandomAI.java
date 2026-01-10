@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import tbs_game.game.Game;
+import tbs_game.game.GameState;
+import tbs_game.game.Move;
 import tbs_game.game.Movement;
 import tbs_game.game.actions.Action;
 import tbs_game.game.actions.EndTurnAction;
@@ -20,14 +22,31 @@ public class RandomAI implements AI {
 
     @Override
     public void doTurn(Game game, Player player) {
-        ArrayList<HexPos> unitPositions = new ArrayList<>(game.getPositionsForPlayer(player));
+
+        GameState simState = game.getState().createSimluationCopy();
+        ArrayList<HexPos> unitPositions = new ArrayList<>(simState.getUnitPositionsForPlayer(player));
 
         for (HexPos pos : unitPositions) {
-            ArrayList<HexPos> reachable = new ArrayList<>(game.getReachableHexes(pos));
+            if (simState.getUnitAt(pos) == null) {
+                continue;
+            }
+
+            ArrayList<HexPos> reachable = new ArrayList<>(Movement.getReachableHexes(simState, pos));
+            if (reachable.isEmpty()) {
+                continue;
+            }
+
             int randIdx = random.nextInt(reachable.size());
             HexPos dest = reachable.get(randIdx);
 
-            Action move = new MoveAction(game, Movement.planMove(game.getState(), pos, dest));
+            Move simMove = Movement.planMove(simState, pos, dest);
+            if (simMove == null) {
+                continue;
+            }
+
+            simState.moveUnitInternal(pos, dest);
+
+            Action move = new MoveAction(game, simMove);
             game.getActionQueue().addAction(move);
         }
 

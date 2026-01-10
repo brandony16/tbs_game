@@ -48,7 +48,7 @@ public final class Movement {
         }
     }
 
-    public Set<HexPos> getReachableHexes(GameState state, HexPos from) {
+    public static Set<HexPos> getReachableHexes(GameState state, HexPos from) {
         Set<HexPos> reachableHexes = new HashSet<>();
 
         // Confirm a unit is at the tile

@@ -4,9 +4,9 @@ import tbs_game.player.Player;
 
 public class Unit {
 
-    private UnitType type;
+    private final UnitType type;
+    private final Player owner;
     private int hp;
-    private Player owner;
 
     private final int maxMovementPoints;
     private int remainingMovementPoints;
@@ -90,5 +90,20 @@ public class Unit {
 
     public boolean isDead() {
         return this.hp == 0;
+    }
+
+    // ----- COPYING -----
+    private Unit(UnitType type, Player owner, int hp, int movementPts, boolean hasAttacked) {
+        this.type = type;
+        this.hp = hp;
+        this.owner = owner;
+
+        this.maxMovementPoints = type.moveRange;
+        this.remainingMovementPoints = movementPts;
+        this.hasAttacked = hasAttacked;
+    }
+
+    public Unit createCopy() {
+        return new Unit(type, owner, hp, remainingMovementPoints, hasAttacked);
     }
 }

@@ -27,7 +27,6 @@ public class Game {
     private final GameState state;
 
     private final Movement movement;
-    private final MoveCache moveCache = new MoveCache();
     private final ActionQueue actionQueue = new ActionQueue();
 
     private final Combat combat;
@@ -129,10 +128,6 @@ public class Game {
         };
     }
 
-    public MoveCache getMoveCache() {
-        return this.moveCache;
-    }
-
     // MOVE TO SOMETHING IDK WHAT
     public boolean resolveAction(HexPos from, HexPos to) {
         if (!Rules.canDoAction(state, from, to)) {
@@ -175,7 +170,7 @@ public class Game {
     }
 
     public Set<HexPos> getReachableHexes(HexPos from) {
-        return movement.getReachableHexes(state, from);
+        return Movement.getReachableHexes(state, from);
     }
 
     public boolean canEndTurn() {

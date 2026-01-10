@@ -10,6 +10,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import tbs_game.game.Game;
 import tbs_game.game.Move;
+import tbs_game.game.Movement;
 import tbs_game.gui.Camera;
 import tbs_game.gui.ClickResult;
 import tbs_game.gui.HexMath;
@@ -129,7 +130,7 @@ public class BoardView {
                     return ClickResult.NONE;
                 }
 
-                List<HexPos> path = game.getMoveCache().get(selectedPos, clicked).path;
+                List<HexPos> path = Movement.planMove(game.getState(), selectedPos, clicked).path;
                 animateMove(path);
                 return ClickResult.MOVE_STARTED;
             }
@@ -149,14 +150,12 @@ public class BoardView {
         this.selectedPos = pos;
         this.reachableHexes = game.getReachableHexes(pos);
         this.reachableHexes.add(pos); // Include current pos
-        game.getMoveCache().clear();
         redraw();
     }
 
     private void clearSelection() {
         this.selectedPos = null;
         this.reachableHexes = Set.of();
-        game.getMoveCache().clear();
         redraw();
     }
 
