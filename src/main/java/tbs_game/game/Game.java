@@ -2,9 +2,6 @@ package tbs_game.game;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javafx.scene.paint.Color;
@@ -27,9 +24,7 @@ public class Game {
     private final SetupHandler setup;
 
     private final Board board;
-    private final Map<HexPos, Unit> units;
-    private final Map<Player, Set<Unit>> unitsByPlayer;
-    private final Map<Player, Set<HexPos>> positionsByPlayer;
+    private final GameState state;
 
     private final Movement movement;
     private final MoveCache moveCache = new MoveCache();
@@ -44,9 +39,7 @@ public class Game {
     public Game(int width, int height, int numPlayers) {
         this.setup = new SetupHandler();
         this.board = new Board(width, height);
-        this.units = new HashMap<>();
-        this.unitsByPlayer = new HashMap<>();
-        this.positionsByPlayer = new HashMap<>();
+        this.state = new GameState();
 
         this.movement = new Movement();
         this.combat = new Combat();
@@ -61,10 +54,10 @@ public class Game {
                 newPlayer = new Player(PlayerType.USER, Color.BLUE, null);
             }
             playerList.add(newPlayer);
-            unitsByPlayer.put(newPlayer, new HashSet<>());
-            positionsByPlayer.put(newPlayer, new HashSet<>());
+            state.addNewPlayer(newPlayer);
         }
         this.currentPlayerIdx = 0;
+        state.setCurrentPlayer(playerList.get(currentPlayerIdx));
     }
 
     public Board getBoard() {
@@ -72,11 +65,11 @@ public class Game {
     }
 
     public Player getCurrentPlayer() {
-        return playerList.get(currentPlayerIdx);
+        return state.getCurrentPlayer();
     }
 
     public Set<HexPos> getPositionsForPlayer(Player player) {
-        return positionsByPlayer.get(player);
+        return state.getUnitPositionsForPlayer(player);
     }
 
     public Player getPlayer(int i) {
@@ -88,7 +81,7 @@ public class Game {
     }
 
     public Collection<HexPos> getUnitPositions() {
-        return units.keySet();
+        return state.getAllUnitPositions();
     }
 
     public ActionQueue getActionQueue() {
@@ -96,25 +89,15 @@ public class Game {
     }
 
     public Unit getUnitAt(HexPos pos) {
-        return this.units.get(pos);
+        return state.getUnitAt(pos);
     }
 
     public void placeUnitAt(HexPos pos, Unit unit) {
-        if (getUnitAt(pos) != null) {
-            return;
-        }
-
-        this.units.put(pos, unit);
-        this.unitsByPlayer.get(unit.getOwner()).add(unit);
-        this.positionsByPlayer.get(unit.getOwner()).add(pos);
+        state.placeUnitAt(pos, unit);
     }
 
     public void removeUnitAt(HexPos pos) {
-        Unit unit = units.remove(pos);
-        if (unit != null) {
-            unitsByPlayer.get(unit.getOwner()).remove(unit);
-            positionsByPlayer.get(unit.getOwner()).remove(pos);
-        }
+        state.removeUnitAt(pos);
     }
 
     public void captureUnit(HexPos attackerPos, HexPos defenderPos) {
@@ -123,10 +106,7 @@ public class Game {
     }
 
     public void moveUnitInternal(HexPos from, HexPos to) {
-        Unit unit = units.remove(from);
-        units.put(to, unit);
-        positionsByPlayer.get(unit.getOwner()).remove(from);
-        positionsByPlayer.get(unit.getOwner()).add(to);
+        state.moveUnitInternal(from, to);
     }
 
     public boolean canMove(HexPos from, HexPos to) {
@@ -196,30 +176,28 @@ public class Game {
     }
 
     public boolean canEndTurn() {
-        return unitsByPlayer.get(getCurrentPlayer())
-                .stream()
-                .allMatch(Unit::hasActed);
+        return state.canEndTurn();
     }
 
     public void endTurn() {
-        if (!canEndTurn()) {
+        if (!state.canEndTurn()) {
             return;
         }
 
         this.currentPlayerIdx = (currentPlayerIdx + 1) % numPlayers;
-        startTurn(this.currentPlayerIdx);
+        state.setCurrentPlayer(playerList.get(currentPlayerIdx));
+        startTurn();
     }
 
     public boolean isFriendly(HexPos pos, Player player) {
-        Unit unit = getUnitAt(pos);
+        Unit unit = state.getUnitAt(pos);
         return unit != null && unit.getOwner().equals(player);
     }
 
-    private void startTurn(int playerIdx) {
-        Player player = playerList.get(playerIdx);
-        for (Unit u : unitsByPlayer.get(player)) {
-            u.resetTurnState();
-        }
+    private void startTurn() {
+        Player player = state.getCurrentPlayer();
+
+        state.startTurn(player);
 
         if (player.isAI()) {
             player.getAI().doTurn(this, player);
