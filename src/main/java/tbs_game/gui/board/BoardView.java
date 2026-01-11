@@ -11,7 +11,6 @@ import javafx.scene.Group;
 import tbs_game.game.Game;
 import tbs_game.game.Move;
 import tbs_game.game.Movement;
-import tbs_game.gui.Camera;
 import tbs_game.gui.ClickResult;
 import tbs_game.gui.HexMath;
 import tbs_game.gui.HoverContext;
@@ -23,7 +22,6 @@ public class BoardView {
     public static final int TILE_RADIUS = 40;
 
     private final Game game;
-    private final Camera camera = new Camera();
 
     private final Group worldRoot = new Group();
 
@@ -42,6 +40,7 @@ public class BoardView {
 
     public BoardView(Game game) {
         this.game = game;
+
         this.isAnimating = false;
 
         this.boardLayer = new BoardLayer(game);
@@ -68,10 +67,6 @@ public class BoardView {
 
     public Group getWorldRoot() {
         return worldRoot;
-    }
-
-    public Camera getCamera() {
-        return camera;
     }
 
     public HexPos getSelected() {
@@ -221,10 +216,13 @@ public class BoardView {
     }
 
     // ----- Utility -----
+    public Point2D getLocalCoords(double mouseX, double mouseY) {
+        return boardLayer.getRoot().sceneToLocal(mouseX, mouseY);
+    }
+
     private HexPos getHexPosAt(double mouseX, double mouseY) {
         Point2D boardCoords = boardLayer.getRoot().sceneToLocal(mouseX, mouseY);
-        Point2D adjustedCoords = camera.screenToWorld(boardCoords.getX(), boardCoords.getY());
-        return HexMath.pixelToHex(adjustedCoords.getX(), adjustedCoords.getY());
+        return HexMath.pixelToHex(boardCoords.getX(), boardCoords.getY());
     }
 
     // Used for notifying when a turn's animation is over.

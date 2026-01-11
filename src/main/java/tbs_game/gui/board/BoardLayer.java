@@ -24,6 +24,7 @@ public class BoardLayer {
 
     public BoardLayer(Game game) {
         this.game = game;
+
         boardRoot.getChildren().addAll(baseLayer, overlayLayer);
     }
 

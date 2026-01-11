@@ -1,5 +1,7 @@
 package tbs_game.gui;
 
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import tbs_game.game.Game;
 import tbs_game.game.Move;
@@ -13,8 +15,13 @@ public class GameGUI {
 
     private final StackPane root;
 
+    private final Camera camera;
+    private Point2D lastMousePos;
+
     public GameGUI(Game game) {
         this.game = game;
+        this.camera = new Camera();
+
         this.boardView = new BoardView(game);
         this.hudView = new HudView(game);
 
@@ -38,9 +45,47 @@ public class GameGUI {
         root.setOnMouseClicked(e -> handleClick(e.getX(), e.getY()));
         root.setOnMouseMoved(e -> boardView.handleMouseMoved(e.getX(), e.getY()));
 
+        root.setOnMousePressed(e -> lastMousePos = new Point2D(e.getX(), e.getY()));
+        root.setOnMouseDragged(e -> {
+            Point2D now = new Point2D(e.getX(), e.getY());
+            Point2D delta = now.subtract(lastMousePos);
+
+            camera.pan(delta.getX(), delta.getY());
+            lastMousePos = now;
+
+            updateBoard();
+        });
+        root.setOnScroll(e -> {
+            boolean zoomIn = e.getDeltaY() > 0;
+            double factor = zoomIn ? 1.1 : 0.9;
+
+            Point2D before = boardView.getLocalCoords(e.getX(), e.getY());
+            camera.zoom(factor);
+            updateBoard();
+
+            Point2D after = boardView.getLocalCoords(e.getX(), e.getY());
+            Point2D delta = after.subtract(before);
+
+            if (zoomIn) {
+                camera.pan(delta.getX(), delta.getY());
+            }
+            updateBoard();
+        });
+
         hudView.initHUD();
         boardView.drawInitial();
         hudView.updateHUD(boardView.getSelected());
+    }
+
+    private void updateBoard() {
+        Node boardRoot = boardView.getWorldRoot();
+
+        double z = camera.getZoom();
+
+        boardRoot.setScaleX(z);
+        boardRoot.setScaleY(z);
+        boardRoot.setTranslateX(-camera.getX() * z);
+        boardRoot.setTranslateY(-camera.getY() * z);
     }
 
     public StackPane getRoot() {

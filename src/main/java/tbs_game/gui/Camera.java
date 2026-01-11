@@ -1,38 +1,39 @@
 package tbs_game.gui;
 
-import javafx.geometry.Point2D;
-
 public class Camera {
 
-    private double offsetX;
-    private double offsetY;
+    private double originX;
+    private double originY;
+
+    private double offsetX = 0;
+    private double offsetY = 0;
     private double zoom = 1.0;
 
+    public void setOrigin(double ox, double oy) {
+        this.originX = ox;
+        this.originY = oy;
+    }
+
     public double getX() {
-      return this.offsetX;
+        return this.offsetX;
     }
 
     public double getY() {
-      return this.offsetY;
+        return this.offsetY;
     }
 
-    public Point2D worldToScreen(double wx, double wy) {
-        return new Point2D(
-                (wx - offsetX) * zoom,
-                (wy - offsetY) * zoom
-        );
+    public double getZoom() {
+        return this.zoom;
     }
 
-    public Point2D screenToWorld(double sx, double sy) {
-        return new Point2D(
-                sx / zoom + offsetX,
-                sy / zoom + offsetY
-        );
+    public void zoom(double zoomFactor) {
+        zoom *= zoomFactor;
+        zoom = Math.clamp(zoom, 0.5, 4);
     }
 
     public void pan(double dx, double dy) {
-        offsetX += dx;
-        offsetY += dy;
+        offsetX -= dx / zoom;
+        offsetY -= dy / zoom;
     }
 
     public void setCenter(double wx, double wy, double screenW, double screenH) {
