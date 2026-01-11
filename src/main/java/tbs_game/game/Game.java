@@ -25,6 +25,7 @@ public class Game {
     private final Board board;
     private final GameState state;
 
+    // For queueing AI actions
     private final ActionQueue actionQueue = new ActionQueue();
 
     private final ArrayList<Player> playerList;
@@ -36,6 +37,7 @@ public class Game {
         this.board = new Board(width, height);
         this.state = new GameState(board);
 
+        // Set up players
         assert (numPlayers >= MIN_PLAYERS);
         assert (numPlayers <= MAX_PLAYERS);
         this.numPlayers = numPlayers;

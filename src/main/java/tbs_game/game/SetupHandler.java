@@ -104,7 +104,7 @@ public class SetupHandler {
         }
 
         Tile tile = board.getTile(pos);
-        if (!tile.getTerrain().passable) {
+        if (!tile.isPassable()) {
             return false;
         }
         if (board.getHeight() < 10) {
@@ -117,7 +117,7 @@ public class SetupHandler {
     }
 
     public static int getSpawnScore(HexPos pos, Board board) {
-        if (!board.getTile(pos).getTerrain().passable) {
+        if (!board.getTile(pos).isPassable()) {
             return Integer.MIN_VALUE;
         }
 

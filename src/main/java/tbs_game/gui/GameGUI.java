@@ -56,6 +56,10 @@ public class GameGUI {
     }
 
     private void handleClick(double mouseX, double mouseY) {
+        if (!game.getActionQueue().isEmpty() || game.getCurrentPlayer().isAI()) {
+            return;
+        }
+
         ClickResult result = boardView.handleClick(mouseX, mouseY);
 
         if (result == ClickResult.SELECTION_CHANGED) {

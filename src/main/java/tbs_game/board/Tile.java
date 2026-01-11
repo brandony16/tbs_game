@@ -16,6 +16,10 @@ public class Tile {
         this.terrain = t;
     }
 
+    public int cost() {
+        return this.terrain.moveCost;
+    }
+
     public boolean isPassable() {
         return this.terrain.passable;
     }

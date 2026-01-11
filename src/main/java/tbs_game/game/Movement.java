@@ -38,7 +38,7 @@ public final class Movement {
             HexPos step = path.get(i);
             int cost = state.getBoard().getTile(step).moveCost();
 
-            if (mover.getMovementPoints() < cost) { 
+            if (mover.getMovementPoints() < cost) {
                 break;
             }
 
@@ -80,11 +80,11 @@ public final class Movement {
                 }
 
                 Tile tile = board.getTile(neighbor);
-                if (!tile.getTerrain().passable) {
+                if (!tile.isPassable()) {
                     continue;
                 }
 
-                int terrainCost = board.getTile(neighbor).getTerrain().moveCost;
+                int terrainCost = board.getTile(neighbor).cost();
                 int newCost = currentCost + terrainCost;
 
                 if (newCost > maxMove) {

@@ -24,12 +24,13 @@ public class RandomAI implements AI {
     @Override
     public void doTurn(Game game, Player player) {
 
+        // Create copy of state to simulate moves
         GameState simState = game.getState().createSimluationCopy();
         ArrayList<HexPos> unitPositions = new ArrayList<>(simState.getUnitPositionsForPlayer(player));
 
         for (HexPos pos : unitPositions) {
             if (simState.getUnitAt(pos) == null) {
-                continue;
+                throw new Error("No unit at position. Unit positions is incorrect.");
             }
 
             ArrayList<HexPos> reachable = new ArrayList<>(Movement.getReachableHexes(simState, pos));
@@ -37,16 +38,19 @@ public class RandomAI implements AI {
                 continue;
             }
 
+            // Choose random tile of reachable to move to
             int randIdx = random.nextInt(reachable.size());
             HexPos dest = reachable.get(randIdx);
 
+            // Create and simulate the move
             Move simMove = Movement.planMove(simState, pos, dest);
             if (simMove == null) {
-                continue;
+                throw new Error("Issue planning move. No move created.");
             }
 
             ActionHandler.resolveAction(simState, pos, dest);
 
+            // Create move action. Use actual game so when the actions are executed, they update the actual game
             Action move = new MoveAction(game, simMove);
             game.getActionQueue().addAction(move);
         }
