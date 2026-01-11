@@ -14,7 +14,7 @@ public class SetupHandler {
     public static final int MIN_EDGE_DIST = 2;
     public static final HexPos center = new HexPos(0, 0);
 
-    public ArrayList<HexPos> generateSpawnSpots(Game game, int seed) {
+    public static ArrayList<HexPos> generateSpawnSpots(Game game, int seed) {
         Random random = new Random(seed);
         Board board = game.getBoard();
 
@@ -51,19 +51,19 @@ public class SetupHandler {
         return spawnSpots;
     }
 
-    public ArrayList<HexPos> generateWarriorSpawns(Game game, ArrayList<HexPos> settlerLocations, int seed) {
+    public static ArrayList<HexPos> generateUnitSpawns(Game game, ArrayList<HexPos> settlerLocations, int seed) {
         Random random = new Random(seed);
-        ArrayList<HexPos> warriorSpawns = new ArrayList<>();
+        ArrayList<HexPos> unitSpawns = new ArrayList<>();
         for (HexPos spawn : settlerLocations) {
             ArrayList<HexPos> spawnableNeighbors = getSpawnableNeighbors(game, spawn);
             int neighborIdx = random.nextInt(spawnableNeighbors.size());
-            warriorSpawns.add(spawnableNeighbors.get(neighborIdx));
+            unitSpawns.add(spawnableNeighbors.get(neighborIdx));
         }
 
-        return warriorSpawns;
+        return unitSpawns;
     }
 
-    public ArrayList<HexPos> findSpawnableHexes(Board board) {
+    public static ArrayList<HexPos> findSpawnableHexes(Board board) {
         ArrayList<HexPos> spawnableHexes = new ArrayList<>();
 
         for (HexPos pos : board.getPositions()) {
@@ -75,11 +75,11 @@ public class SetupHandler {
         return spawnableHexes;
     }
 
-    private ArrayList<HexPos> getSpawnableNeighbors(Game game, HexPos pos) {
+    private static ArrayList<HexPos> getSpawnableNeighbors(Game game, HexPos pos) {
         ArrayList<HexPos> neighbors = pos.getNeighbors();
         ArrayList<HexPos> locations = new ArrayList<>();
         for (HexPos neighbor : neighbors) {
-            if (isValidSpawn(neighbor, game.getBoard())) {
+            if (isValidSpawn(neighbor, game.getBoard()) && game.getUnitAt(neighbor) == null) {
                 locations.add(neighbor);
             }
         }
@@ -87,7 +87,7 @@ public class SetupHandler {
         return locations;
     }
 
-    private ArrayList<HexPos> updateSpawnableHexes(ArrayList<HexPos> prevList, HexPos newSpawnSpot) {
+    private static ArrayList<HexPos> updateSpawnableHexes(ArrayList<HexPos> prevList, HexPos newSpawnSpot) {
         ArrayList<HexPos> updatedPositions = new ArrayList<>();
         for (HexPos pos : prevList) {
             if (pos.distanceTo(newSpawnSpot) >= MIN_SPAWN_DIST) {
@@ -98,7 +98,7 @@ public class SetupHandler {
         return updatedPositions;
     }
 
-    public boolean isValidSpawn(HexPos pos, Board board) {
+    public static boolean isValidSpawn(HexPos pos, Board board) {
         if (!board.isOnBoard(pos)) {
             return false;
         }

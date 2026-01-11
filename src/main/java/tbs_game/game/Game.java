@@ -20,8 +20,6 @@ public class Game {
     private static final int MAX_PLAYERS = 16;
     private static final int MIN_PLAYERS = 2;
 
-    private final SetupHandler setup;
-
     private final Board board;
     private final GameState state;
 
@@ -35,7 +33,6 @@ public class Game {
     private int currentPlayerIdx;
 
     public Game(int width, int height, int numPlayers) {
-        this.setup = new SetupHandler();
         this.board = new Board(width, height);
         this.state = new GameState(board);
 
@@ -207,8 +204,8 @@ public class Game {
     }
 
     public void setUpGame() {
-        ArrayList<HexPos> spawnLocations = setup.generateSpawnSpots(this, SEED);
-        ArrayList<HexPos> soldierSpawns = setup.generateWarriorSpawns(this, spawnLocations, SEED);
+        ArrayList<HexPos> spawnLocations = SetupHandler.generateSpawnSpots(this, SEED);
+        ArrayList<HexPos> soldierSpawns = SetupHandler.generateUnitSpawns(this, spawnLocations, SEED);
         for (int i = 0; i < numPlayers; i++) {
             Unit settler = new Unit(UnitType.SETTLER, getPlayer(i));
             Unit soldier = new Unit(UnitType.SOLDIER, getPlayer(i));
@@ -220,6 +217,30 @@ public class Game {
     public static Game allPlains(int width, int height, int numPlayers) {
         Game game = new Game(width, height, numPlayers);
         game.getBoard().makeAllPlains();
+
+        return game;
+    }
+
+    public static Game battleSim(int width, int height, int numPlayers) {
+        Game game = new Game(width, height, numPlayers);
+
+        ArrayList<HexPos> soldierSpawns = SetupHandler.generateSpawnSpots(game, SEED);
+        ArrayList<HexPos> archerSpawns = SetupHandler.generateUnitSpawns(game, soldierSpawns, SEED);
+
+        for (int i = 0; i < game.getNumPlayers(); i++) {
+            Unit soldier = new Unit(UnitType.SOLDIER, game.getPlayer(i));
+            Unit archer = new Unit(UnitType.ARCHER, game.getPlayer(i));
+
+            game.placeUnitAt(soldierSpawns.get(i), soldier);
+            game.placeUnitAt(archerSpawns.get(i), archer);
+        }
+
+        // Do other cavalry after archers are placed so no overlap of spawns is possible
+        ArrayList<HexPos> cavalrySpawns = SetupHandler.generateUnitSpawns(game, soldierSpawns, SEED);
+        for (int i = 0; i < game.getNumPlayers(); i++) {
+            Unit cavalry = new Unit(UnitType.CAVALRY, game.getPlayer(i));
+            game.placeUnitAt(cavalrySpawns.get(i), cavalry);
+        }
 
         return game;
     }
