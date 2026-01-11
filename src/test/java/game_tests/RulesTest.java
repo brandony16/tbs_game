@@ -142,7 +142,7 @@ public class RulesTest {
     @Test
     void testCanMoveValid() {
         setUpSolo();
-        Set<HexPos> reachableSet = new Movement().getReachableHexes(game.getState(), unitPos);
+        Set<HexPos> reachableSet = Movement.getReachableHexes(game.getState(), unitPos);
         List<HexPos> movable = new ArrayList<>(reachableSet);
 
         canMoveManyTiles(unitPos, movable);

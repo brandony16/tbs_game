@@ -17,15 +17,12 @@ import tbs_game.units.UnitType;
 public class CombatTest {
 
     private Game game;
-    private Combat combat;
     private HexPos attackerPos;
     private HexPos defenderPos;
 
     @BeforeEach
     void init() {
         game = Game.allPlains(10, 10, 2);
-
-        combat = new Combat();
 
         attackerPos = new HexPos(0, 0);
         defenderPos = new HexPos(0, 1);
@@ -34,7 +31,6 @@ public class CombatTest {
     @AfterEach
     void reset() {
         game = null;
-        combat = null;
         attackerPos = null;
         defenderPos = null;
     }
@@ -55,7 +51,7 @@ public class CombatTest {
         Unit defender = setUpBattle();
         int startHP = defender.getHealth();
 
-        combat.attack(game.getState(), attackerPos, defenderPos);
+        Combat.attack(game.getState(), attackerPos, defenderPos);
 
         assertTrue(defender.getHealth() < startHP);
     }
@@ -68,7 +64,7 @@ public class CombatTest {
         int expectedDamage = attacker.getType().attackDamage;
         int startHP = defender.getHealth();
 
-        combat.attack(game.getState(), attackerPos, defenderPos);
+        Combat.attack(game.getState(), attackerPos, defenderPos);
 
         assertEquals(startHP - expectedDamage, defender.getHealth());
     }
@@ -78,7 +74,7 @@ public class CombatTest {
         setUpBattle();
         Unit attacker = game.getUnitAt(attackerPos);
 
-        combat.attack(game.getState(), attackerPos, defenderPos);
+        Combat.attack(game.getState(), attackerPos, defenderPos);
 
         assertTrue(attacker.hasAttacked());
     }
@@ -86,7 +82,7 @@ public class CombatTest {
     @Test
     void testAttackDoesNotKillSurvivor() {
         setUpBattle();
-        combat.attack(game.getState(), attackerPos, defenderPos);
+        Combat.attack(game.getState(), attackerPos, defenderPos);
 
         Unit defender = game.getUnitAt(defenderPos);
         assertNotNull(defender);
@@ -98,7 +94,7 @@ public class CombatTest {
         Unit defender = setUpBattle();
         defender.dealDamage(defender.getHealth()); // ensure death
 
-        combat.attack(game.getState(), attackerPos, defenderPos);
+        Combat.attack(game.getState(), attackerPos, defenderPos);
 
         assertNull(game.getUnitAt(attackerPos));
         assertNotNull(game.getUnitAt(defenderPos));

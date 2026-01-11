@@ -3,6 +3,7 @@ package tbs_game.player;
 import java.util.ArrayList;
 import java.util.Random;
 
+import tbs_game.game.ActionHandler;
 import tbs_game.game.Game;
 import tbs_game.game.GameState;
 import tbs_game.game.Move;
@@ -44,7 +45,7 @@ public class RandomAI implements AI {
                 continue;
             }
 
-            simState.moveUnitInternal(pos, dest);
+            ActionHandler.resolveAction(simState, pos, dest);
 
             Action move = new MoveAction(game, simMove);
             game.getActionQueue().addAction(move);

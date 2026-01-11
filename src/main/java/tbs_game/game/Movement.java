@@ -76,7 +76,7 @@ public final class Movement {
                     continue;
                 }
                 if (unit.getType().attackRange == 0 && state.getUnitAt(neighbor) != null) {
-                    continue;
+                    continue; // This unit cannot attack
                 }
 
                 Tile tile = board.getTile(neighbor);
@@ -93,8 +93,10 @@ public final class Movement {
 
                 if (!costSoFar.containsKey(neighbor) || newCost < costSoFar.get(neighbor)) {
                     costSoFar.put(neighbor, newCost);
-                    frontier.add(neighbor);
                     reachableHexes.add(neighbor);
+                    if (state.getUnitAt(neighbor) == null) { // Only add to frontier if not an attack
+                        frontier.add(neighbor);
+                    }
                 }
             }
         }

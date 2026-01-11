@@ -24,14 +24,12 @@ class TerrainTest {
 
     private Game game;
     private Board board;
-    private Movement movement;
     private HexPos start;
 
     @BeforeEach
     void init() {
         game = Game.allPlains(10, 10, 2);
         board = game.getBoard();
-        movement = new Movement();
         start = new HexPos(0, 0);
 
         Unit unit = new Unit(UnitType.CAVALRY, game.getPlayer(0));
@@ -120,7 +118,7 @@ class TerrainTest {
         Unit unit = game.getUnitAt(start);
         unit.spendMovementPoints(unit.getMovementPoints() - 1); // 1 movement point left
 
-        Set<HexPos> reachable = movement.getReachableHexes(game.getState(), start);
+        Set<HexPos> reachable = Movement.getReachableHexes(game.getState(), start);
 
         for (HexPos pos : start.getNeighbors()) {
             if (pos.equals(forest)) {
