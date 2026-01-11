@@ -30,6 +30,8 @@ public class Game {
 
     private final ArrayList<Player> playerList;
     private final int numPlayers;
+
+    private int numPlayersRemaining;
     private int currentPlayerIdx;
 
     public Game(int width, int height, int numPlayers) {
@@ -40,7 +42,9 @@ public class Game {
         // Set up players
         assert (numPlayers >= MIN_PLAYERS);
         assert (numPlayers <= MAX_PLAYERS);
+
         this.numPlayers = numPlayers;
+        this.numPlayersRemaining = numPlayers;
         playerList = new ArrayList<>(numPlayers);
         for (int i = 0; i < numPlayers; i++) {
             Player newPlayer = new Player(PlayerType.AI, Color.DARKRED, new RandomAI());
@@ -52,6 +56,10 @@ public class Game {
         }
         this.currentPlayerIdx = 0;
         state.setCurrentPlayer(playerList.get(currentPlayerIdx));
+    }
+
+    public boolean isGameOver() {
+        return this.state.isGameOver();
     }
 
     public Board getBoard() {
@@ -76,6 +84,10 @@ public class Game {
 
     public int getNumPlayers() {
         return this.numPlayers;
+    }
+
+    public int getNumPlayersLeft() {
+        return this.numPlayersRemaining;
     }
 
     public Collection<HexPos> getUnitPositions() {
@@ -140,6 +152,10 @@ public class Game {
         return Movement.getReachableHexes(state, from);
     }
 
+    public boolean isFriendly(HexPos pos, Player player) {
+        return state.isFriendly(pos, player);
+    }
+
     public boolean canEndTurn() {
         return state.canEndTurn();
     }
@@ -149,13 +165,11 @@ public class Game {
             return;
         }
 
-        this.currentPlayerIdx = (currentPlayerIdx + 1) % numPlayers;
+        updatePlayers();
+
+        this.currentPlayerIdx = (currentPlayerIdx + 1) % numPlayersRemaining;
         state.setCurrentPlayer(playerList.get(currentPlayerIdx));
         startTurn();
-    }
-
-    public boolean isFriendly(HexPos pos, Player player) {
-        return state.isFriendly(pos, player);
     }
 
     private void startTurn() {
@@ -165,6 +179,30 @@ public class Game {
 
         if (player.isAI()) {
             player.getAI().doTurn(this, player);
+        }
+    }
+
+    private void updatePlayers() {
+        for (int i = 0; i < playerList.size(); i++) {
+            Player player = playerList.get(i);
+            if (state.getUnitPositionsForPlayer(player).isEmpty()) { // No units left
+                if (!player.isAI()) { // User lost all units -> loss
+                    state.endGame();
+                    return;
+                }
+
+                playerList.remove(i);
+                numPlayersRemaining--;
+                if (i < currentPlayerIdx) {
+                    // If we remove a player before the current player, the index should shift down one
+                    currentPlayerIdx--;
+                }
+            }
+        }
+
+        if (playerList.size() == 1) {
+            // One player left
+            state.endGame();
         }
     }
 

@@ -7,6 +7,10 @@ import tbs_game.units.Unit;
 public class Rules {
 
     public static boolean canMove(GameState state, HexPos from, HexPos to) {
+        if (state.isGameOver()) {
+            return false;
+        }
+
         Unit unit = state.getUnitAt(from);
         Unit other = state.getUnitAt(to);
         if (unit == null) {
@@ -32,6 +36,10 @@ public class Rules {
     }
 
     public static boolean canAttack(GameState state, HexPos attackFrom, HexPos attackTo) {
+        if (state.isGameOver()) {
+            return false;
+        }
+
         Unit unit = state.getUnitAt(attackFrom);
         Unit other = state.getUnitAt(attackTo);
         if (unit == null || other == null) {
@@ -67,6 +75,10 @@ public class Rules {
     }
 
     public static boolean canDoAction(GameState state, HexPos from, HexPos to) {
+        if (state.isGameOver()) {
+            return false;
+        }
+
         Unit unit = state.getUnitAt(from);
         Unit other = state.getUnitAt(to);
 

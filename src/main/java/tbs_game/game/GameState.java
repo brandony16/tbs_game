@@ -20,6 +20,7 @@ public class GameState {
     private final Map<Player, Set<HexPos>> positionsByPlayer;
 
     private Player currentPlayer;
+    private boolean isGameOver = false;
 
     public GameState(Board board) {
         this.board = board;
@@ -27,6 +28,14 @@ public class GameState {
         this.units = new HashMap<>();
         this.unitsByPlayer = new HashMap<>();
         this.positionsByPlayer = new HashMap<>();
+    }
+
+    public void endGame() {
+        this.isGameOver = true;
+    }
+
+    public boolean isGameOver() {
+        return this.isGameOver;
     }
 
     public boolean isFriendly(HexPos pos, Player player) {
