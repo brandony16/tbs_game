@@ -5,7 +5,7 @@ import tbs_game.units.Unit;
 
 public class Combat {
 
-    public void attack(GameState state, HexPos attackSq, HexPos defenseSq) {
+    public static void attack(GameState state, HexPos attackSq, HexPos defenseSq) {
         Unit attacker = state.getUnitAt(attackSq);
         Unit defender = state.getUnitAt(defenseSq);
 

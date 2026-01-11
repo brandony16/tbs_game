@@ -6,7 +6,6 @@ import java.util.Set;
 
 import javafx.scene.paint.Color;
 import tbs_game.board.Board;
-import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.HexPos;
 import tbs_game.player.Player;
 import tbs_game.player.PlayerType;
@@ -26,10 +25,7 @@ public class Game {
     private final Board board;
     private final GameState state;
 
-    private final Movement movement;
     private final ActionQueue actionQueue = new ActionQueue();
-
-    private final Combat combat;
 
     private final ArrayList<Player> playerList;
     private final int numPlayers;
@@ -39,9 +35,6 @@ public class Game {
         this.setup = new SetupHandler();
         this.board = new Board(width, height);
         this.state = new GameState(board);
-
-        this.movement = new Movement();
-        this.combat = new Combat();
 
         assert (numPlayers >= MIN_PLAYERS);
         assert (numPlayers <= MAX_PLAYERS);
@@ -130,43 +123,15 @@ public class Game {
 
     // MOVE TO SOMETHING IDK WHAT
     public boolean resolveAction(HexPos from, HexPos to) {
-        if (!Rules.canDoAction(state, from, to)) {
-            return false;
-        }
-
-        int dist = from.distanceTo(to);
-        Unit defender = getUnitAt(to);
-        if (defender == null) {
-            return moveUnit(from, to);
-        }
-        if (dist == 1) {
-            return attackUnit(from, to);
-        }
-
-        ArrayList<HexPos> path = FractionalHex.hexLinedraw(from, to);
-        HexPos penultimatePos = path.get(path.size() - 2);
-        if (!moveUnit(from, penultimatePos)) {
-            return false;
-        }
-        return attackUnit(penultimatePos, to);
+        return ActionHandler.resolveAction(state, from, to);
     }
 
     public boolean moveUnit(HexPos from, HexPos to) {
-        if (!Rules.canMove(state, from, to)) {
-            return false;
-        }
-
-        movement.move(state, from, to);
-        return true;
+        return ActionHandler.moveUnit(state, from, to);
     }
 
     public boolean attackUnit(HexPos from, HexPos to) {
-        if (!Rules.canAttack(state, from, to)) {
-            return false;
-        }
-
-        combat.attack(state, from, to);
-        return true;
+        return ActionHandler.attackUnit(state, from, to);
     }
 
     public Set<HexPos> getReachableHexes(HexPos from) {

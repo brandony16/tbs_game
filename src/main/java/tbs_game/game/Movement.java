@@ -28,7 +28,7 @@ public final class Movement {
         return new Move(from, to, path, cost);
     }
 
-    public void move(GameState state, HexPos from, HexPos to) {
+    public static void move(GameState state, HexPos from, HexPos to) {
         Move move = planMove(state, from, to);
 
         Unit mover = state.getUnitAt(from);
@@ -38,7 +38,7 @@ public final class Movement {
             HexPos step = path.get(i);
             int cost = state.getBoard().getTile(step).moveCost();
 
-            if (mover.getMovementPoints() < cost) {
+            if (mover.getMovementPoints() < cost) { 
                 break;
             }
 
