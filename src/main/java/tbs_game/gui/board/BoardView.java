@@ -19,7 +19,7 @@ import tbs_game.units.Unit;
 
 public class BoardView {
 
-    public static final int TILE_RADIUS = 40;
+    public static final int TILE_RADIUS = 64;
 
     private final Game game;
 
@@ -38,6 +38,8 @@ public class BoardView {
 
     private boolean isAnimating;
 
+    private final Group tilingRoot = new Group();
+
     public BoardView(Game game) {
         this.game = game;
 
@@ -48,7 +50,20 @@ public class BoardView {
         this.unitLayer = new UnitLayer(game);
         this.debugLayer = new DebugLayer(game);
 
-        worldRoot.getChildren().addAll(boardLayer.getRoot(), highlightLayer.getRoot(), unitLayer.getRoot(), debugLayer.getRoot());
+        setupTilingBoards();
+        worldRoot.getChildren().addAll(tilingRoot, highlightLayer.getRoot(), unitLayer.getRoot(), debugLayer.getRoot());
+    }
+
+    private void setupTilingBoards() {
+        for (int dx = -1; dx <= 1; dx++) {
+            BoardLayer copy = new BoardLayer(game);
+            copy.drawBoard();
+
+            Group root = copy.getRoot();
+            root.setTranslateX(dx * (root.getLayoutBounds().getWidth() - TILE_RADIUS));
+
+            tilingRoot.getChildren().add(root);
+        }
     }
 
     public void showCoords() {
