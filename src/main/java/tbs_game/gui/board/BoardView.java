@@ -25,11 +25,6 @@ public class BoardView {
 
     private final Group worldRoot = new Group();
 
-    private final BoardLayer boardLayer;
-    private final HighlightLayer highlightLayer;
-    private final UnitLayer unitLayer;
-    private final DebugLayer debugLayer;
-
     private HexPos selectedPos;
     private Set<HexPos> reachableHexes = Set.of();
 
@@ -38,46 +33,50 @@ public class BoardView {
 
     private boolean isAnimating;
 
-    private final Group tilingRoot = new Group();
+    private final WorldView left;
+    private final WorldView center;
+    private final WorldView right;
 
     public BoardView(Game game) {
         this.game = game;
 
         this.isAnimating = false;
 
-        this.boardLayer = new BoardLayer(game);
-        this.highlightLayer = new HighlightLayer(game);
-        this.unitLayer = new UnitLayer(game);
-        this.debugLayer = new DebugLayer(game);
+        this.left = new WorldView(game);
+        this.center = new WorldView(game);
+        this.right = new WorldView(game);
 
-        setupTilingBoards();
-        worldRoot.getChildren().addAll(tilingRoot, highlightLayer.getRoot(), unitLayer.getRoot(), debugLayer.getRoot());
+        left.drawInitial(selectedPos, reachableHexes);
+        center.drawInitial(selectedPos, reachableHexes);
+        right.drawInitial(selectedPos, reachableHexes);
+
+        double tileShortRadius = TILE_RADIUS * Math.sqrt(3) / 2;
+        left.getRoot().setTranslateX(-width(center) + tileShortRadius);
+        right.getRoot().setTranslateX(width(center) - tileShortRadius);
+
+        worldRoot.getChildren().addAll(left.getRoot(), center.getRoot(), right.getRoot());
     }
 
-    private void setupTilingBoards() {
-        for (int dx = -1; dx <= 1; dx++) {
-            BoardLayer copy = new BoardLayer(game);
-            copy.drawBoard();
-
-            Group root = copy.getRoot();
-            root.setTranslateX(dx * (root.getLayoutBounds().getWidth() - TILE_RADIUS));
-
-            tilingRoot.getChildren().add(root);
-        }
+    private double width(WorldView view) {
+        return view.getRoot().getLayoutBounds().getWidth();
     }
 
     public void showCoords() {
-        debugLayer.drawCoords();
-        debugLayer.show();
+        left.showCoords();
+        center.showCoords();
+        right.showCoords();
     }
 
     public void showSpawnScore() {
-        debugLayer.drawSpawnScores();
-        debugLayer.show();
+        left.showSpawnScore();
+        center.showSpawnScore();
+        right.showSpawnScore();
     }
 
     public void hideDebug() {
-        debugLayer.hide();
+        left.hideDebug();
+        center.hideDebug();
+        right.hideDebug();
     }
 
     public Group getWorldRoot() {
@@ -94,14 +93,15 @@ public class BoardView {
     }
 
     public void drawInitial() {
-        boardLayer.drawBoard();
-        highlightLayer.drawHighlights(selectedPos, reachableHexes);
-        unitLayer.drawUnits();
+        left.drawInitial(selectedPos, reachableHexes);
+        center.drawInitial(selectedPos, reachableHexes);
+        right.drawInitial(selectedPos, reachableHexes);
     }
 
     public void redraw() {
-        highlightLayer.drawHighlights(selectedPos, reachableHexes);
-        unitLayer.drawUnits();
+        left.redraw(selectedPos, reachableHexes);
+        center.redraw(selectedPos, reachableHexes);
+        right.redraw(selectedPos, reachableHexes);
     }
 
     public void handleMouseMoved(double mouseX, double mouseY) {
@@ -170,43 +170,42 @@ public class BoardView {
     }
 
     private void animateMove(List<HexPos> path) {
-        HexPos start = path.get(0);
-        HexPos end = path.get(path.size() - 1);
-
-        SequentialTransition sequence = unitLayer.buildMoveAnimation(path);
-
-        sequence.setOnFinished(e -> {
-            unitLayer.moveUnitElement(start, end);
-
+        Runnable onFinish = () -> {
             clearSelection();
             redraw();
             onTurnResolved.run();
             this.isAnimating = false;
-        });
+        };
+
+        SequentialTransition leftSequence = left.buildMoveAnimation(path, onFinish);
+        SequentialTransition centerSequence = center.buildMoveAnimation(path, onFinish);
+        SequentialTransition rightSequence = right.buildMoveAnimation(path, onFinish);
 
         this.isAnimating = true;
-        sequence.play();
+        leftSequence.play();
+        centerSequence.play();
+        rightSequence.play();
     }
 
-    public void animateAIMove(Move move, Runnable onFinish) {
+    public void animateAIMove(Move move, Runnable onDone) {
         List<HexPos> path = move.path;
-        HexPos start = path.get(0);
-        HexPos end = path.get(path.size() - 1);
 
-        SequentialTransition sequence = unitLayer.buildMoveAnimation(path);
-
-        sequence.setOnFinished(e -> {
-            unitLayer.moveUnitElement(start, end);
-
+        Runnable onFinish = () -> {
             clearSelection();
             redraw();
             onTurnResolved.run();
             this.isAnimating = false;
-            onFinish.run();
-        });
+            onDone.run();
+        };
+
+        SequentialTransition leftSequence = left.buildMoveAnimation(path, onFinish);
+        SequentialTransition centerSequence = center.buildMoveAnimation(path, onFinish);
+        SequentialTransition rightSequence = right.buildMoveAnimation(path, onFinish);
 
         this.isAnimating = true;
-        sequence.play();
+        leftSequence.play();
+        centerSequence.play();
+        rightSequence.play();
     }
 
     public void setOnHoverChanged(Consumer<HoverContext> handler) {
@@ -232,11 +231,11 @@ public class BoardView {
 
     // ----- Utility -----
     public Point2D getLocalCoords(double mouseX, double mouseY) {
-        return boardLayer.getRoot().sceneToLocal(mouseX, mouseY);
+        return center.getRoot().sceneToLocal(mouseX, mouseY);
     }
 
     private HexPos getHexPosAt(double mouseX, double mouseY) {
-        Point2D boardCoords = boardLayer.getRoot().sceneToLocal(mouseX, mouseY);
+        Point2D boardCoords = center.getRoot().sceneToLocal(mouseX, mouseY);
         return HexMath.pixelToHex(boardCoords.getX(), boardCoords.getY());
     }
 

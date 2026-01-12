@@ -8,6 +8,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.StrokeType;
 import tbs_game.board.Board;
 import tbs_game.board.Terrain;
 import tbs_game.game.Game;
@@ -46,6 +47,7 @@ public class BoardLayer {
             Polygon outlineHex = HexFactory.createHex(cx, cy);
             outlineHex.setFill(Color.TRANSPARENT);
             outlineHex.setStroke(Color.BLACK);
+            outlineHex.setStrokeType(StrokeType.INSIDE);
 
             // Separate hex for clipping
             Polygon clipHex = HexFactory.createHex(cx, cy);

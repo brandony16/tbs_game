@@ -129,12 +129,12 @@ public final class TerrainRenderer {
                 AssetManager.getImage("/terrain/mountain.png")
         );
         double scale = 1.0 + rand.nextDouble() * 0.1;
-        double size = BoardView.TILE_RADIUS * 2 * scale;
+        double size = BoardView.TILE_RADIUS * 1.3 * scale;
         mountain.setFitWidth(size);
-        mountain.setFitHeight(size);
+        mountain.setPreserveRatio(true);
 
         double x = cx - size / 2;
-        double y = cy - size / 2 - BoardView.TILE_RADIUS / 4;
+        double y = cy - size / 2 - BoardView.TILE_RADIUS / 2;
 
         mountain.setX(x);
         mountain.setY(y);
