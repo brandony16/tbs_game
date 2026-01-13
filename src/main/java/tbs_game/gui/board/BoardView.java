@@ -127,16 +127,18 @@ public class BoardView {
 
         if (selectedPos == null && isFriendlyUnit) {
             selectPos(clicked);
+
             return ClickResult.SELECTION_CHANGED;
         }
 
         if (selectedPos != null) {
             if (reachableHexes.contains(clicked)) {
+                List<HexPos> path = Movement.findPath(selectedPos, clicked, game.getState());
+
                 if (!game.resolveAction(selectedPos, clicked)) {
                     return ClickResult.NONE;
                 }
 
-                List<HexPos> path = Movement.planMove(game.getState(), selectedPos, clicked).path;
                 animateMove(path);
                 return ClickResult.MOVE_STARTED;
             }

@@ -132,6 +132,7 @@ public final class Movement {
         openSet.add(start);
 
         Board board = state.getBoard();
+        Unit movingUnit = state.getUnitAt(start);
         while (!openSet.isEmpty()) {
             HexPos current = openSet.poll();
 
@@ -144,6 +145,11 @@ public final class Movement {
             for (HexPos neighbor : current.getNeighbors()) {
                 Tile tile = board.getTile(neighbor);
                 if (!board.isOnBoard(neighbor) || !tile.isPassable()) {
+                    continue;
+                }
+
+                Unit neighborUnit = state.getUnitAt(neighbor);
+                if (neighborUnit != null && state.isFriendly(neighbor, movingUnit.getOwner())) {
                     continue;
                 }
 

@@ -78,4 +78,21 @@ public record HexPos(int q, int r) {
     public String toString() {
         return "(" + q + ", " + r + ")";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof HexPos)) {
+            return false;
+        }
+        HexPos other = (HexPos) o;
+        return q == other.q && r == other.r;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * q + r;
+    }
 }
