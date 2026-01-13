@@ -50,15 +50,11 @@ public class BoardView {
         center.drawInitial(selectedPos, reachableHexes);
         right.drawInitial(selectedPos, reachableHexes);
 
-        double tileShortRadius = TILE_RADIUS * Math.sqrt(3) / 2;
-        left.getRoot().setTranslateX(-width(center) + tileShortRadius);
-        right.getRoot().setTranslateX(width(center) - tileShortRadius);
+        double boardWidth = game.getBoard().getWidth() * HexMath.HEX_WIDTH;
+        left.getRoot().setTranslateX(-boardWidth);
+        right.getRoot().setTranslateX(boardWidth);
 
         worldRoot.getChildren().addAll(left.getRoot(), center.getRoot(), right.getRoot());
-    }
-
-    private double width(WorldView view) {
-        return view.getRoot().getLayoutBounds().getWidth();
     }
 
     public void showCoords() {

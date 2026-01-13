@@ -6,6 +6,7 @@ import tbs_game.hexes.HexPos;
 public class HexMath {
 
     private static final double SQRT3 = Math.sqrt(3);
+    public static final double HEX_WIDTH = SQRT3 * BoardView.TILE_RADIUS;
 
     public static double hexToPixelX(HexPos p) {
         return BoardView.TILE_RADIUS * (SQRT3 * p.q() + SQRT3 / 2 * p.r());

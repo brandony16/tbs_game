@@ -21,14 +21,11 @@ class SetupTest {
 
     private Board board;
     private Game game;
-    private SetupHandler setup;
 
     @BeforeEach
     void setUp() {
         game = Game.allPlains(7, 7, 3);
         board = game.getBoard();
-
-        setup = new SetupHandler();
     }
 
     @Test
@@ -37,7 +34,7 @@ class SetupTest {
         HexPos water = new HexPos(0, 0);
         board.putTile(water, new Tile(Terrain.WATER));
 
-        ArrayList<HexPos> spawnable = setup.findSpawnableHexes(board);
+        ArrayList<HexPos> spawnable = SetupHandler.findSpawnableHexes(board);
 
         assertFalse(spawnable.contains(water));
         assertTrue(spawnable.size() < board.getPositions().size());
@@ -45,14 +42,14 @@ class SetupTest {
 
     @Test
     void generateSpawnSpots_returnsCorrectNumberOfSpawns() {
-        ArrayList<HexPos> spawns = setup.generateSpawnSpots(game, 1234);
+        ArrayList<HexPos> spawns = SetupHandler.generateSpawnSpots(game, 1234);
 
         assertEquals(game.getNumPlayers(), spawns.size());
     }
 
     @Test
     void generateSpawnSpots_respectsMinimumSpawnDistance() {
-        ArrayList<HexPos> spawns = setup.generateSpawnSpots(game, 5678);
+        ArrayList<HexPos> spawns = SetupHandler.generateSpawnSpots(game, 5678);
 
         for (int i = 0; i < spawns.size(); i++) {
             for (int j = i + 1; j < spawns.size(); j++) {
@@ -67,7 +64,7 @@ class SetupTest {
 
     @Test
     void generateSpawnSpots_hasNoDuplicatePositions() {
-        ArrayList<HexPos> spawns = setup.generateSpawnSpots(game, 42);
+        ArrayList<HexPos> spawns = SetupHandler.generateSpawnSpots(game, 42);
 
         Set<HexPos> unique = new HashSet<>(spawns);
         assertEquals(spawns.size(), unique.size());
@@ -75,8 +72,8 @@ class SetupTest {
 
     @Test
     void generateSpawnSpots_isDeterministicForSameSeed() {
-        ArrayList<HexPos> first = setup.generateSpawnSpots(game, 999);
-        ArrayList<HexPos> second = setup.generateSpawnSpots(game, 999);
+        ArrayList<HexPos> first = SetupHandler.generateSpawnSpots(game, 999);
+        ArrayList<HexPos> second = SetupHandler.generateSpawnSpots(game, 999);
 
         assertEquals(first, second);
     }

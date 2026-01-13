@@ -20,7 +20,9 @@ public class GameGUI {
 
     public GameGUI(Game game) {
         this.game = game;
-        this.camera = new Camera();
+
+        double boardWidth = game.getBoard().getWidth() * HexMath.HEX_WIDTH;
+        this.camera = new Camera(boardWidth);
 
         this.boardView = new BoardView(game);
         this.hudView = new HudView(game);
