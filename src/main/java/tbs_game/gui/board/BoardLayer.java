@@ -40,8 +40,8 @@ public class BoardLayer {
         Board board = game.getBoard();
 
         for (AxialPos pos : board.getPositions()) {
-            double cx = HexMath.hexToPixelX(pos);
-            double cy = HexMath.hexToPixelY(pos);
+            double cx = HexMath.axialToPixelX(pos);
+            double cy = HexMath.axialToPixelY(pos);
 
             // Visible outline hex
             Polygon outlineHex = HexFactory.createHex(cx, cy);

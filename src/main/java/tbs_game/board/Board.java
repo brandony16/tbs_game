@@ -1,6 +1,5 @@
 package tbs_game.board;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,19 +49,6 @@ public class Board {
 
     public boolean isOnBoard(AxialPos pos) {
         return tiles.get(pos) != null;
-    }
-
-    public ArrayList<AxialPos> getNeighbors(AxialPos pos) {
-        ArrayList<AxialPos> neighbors = new ArrayList<>();
-
-        for (AxialPos dir : AxialPos.directions) {
-            AxialPos neighbor = pos.add(dir);
-            if (isOnBoard(neighbor)) {
-                neighbors.add(neighbor);
-            }
-        }
-
-        return neighbors;
     }
 
     private void initializeTiles() {

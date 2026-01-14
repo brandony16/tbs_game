@@ -55,8 +55,8 @@ public class UnitLayer {
     }
 
     private Group drawUnitElement(AxialPos pos) {
-        double cx = HexMath.hexToPixelX(pos);
-        double cy = HexMath.hexToPixelY(pos);
+        double cx = HexMath.axialToPixelX(pos);
+        double cy = HexMath.axialToPixelY(pos);
 
         Group group = new Group();
         Unit unit = game.getUnitAt(pos);
@@ -78,8 +78,8 @@ public class UnitLayer {
             AxialPos a = path.get(i - 1);
             AxialPos b = path.get(i);
 
-            double dx = HexMath.hexToPixelX(b) - HexMath.hexToPixelX(a);
-            double dy = HexMath.hexToPixelY(b) - HexMath.hexToPixelY(a);
+            double dx = HexMath.axialToPixelX(b) - HexMath.axialToPixelX(a);
+            double dy = HexMath.axialToPixelY(b) - HexMath.axialToPixelY(a);
 
             TranslateTransition tt = new TranslateTransition(Duration.millis(200));
             tt.setByX(dx);

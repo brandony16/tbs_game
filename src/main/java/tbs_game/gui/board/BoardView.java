@@ -234,7 +234,7 @@ public class BoardView {
 
     private AxialPos getHexPosAt(double mouseX, double mouseY) {
         Point2D boardCoords = center.getRoot().sceneToLocal(mouseX, mouseY);
-        return HexMath.pixelToHex(boardCoords.getX(), boardCoords.getY());
+        return HexMath.pixelToAxial(boardCoords.getX(), boardCoords.getY());
     }
 
     // Used for notifying when a turn's animation is over.

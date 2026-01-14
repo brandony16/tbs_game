@@ -12,10 +12,10 @@ public class SetupHandler {
 
     public static final int MIN_SPAWN_DIST = 4;
     public static final int MIN_EDGE_DIST = 2;
-    public static final AxialPos center = new AxialPos(0, 0);
 
     public static ArrayList<AxialPos> generateSpawnSpots(Game game, int seed) {
         Random random = new Random(seed);
+        GameState state = game.getState();
         Board board = game.getBoard();
 
         int numPlayers = game.getNumPlayers();
@@ -38,7 +38,7 @@ public class SetupHandler {
                 int minDist = Integer.MAX_VALUE;
 
                 for (AxialPos spawn : spawnSpots) {
-                    minDist = Math.min(minDist, spawn.distanceTo(pos));
+                    minDist = Math.min(minDist, state.distanceBetween(spawn, pos));
                 }
 
                 int score = minDist * 10 + getSpawnScore(pos, board);
@@ -49,7 +49,7 @@ public class SetupHandler {
                 }
             }
             spawnSpots.add(best);
-            spawnableSpots = updateSpawnableHexes(spawnableSpots, best);
+            spawnableSpots = updateSpawnableHexes(state, spawnableSpots, best);
         }
 
         return spawnSpots;
@@ -91,10 +91,10 @@ public class SetupHandler {
         return locations;
     }
 
-    private static ArrayList<AxialPos> updateSpawnableHexes(ArrayList<AxialPos> prevList, AxialPos newSpawnSpot) {
+    private static ArrayList<AxialPos> updateSpawnableHexes(GameState state, ArrayList<AxialPos> prevList, AxialPos newSpawnSpot) {
         ArrayList<AxialPos> updatedPositions = new ArrayList<>();
         for (AxialPos pos : prevList) {
-            if (pos.distanceTo(newSpawnSpot) >= MIN_SPAWN_DIST) {
+            if (state.distanceBetween(pos, newSpawnSpot) >= MIN_SPAWN_DIST) {
                 updatedPositions.add(pos);
             }
         }

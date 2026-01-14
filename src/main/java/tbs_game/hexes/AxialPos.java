@@ -92,6 +92,13 @@ public class AxialPos {
         return (int) ((Math.abs(q) + Math.abs(r) + Math.abs(-q - r)) / 2);
     }
 
+    /**
+     * Computes distance in infinite axial hex space. Does not wrap around board
+     * edges
+     *
+     * @param other the other hexpos to find the distance to
+     * @return the distance in number of hexes, including the end hex
+     */
     public int distanceTo(AxialPos other) {
         return subtract(other).length();
     }

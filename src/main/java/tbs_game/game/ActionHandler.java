@@ -2,7 +2,6 @@ package tbs_game.game;
 
 import java.util.ArrayList;
 
-import tbs_game.hexes.FractionalHex;
 import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 
@@ -13,7 +12,7 @@ public class ActionHandler {
             return false;
         }
 
-        int dist = from.distanceTo(to);
+        int dist = state.distanceBetween(from, to);
         Unit defender = state.getUnitAt(to);
         if (defender == null) {
             return moveUnit(state, from, to);
@@ -22,7 +21,7 @@ public class ActionHandler {
             return attackUnit(state, from, to);
         }
 
-        ArrayList<AxialPos> path = FractionalHex.hexLinedraw(from, to);
+        ArrayList<AxialPos> path = Movement.findPath(from, to, state);
         AxialPos penultimatePos = path.get(path.size() - 2);
         if (!moveUnit(state, from, penultimatePos)) {
             return false;

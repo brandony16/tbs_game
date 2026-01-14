@@ -71,7 +71,12 @@ public final class Movement {
             AxialPos current = frontier.poll();
             int currentCost = costSoFar.get(current);
 
-            for (AxialPos neighbor : board.getNeighbors(current)) {
+            for (AxialPos rawNeighbor : current.getNeighbors()) {
+                AxialPos neighbor = state.wrap(rawNeighbor);
+                if (!board.isOnBoard(neighbor)) {
+                    continue; // Vertical bounds check
+                }
+
                 if (state.isFriendly(neighbor, unit.getOwner())) {
                     continue;
                 }
@@ -105,14 +110,15 @@ public final class Movement {
     }
 
     /**
-     * Finds the shortest path between two HexPos using the A* algorithm
+     * Finds the shortest path between two HexPos using the A* algorithm.
+     * Includes the starting tile.
      *
      * @param start - The pos to start at
      * @param end - The pos to end at
      * @return Ordered list of HexPos that represent the path found
      */
     public static ArrayList<AxialPos> findPath(AxialPos start, AxialPos end, GameState state) {
-        if (start.distanceTo(end) == 1) { // Adjacent tiles
+        if (state.distanceBetween(start, end) == 1) { // Adjacent tiles
             return new ArrayList<AxialPos>() {
                 {
                     add(start);
@@ -128,7 +134,7 @@ public final class Movement {
         PriorityQueue<AxialPos> openSet = new PriorityQueue<>(Comparator.comparingDouble(n -> fScore.get(n)));
 
         gScore.put(start, 0);
-        fScore.put(start, heuristic(start, end));
+        fScore.put(start, heuristic(state, start, end));
         openSet.add(start);
 
         Board board = state.getBoard();
@@ -141,7 +147,9 @@ public final class Movement {
 
             int currentG = gScore.get(current);
 
-            for (AxialPos neighbor : current.getNeighbors()) {
+            for (AxialPos rawNeighbor : current.getNeighbors()) {
+                AxialPos neighbor = state.wrap(rawNeighbor);
+
                 Tile tile = board.getTile(neighbor);
                 if (!board.isOnBoard(neighbor) || !tile.isPassable()) {
                     continue;
@@ -161,7 +169,7 @@ public final class Movement {
 
                 cameFrom.put(neighbor, current);
                 gScore.put(neighbor, tentativeG);
-                fScore.put(neighbor, tentativeG + heuristic(neighbor, end));
+                fScore.put(neighbor, tentativeG + heuristic(state, neighbor, end));
                 openSet.add(neighbor);
             }
         }
@@ -180,8 +188,8 @@ public final class Movement {
         return count;
     }
 
-    private static int heuristic(AxialPos a, AxialPos b) {
-        return a.distanceTo(b) * 1; // dist * min terrain cost
+    private static int heuristic(GameState state, AxialPos a, AxialPos b) {
+        return state.distanceBetween(a, b) * 1; // dist * min terrain cost
     }
 
     private static ArrayList<AxialPos> reconstructPath(

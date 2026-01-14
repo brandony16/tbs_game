@@ -8,15 +8,15 @@ public class HexMath {
     private static final double SQRT3 = Math.sqrt(3);
     public static final double HEX_WIDTH = SQRT3 * BoardView.TILE_RADIUS;
 
-    public static double hexToPixelX(AxialPos p) {
+    public static double axialToPixelX(AxialPos p) {
         return BoardView.TILE_RADIUS * (SQRT3 * p.q() + SQRT3 / 2 * p.r());
     }
 
-    public static double hexToPixelY(AxialPos p) {
+    public static double axialToPixelY(AxialPos p) {
         return BoardView.TILE_RADIUS * (3.0 / 2 * p.r());
     }
 
-    public static AxialPos pixelToHex(double x, double y) {
+    public static AxialPos pixelToAxial(double x, double y) {
         double q = (SQRT3 / 3 * x - 1.0 / 3 * y) / BoardView.TILE_RADIUS;
         double r = (2.0 / 3 * y) / BoardView.TILE_RADIUS;
         return hexRound(q, r);

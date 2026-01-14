@@ -196,7 +196,7 @@ public class RulesTest {
     void testCanUnitMoveDistanceZeroDistance() {
         setUpSolo();
         Unit unit = game.getUnitAt(unitPos);
-        assertTrue(Rules.canUnitMoveDistance(unit, unitPos, unitPos));
+        assertTrue(Rules.canUnitMoveDistance(game.getState(), unit, unitPos, unitPos));
     }
 
     @Test
@@ -207,7 +207,7 @@ public class RulesTest {
 
         // Move within movement points
         AxialPos target = new AxialPos(unitPos.q() + range, unitPos.r());
-        assertTrue(Rules.canUnitMoveDistance(unit, unitPos, target));
+        assertTrue(Rules.canUnitMoveDistance(game.getState(), unit, unitPos, target));
     }
 
     @Test
@@ -218,7 +218,7 @@ public class RulesTest {
 
         // Move exactly max distance
         AxialPos target = new AxialPos(unitPos.q() + range, unitPos.r());
-        assertTrue(Rules.canUnitMoveDistance(unit, unitPos, target));
+        assertTrue(Rules.canUnitMoveDistance(game.getState(), unit, unitPos, target));
     }
 
     @Test
@@ -229,7 +229,7 @@ public class RulesTest {
 
         // Move one further than allowed
         AxialPos target = new AxialPos(unitPos.q() + range + 1, unitPos.r());
-        assertFalse(Rules.canUnitMoveDistance(unit, unitPos, target));
+        assertFalse(Rules.canUnitMoveDistance(game.getState(), unit, unitPos, target));
     }
 
     // ----- canDoAction -----

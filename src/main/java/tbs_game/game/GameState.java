@@ -45,6 +45,24 @@ public class GameState {
         return new OffsetPos(newCol, pos.r()).toAxial();
     }
 
+    public int distanceBetween(AxialPos a, AxialPos b) {
+        int min = Integer.MAX_VALUE;
+
+        // On a horizontally wrapped board, a pos of q equals a pos of q + width.
+        // 3 board images gives 3 images of the same tile, being: q - width, q, and q + width
+        for (int k = -1; k <= 1; k++) {
+            AxialPos image = new AxialPos(
+                    b.q + k * width,
+                    b.r
+            );
+
+            int d = a.distanceTo(image);
+            min = Math.min(min, d);
+        }
+
+        return min;
+    }
+
     public void endGame() {
         this.isGameOver = true;
     }

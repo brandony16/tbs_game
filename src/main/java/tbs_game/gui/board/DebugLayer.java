@@ -36,8 +36,8 @@ public class DebugLayer {
         Board board = game.getBoard();
 
         for (AxialPos pos : board.getPositions()) {
-            double cx = HexMath.hexToPixelX(pos);
-            double cy = HexMath.hexToPixelY(pos);
+            double cx = HexMath.axialToPixelX(pos);
+            double cy = HexMath.axialToPixelY(pos);
 
             Text coord = getTileCoord(pos, cx, cy);
             debugRoot.getChildren().add(coord);
@@ -50,8 +50,8 @@ public class DebugLayer {
         Board board = game.getBoard();
 
         for (AxialPos pos : board.getPositions()) {
-            double cx = HexMath.hexToPixelX(pos);
-            double cy = HexMath.hexToPixelY(pos);
+            double cx = HexMath.axialToPixelX(pos);
+            double cy = HexMath.axialToPixelY(pos);
 
             Text coord = getSpawnScore(pos, cx, cy);
             debugRoot.getChildren().add(coord);

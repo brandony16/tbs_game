@@ -63,13 +63,13 @@ public class Rules {
 
         // Ranged attack
         int range = unit.getType().attackRange;
-        int dist = attackFrom.distanceTo(attackTo);
+        int dist = state.distanceBetween(attackFrom, attackTo);
         return dist <= range;
     }
 
-    public static boolean canUnitMoveDistance(Unit unit, AxialPos from, AxialPos to) {
+    public static boolean canUnitMoveDistance(GameState state, Unit unit, AxialPos from, AxialPos to) {
         int maxMoveDist = unit.getMovementPoints();
-        int moveDist = from.distanceTo(to);
+        int moveDist = state.distanceBetween(from, to);
 
         return moveDist <= maxMoveDist;
     }
@@ -94,13 +94,13 @@ public class Rules {
             return false;
         }
 
-        int dist = from.distanceTo(to);
+        int dist = state.distanceBetween(from, to);
         if (dist <= unit.getType().attackRange) {
             return canAttack(state, from, to);
         }
 
         if (unit.getAttackType() == AttackType.RANGED) {
-            return false; // No moving then attacking in one move for ranged units
+            return false; // No moving then attacking in one action for ranged units
         }
         if (unit.getAttackType() == AttackType.NONE) {
             return false;
