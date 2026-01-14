@@ -23,8 +23,4 @@ public class Tile {
     public boolean isPassable() {
         return this.terrain.passable;
     }
-
-    public int moveCost() {
-        return this.terrain.moveCost;
-    }
 }

@@ -16,9 +16,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Game game = new Game(25, 12, 10);
-        // game.setUpGame();
-        Game game = Game.battleSim(25, 20, 10);
+        Game game = new Game(25, 20, 10);
+        game.setUpGame();
 
         GameGUI gui = new GameGUI(game);
 

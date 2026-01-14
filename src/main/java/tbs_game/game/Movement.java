@@ -36,7 +36,7 @@ public final class Movement {
         HexPos prev = path.get(0);
         for (int i = 1; i < path.size(); i++) {
             HexPos step = path.get(i);
-            int cost = state.getBoard().getTile(step).moveCost();
+            int cost = state.getBoard().getTile(step).cost();
 
             if (mover.getMovementPoints() < cost) {
                 break;
@@ -153,7 +153,7 @@ public final class Movement {
                     continue;
                 }
 
-                int tentativeG = currentG + tile.moveCost();
+                int tentativeG = currentG + tile.cost();
 
                 int bestKnown = gScore.getOrDefault(neighbor, INF);
                 if (tentativeG >= bestKnown) {
@@ -177,7 +177,7 @@ public final class Movement {
         int count = 0;
         for (int i = 1; i < path.size(); i++) { // Skip first tile
             HexPos pos = path.get(i);
-            int cost = state.getBoard().getTile(pos).moveCost();
+            int cost = state.getBoard().getTile(pos).cost();
             count += cost;
         }
 

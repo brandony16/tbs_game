@@ -2,6 +2,7 @@ package tbs_game.game;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javafx.scene.paint.Color;
@@ -60,7 +61,7 @@ public class Game {
     }
 
     public Board getBoard() {
-        return board;
+        return this.board;
     }
 
     public GameState getState() {
@@ -71,7 +72,7 @@ public class Game {
         return state.getCurrentPlayer();
     }
 
-    public Set<HexPos> getPositionsForPlayer(Player player) {
+    public List<HexPos> getPositionsForPlayer(Player player) {
         return state.getUnitPositionsForPlayer(player);
     }
 
@@ -96,34 +97,54 @@ public class Game {
     }
 
     public Unit getUnitAt(HexPos pos) {
+        pos = state.wrap(pos);
         return state.getUnitAt(pos);
     }
 
     public void placeUnitAt(HexPos pos, Unit unit) {
+        pos = state.wrap(pos);
+
         state.placeUnitAt(pos, unit);
     }
 
     public void removeUnitAt(HexPos pos) {
+        pos = state.wrap(pos);
+
         state.removeUnitAt(pos);
     }
 
     public void captureUnit(HexPos attackerPos, HexPos defenderPos) {
+        attackerPos = state.wrap(attackerPos);
+        defenderPos = state.wrap(defenderPos);
+
         state.captureUnit(attackerPos, defenderPos);
     }
 
     public void moveUnitInternal(HexPos from, HexPos to) {
+        from = state.wrap(from);
+        to = state.wrap(to);
+
         state.moveUnitInternal(from, to);
     }
 
     public boolean canMove(HexPos from, HexPos to) {
+        from = state.wrap(from);
+        to = state.wrap(to);
+
         return Rules.canMove(state, from, to);
     }
 
     public boolean canAttack(HexPos attackFrom, HexPos attackTo) {
+        attackFrom = state.wrap(attackFrom);
+        attackTo = state.wrap(attackTo);
+
         return Rules.canAttack(state, attackFrom, attackTo);
     }
 
     public boolean canPerform(ActionType action, HexPos from, HexPos to) {
+        from = state.wrap(from);
+        to = state.wrap(to);
+
         return switch (action) {
             case MOVE ->
                 canMove(from, to);
@@ -132,24 +153,36 @@ public class Game {
         };
     }
 
-    // MOVE TO SOMETHING IDK WHAT
     public boolean resolveAction(HexPos from, HexPos to) {
+        from = state.wrap(from);
+        to = state.wrap(to);
+
         return ActionHandler.resolveAction(state, from, to);
     }
 
     public boolean moveUnit(HexPos from, HexPos to) {
+        from = state.wrap(from);
+        to = state.wrap(to);
+
         return ActionHandler.moveUnit(state, from, to);
     }
 
     public boolean attackUnit(HexPos from, HexPos to) {
+        from = state.wrap(from);
+        to = state.wrap(to);
+
         return ActionHandler.attackUnit(state, from, to);
     }
 
     public Set<HexPos> getReachableHexes(HexPos from) {
+        from = state.wrap(from);
+
         return Movement.getReachableHexes(state, from);
     }
 
     public boolean isFriendly(HexPos pos, Player player) {
+        pos = state.wrap(pos);
+
         return state.isFriendly(pos, player);
     }
 

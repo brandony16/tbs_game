@@ -65,13 +65,13 @@ public class Board {
     }
 
     private void initializeTiles() {
-        int top = -height / 2;
-        int bottom = height / 2;
-        int left = -width / 2;
-        int right = width / 2;
-        for (int r = top; r <= bottom; r++) { // pointy top
-            int r_offset = (int) Math.floor(r / 2.0); // or r>>1
-            for (int q = left - r_offset; q <= right - r_offset; q++) {
+        int top = 0;
+        int bottom = height;
+        int left = 0;
+        int right = width;
+        for (int r = top; r < bottom; r++) { // pointy top
+            int r_offset = r >> 1; // Divide by 2
+            for (int q = left - r_offset; q < right - r_offset; q++) {
                 Terrain type = Terrain.PLAINS;
                 if (random.nextDouble() < 0.4) {
                     type = Terrain.WATER;

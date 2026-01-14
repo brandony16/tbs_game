@@ -51,7 +51,7 @@ public record HexPos(int q, int r) {
         return neighbors;
     }
 
-    static public ArrayList<HexPos> diagonals = new ArrayList<HexPos>() {
+    public static ArrayList<HexPos> diagonals = new ArrayList<HexPos>() {
         {
             add(new HexPos(2, -1));
             add(new HexPos(1, -2));

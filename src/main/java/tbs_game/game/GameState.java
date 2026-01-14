@@ -1,8 +1,10 @@
 package tbs_game.game;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +16,7 @@ import tbs_game.units.Unit;
 public class GameState {
 
     private final Board board;
+    private final int width;
 
     private final Map<HexPos, Unit> units;
     private final Map<Player, Set<Unit>> unitsByPlayer;
@@ -24,10 +27,21 @@ public class GameState {
 
     public GameState(Board board) {
         this.board = board;
+        this.width = board.getWidth();
 
         this.units = new HashMap<>();
         this.unitsByPlayer = new HashMap<>();
         this.positionsByPlayer = new HashMap<>();
+    }
+
+    public HexPos wrap(HexPos pos) {
+        // Get offset col
+        int parity = pos.r() & 1;
+        int col = pos.q() + (pos.r() - parity) / 2;
+
+        col = ((col % width) + width) % width;
+
+        return new HexPos(col, pos.r());
     }
 
     public void endGame() {
@@ -65,12 +79,12 @@ public class GameState {
         positionsByPlayer.put(player, new HashSet<>());
     }
 
-    public Set<HexPos> getUnitPositionsForPlayer(Player p) {
-        return positionsByPlayer.get(p);
+    public List<HexPos> getUnitPositionsForPlayer(Player p) {
+        return new ArrayList<>(positionsByPlayer.get(p));
     }
 
     public Collection<HexPos> getAllUnitPositions() {
-        return units.keySet();
+        return List.copyOf(units.keySet());
     }
 
     public Unit getUnitAt(HexPos pos) {
@@ -127,6 +141,8 @@ public class GameState {
             Player currentPlayer
     ) {
         this.board = board;
+        this.width = board.getWidth();
+
         this.units = units;
         this.unitsByPlayer = unitsByPlayer;
         this.positionsByPlayer = positionsByPlayer;

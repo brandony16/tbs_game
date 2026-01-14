@@ -31,6 +31,10 @@ public class SetupHandler {
             HexPos best = null;
             int bestScore = -1;
             for (HexPos pos : spawnableSpots) {
+                if (getSpawnableNeighbors(game, pos).isEmpty()) {
+                    continue; // No place to put warrior after
+                }
+
                 int minDist = Integer.MAX_VALUE;
 
                 for (HexPos spawn : spawnSpots) {

@@ -58,7 +58,7 @@ public class Rules {
             return false;
         }
         if (unit.getAttackType() == AttackType.MELEE) {
-            return unit.getMovementPoints() >= state.getBoard().getTile(attackTo).moveCost();
+            return unit.getMovementPoints() >= state.getBoard().getTile(attackTo).cost();
         }
 
         // Ranged attack
