@@ -242,8 +242,8 @@ public class Game {
         for (int i = 0; i < numPlayers; i++) {
             Unit settler = new Unit(UnitType.SETTLER, getPlayer(i));
             Unit soldier = new Unit(UnitType.SOLDIER, getPlayer(i));
-            placeUnitAt(spawnLocations.get(i), settler);
-            placeUnitAt(soldierSpawns.get(i), soldier);
+            state.placeUnitAt(spawnLocations.get(i), settler);
+            state.placeUnitAt(soldierSpawns.get(i), soldier);
         }
     }
 

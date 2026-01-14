@@ -8,6 +8,7 @@ import java.util.Random;
 
 import tbs_game.game.Game;
 import tbs_game.hexes.AxialPos;
+import tbs_game.hexes.OffsetPos;
 
 public class Board {
 
@@ -65,18 +66,13 @@ public class Board {
     }
 
     private void initializeTiles() {
-        int top = 0;
-        int bottom = height;
-        int left = 0;
-        int right = width;
-        for (int r = top; r < bottom; r++) { // pointy top
-            int r_offset = r >> 1; // Divide by 2
-            for (int q = left - r_offset; q < right - r_offset; q++) {
+        for (int row = 0; row < height; row++) { // pointy top
+            for (int col = 0; col < width; col++) {
                 Terrain type = Terrain.PLAINS;
                 if (random.nextDouble() < 0.4) {
                     type = Terrain.WATER;
                 }
-                tiles.put(new AxialPos(q, r), new Tile(type));
+                tiles.put(new OffsetPos(col, row).toAxial(), new Tile(type));
             }
         }
 

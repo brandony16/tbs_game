@@ -10,6 +10,7 @@ import java.util.Set;
 
 import tbs_game.board.Board;
 import tbs_game.hexes.AxialPos;
+import tbs_game.hexes.OffsetPos;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
 
@@ -35,13 +36,13 @@ public class GameState {
     }
 
     public AxialPos wrap(AxialPos pos) {
-        // Get offset col
-        int parity = pos.r() & 1;
-        int col = pos.q() + (pos.r() - parity) / 2;
+        // Convert to offset for ease of calculation
+        OffsetPos offset = pos.toOffset();
 
-        col = ((col % width) + width) % width;
+        int newCol = ((offset.col % width) + width) % width;
 
-        return new AxialPos(col, pos.r());
+        // Back to axial
+        return new OffsetPos(newCol, pos.r()).toAxial();
     }
 
     public void endGame() {
