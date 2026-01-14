@@ -132,7 +132,6 @@ public final class Movement {
         openSet.add(start);
 
         Board board = state.getBoard();
-        Unit movingUnit = state.getUnitAt(start);
         while (!openSet.isEmpty()) {
             AxialPos current = openSet.poll();
 
@@ -149,8 +148,8 @@ public final class Movement {
                 }
 
                 Unit neighborUnit = state.getUnitAt(neighbor);
-                if (neighborUnit != null && state.isFriendly(neighbor, movingUnit.getOwner())) {
-                    continue;
+                if (neighborUnit != null && !neighbor.equals(end)) {
+                    continue; // Cannot move through unit (unless at end of path)
                 }
 
                 int tentativeG = currentG + tile.cost();
@@ -163,10 +162,7 @@ public final class Movement {
                 cameFrom.put(neighbor, current);
                 gScore.put(neighbor, tentativeG);
                 fScore.put(neighbor, tentativeG + heuristic(neighbor, end));
-
-                if (!openSet.contains(neighbor)) {
-                    openSet.add(neighbor);
-                }
+                openSet.add(neighbor);
             }
         }
 

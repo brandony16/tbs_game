@@ -55,6 +55,12 @@ public class AxialPos {
         return AxialPos.directions.get(direction);
     }
 
+    /**
+     * Gets the i-th neighbor of this hex. i=0 is the hex directly to the right,
+     * and proceeds counter clockwise from there
+     *
+     * @param direction - the index of direction. 0-5
+     */
     public AxialPos neighbor(int direction) {
         return add(AxialPos.direction(direction));
     }

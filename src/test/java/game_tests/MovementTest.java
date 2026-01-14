@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import tbs_game.game.Game;
 import tbs_game.game.Movement;
 import tbs_game.hexes.AxialPos;
+import tbs_game.hexes.OffsetPos;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
@@ -28,7 +29,7 @@ public class MovementTest {
     @BeforeEach
     void init() {
         game = Game.allPlains(10, 10, 2);
-        unitPos = new AxialPos(0, 0);
+        unitPos = new OffsetPos(5, 5).toAxial();
     }
 
     @AfterEach
@@ -56,7 +57,7 @@ public class MovementTest {
     @Test
     void testMoveUpdatesPosition() {
         setUpSoloUnit();
-        AxialPos target = new AxialPos(1, 0);
+        AxialPos target = unitPos.neighbor(0);
 
         Movement.move(game.getState(), unitPos, target);
 
@@ -70,7 +71,7 @@ public class MovementTest {
         Unit unit = game.getUnitAt(unitPos);
         int startMP = unit.getMovementPoints();
 
-        AxialPos target = new AxialPos(1, 0);
+        AxialPos target = unitPos.neighbor(1);
         int dist = unitPos.distanceTo(target);
 
         Movement.move(game.getState(), unitPos, target);
@@ -83,7 +84,7 @@ public class MovementTest {
         setUpSoloUnit();
         Unit unit = game.getUnitAt(unitPos);
 
-        AxialPos target = new AxialPos(unit.getMaxMovementPoints(), 0);
+        AxialPos target = unitPos.add(new AxialPos(unit.getMaxMovementPoints(), 0));
         int dist = unitPos.distanceTo(target);
 
         Movement.move(game.getState(), unitPos, target);
@@ -122,7 +123,7 @@ public class MovementTest {
     @Test
     void testGetReachableHexesExcludesFriendlyUnits() {
         setUpSoloUnit();
-        AxialPos friendlyPos = new AxialPos(1, 0);
+        AxialPos friendlyPos = unitPos.neighbor(4);
         setUpFriendlyBlocker(friendlyPos);
 
         Set<AxialPos> reachable = Movement.getReachableHexes(game.getState(), unitPos);
@@ -133,7 +134,7 @@ public class MovementTest {
     @Test
     void testGetReachableHexesIncludesEnemyUnits() {
         setUpSoloUnit();
-        AxialPos enemyPos = new AxialPos(1, 0);
+        AxialPos enemyPos = unitPos.neighbor(4);
         setUpEnemyUnit(enemyPos);
 
         Set<AxialPos> reachable = Movement.getReachableHexes(game.getState(), unitPos);

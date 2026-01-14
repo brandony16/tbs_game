@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import tbs_game.game.Combat;
 import tbs_game.game.Game;
 import tbs_game.hexes.AxialPos;
+import tbs_game.hexes.OffsetPos;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
@@ -24,8 +25,8 @@ public class CombatTest {
     void init() {
         game = Game.allPlains(10, 10, 2);
 
-        attackerPos = new AxialPos(0, 0);
-        defenderPos = new AxialPos(0, 1);
+        attackerPos = new OffsetPos(5, 5).toAxial();
+        defenderPos = new OffsetPos(6, 5).toAxial();
     }
 
     @AfterEach

@@ -10,12 +10,14 @@ import org.junit.jupiter.api.Test;
 
 import tbs_game.game.Game;
 import tbs_game.hexes.AxialPos;
+import tbs_game.hexes.OffsetPos;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
 public class GameTest {
 
     private Game game;
+    private final AxialPos start = new OffsetPos(5, 5).toAxial();
 
     @BeforeEach
     void init() {
@@ -25,86 +27,80 @@ public class GameTest {
     @Test
     void placeUnit() {
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
-        AxialPos from = new AxialPos(0, 0);
 
-        assertNull(game.getUnitAt(from));
-        game.placeUnitAt(from, unit);
-        assertNotNull(game.getUnitAt(from));
-        assertEquals(unit, game.getUnitAt(from));
+        assertNull(game.getUnitAt(start));
+        game.placeUnitAt(start, unit);
+        assertNotNull(game.getUnitAt(start));
+        assertEquals(unit, game.getUnitAt(start));
     }
 
     @Test
     void moveCorrectlyUpdatesState() {
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
-        AxialPos from = new AxialPos(0, 0);
-        game.placeUnitAt(from, unit);
+        game.placeUnitAt(start, unit);
 
-        AxialPos to = new AxialPos(1, 0);
-        assertTrue(game.canMove(from, to));
-        assertTrue(game.moveUnit(from, to));
+        AxialPos to = start.neighbor(2);
+        assertTrue(game.canMove(start, to));
+        assertTrue(game.moveUnit(start, to));
 
-        assertNull(game.getUnitAt(from));
+        assertNull(game.getUnitAt(start));
         assertEquals(unit, game.getUnitAt(to));
     }
 
     @Test
     void unitCannotMoveOnOtherPlayersTurn() {
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
-        AxialPos from = new AxialPos(0, 0);
-        game.placeUnitAt(from, unit);
+        game.placeUnitAt(start, unit);
 
-        AxialPos to = new AxialPos(1, 0);
+        AxialPos to = start.neighbor(2);
 
-        assertFalse(game.canMove(to, from));
-        assertFalse(game.moveUnit(from, to));
+        assertFalse(game.canMove(to, start));
+        assertFalse(game.moveUnit(start, to));
     }
 
     @Test
     void unitCannotMoveWithoutMovementPoints() {
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
-        AxialPos from = new AxialPos(0, 0);
-        game.placeUnitAt(from, unit);
+        game.placeUnitAt(start, unit);
 
-        AxialPos to = new AxialPos(1, 0);
+        AxialPos to = start.neighbor(2);
         unit.spendMovementPoints(unit.getMovementPoints());
 
-        assertFalse(game.canMove(from, to));
-        assertFalse(game.moveUnit(from, to));
+        assertFalse(game.canMove(start, to));
+        assertFalse(game.moveUnit(start, to));
     }
 
     @Test
     void unitCannotAttackTwiceInOneTurn() {
-        AxialPos attackerPos = new AxialPos(0, 0);
         Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(0));
-        game.placeUnitAt(attackerPos, attacker);
+        game.placeUnitAt(start, attacker);
 
-        AxialPos defenderPos = new AxialPos(0, 1);
+        AxialPos defenderPos = start.neighbor(2);
         Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(defenderPos, defender);
 
-        assertTrue(game.canAttack(attackerPos, defenderPos));
-        assertTrue(game.attackUnit(attackerPos, defenderPos));
+        assertTrue(game.canAttack(start, defenderPos));
+        assertTrue(game.attackUnit(start, defenderPos));
 
         assertTrue(attacker.hasAttacked());
-        assertFalse(game.canAttack(attackerPos, defenderPos));
+        assertFalse(game.canAttack(start, defenderPos));
     }
 
     @Test
-    void killingAUnitRemovesItFromBoard() {
-        AxialPos attackerPos = new AxialPos(0, 0);
+    void killingAUnitRemovesItstartBoard() {
         Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(0));
-        game.placeUnitAt(attackerPos, attacker);
+        game.placeUnitAt(start, attacker);
 
-        AxialPos defenderPos = new AxialPos(0, 1);
+        AxialPos defenderPos = start.neighbor(2);
         Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(defenderPos, defender);
 
         defender.dealDamage(defender.getHealth());
         assertTrue(defender.isDead());
 
-        assertTrue(game.attackUnit(attackerPos, defenderPos));
+        assertTrue(game.attackUnit(start, defenderPos));
 
-        assertNull(game.getUnitAt(attackerPos));
+        assertNull(game.getUnitAt(start));
         assertNotNull(game.getUnitAt(defenderPos));
         assertEquals(attacker, game.getUnitAt(defenderPos));
     }
@@ -112,8 +108,7 @@ public class GameTest {
     @Test
     void endingTurnResetsUnits() {
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
-        AxialPos from = new AxialPos(0, 0);
-        game.placeUnitAt(from, unit);
+        game.placeUnitAt(start, unit);
 
         unit.spendMovementPoints(unit.getMovementPoints());
         unit.markAttacked();

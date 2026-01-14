@@ -16,22 +16,25 @@ import tbs_game.board.Tile;
 import tbs_game.game.Game;
 import tbs_game.game.SetupHandler;
 import tbs_game.hexes.AxialPos;
+import tbs_game.hexes.OffsetPos;
 
 class SetupTest {
 
     private Board board;
     private Game game;
+    private AxialPos center;
 
     @BeforeEach
     void setUp() {
-        game = Game.allPlains(7, 7, 3);
+        game = Game.allPlains(20, 20, 3);
         board = game.getBoard();
+        center = new OffsetPos(10, 10).toAxial();
     }
 
     @Test
     void findSpawnableHexes_onlyReturnsPassableTiles() {
         // Make some tiles impassable
-        AxialPos water = new AxialPos(0, 0);
+        AxialPos water = center;
         board.putTile(water, new Tile(Terrain.WATER));
 
         ArrayList<AxialPos> spawnable = SetupHandler.findSpawnableHexes(board);

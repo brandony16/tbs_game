@@ -14,31 +14,31 @@ import tbs_game.game.Game;
 import tbs_game.game.Movement;
 import tbs_game.game.Rules;
 import tbs_game.hexes.AxialPos;
+import tbs_game.hexes.OffsetPos;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
 public class RulesTest {
 
     private Game game;
-    private AxialPos unitPos;
+    private AxialPos unitPos = new OffsetPos(10, 10).toAxial();
     private AxialPos otherPos;
 
     @BeforeEach
     void init() {
-        this.game = Game.allPlains(10, 10, 2);
+        this.game = Game.allPlains(20, 20, 2);
     }
 
     @AfterEach
     void reset() {
-        this.game = Game.allPlains(10, 10, 2);
-        this.unitPos = null;
+        this.game = Game.allPlains(20, 20, 2);
+        this.unitPos = new OffsetPos(10, 10).toAxial();
         this.otherPos = null;
     }
 
     void setUpSolo() {
         reset();
 
-        unitPos = new AxialPos(0, 0);
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
     }
@@ -46,11 +46,10 @@ public class RulesTest {
     void setUpBattle() {
         reset();
 
-        unitPos = new AxialPos(0, 0);
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
-        otherPos = new AxialPos(0, 1);
+        otherPos = unitPos.neighbor(0);
         Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
@@ -58,11 +57,10 @@ public class RulesTest {
     void setUpBattleMoveThenAttack() {
         reset();
 
-        unitPos = new AxialPos(0, 0);
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
-        otherPos = new AxialPos(0, 2);
+        otherPos = unitPos.diagonalNeighbor(1); // 2 moves away
         Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
@@ -70,11 +68,10 @@ public class RulesTest {
     void setUpBattleTooFar() {
         reset();
 
-        unitPos = new AxialPos(0, 0);
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
-        otherPos = new AxialPos(0, 3);
+        otherPos = unitPos.add(new AxialPos(unit.getMaxMovementPoints() + 1, 0));
         Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
@@ -82,11 +79,10 @@ public class RulesTest {
     void setUpFriendly() {
         reset();
 
-        unitPos = new AxialPos(0, 0);
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
-        otherPos = new AxialPos(0, 1);
+        otherPos = unitPos.neighbor(3);
         Unit friendlyUnit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(otherPos, friendlyUnit);
     }
@@ -101,15 +97,15 @@ public class RulesTest {
     @Test
     void testCanMoveNoMover() {
         setUpSolo();
-        // No unit at 2,2
-        assertFalse(Rules.canMove(game.getState(), new AxialPos(2, 2), otherPos));
+        // No unit at 0,0
+        assertFalse(Rules.canMove(game.getState(), new AxialPos(0, 0), new AxialPos(1, 0)));
     }
 
     @Test
     void testCanMoveWrongTurn() {
         setUpBattle();
         // Not that units turn
-        assertFalse(Rules.canMove(game.getState(), otherPos, new AxialPos(0, 2)));
+        assertFalse(Rules.canMove(game.getState(), otherPos, otherPos.neighbor(0)));
     }
 
     @Test
@@ -125,18 +121,23 @@ public class RulesTest {
     void testCanMoveNoActionsRemaining() {
         setUpSolo();
         game.getUnitAt(unitPos).markAttacked();
-        assertFalse(Rules.canMove(game.getState(), unitPos, new AxialPos(-1, 0)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, unitPos.neighbor(0)));
 
         setUpSolo();
         Unit unit = game.getUnitAt(unitPos);
         unit.spendMovementPoints(unit.getMovementPoints());
-        assertFalse(Rules.canMove(game.getState(), unitPos, new AxialPos(-1, 0)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, unitPos.neighbor(0)));
     }
 
     @Test
     void testCanMoveTooFar() {
-        assertFalse(Rules.canMove(game.getState(), unitPos, new AxialPos(1, 1)));
-        assertFalse(Rules.canMove(game.getState(), unitPos, new AxialPos(2, 0)));
+        setUpSolo();
+
+        Unit unit = game.getUnitAt(unitPos);
+        unit.spendMovementPoints(unit.getMovementPoints() - 1); // 1 movement pt left
+
+        assertFalse(Rules.canMove(game.getState(), unitPos, unitPos.diagonalNeighbor(2)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, unitPos.diagonalNeighbor(4)));
     }
 
     @Test
@@ -160,9 +161,8 @@ public class RulesTest {
     @Test
     void testCanAttackNoTarget() {
         setUpSolo();
-        // There is no unit at the target
-        AxialPos target = new AxialPos(1, 0);
-        assertFalse(Rules.canAttack(game.getState(), unitPos, target));
+        // No unit at neighbor 0
+        assertFalse(Rules.canAttack(game.getState(), unitPos, unitPos.neighbor(0)));
     }
 
     @Test
@@ -236,14 +236,14 @@ public class RulesTest {
     @Test
     void testCanDoActionNoUnitAtSource() {
         setUpBattle();
-        AxialPos empty = new AxialPos(2, 2);
+        AxialPos empty = otherPos.neighbor(0); // No unit there
         assertFalse(Rules.canDoAction(game.getState(), empty, otherPos));
     }
 
     @Test
     void testCanDoActionMoveOnly() {
         setUpSolo();
-        assertTrue(Rules.canDoAction(game.getState(), unitPos, new AxialPos(1, 0)));
+        assertTrue(Rules.canDoAction(game.getState(), unitPos, unitPos.neighbor(0)));
     }
 
     @Test
