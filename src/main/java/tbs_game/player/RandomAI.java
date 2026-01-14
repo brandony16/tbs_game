@@ -11,7 +11,7 @@ import tbs_game.game.Movement;
 import tbs_game.game.actions.Action;
 import tbs_game.game.actions.EndTurnAction;
 import tbs_game.game.actions.MoveAction;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 
 public class RandomAI implements AI {
 
@@ -26,21 +26,21 @@ public class RandomAI implements AI {
 
         // Create copy of state to simulate moves
         GameState simState = game.getState().createSimluationCopy();
-        ArrayList<HexPos> unitPositions = new ArrayList<>(simState.getUnitPositionsForPlayer(player));
+        ArrayList<AxialPos> unitPositions = new ArrayList<>(simState.getUnitPositionsForPlayer(player));
 
-        for (HexPos pos : unitPositions) {
+        for (AxialPos pos : unitPositions) {
             if (simState.getUnitAt(pos) == null) {
                 throw new Error("No unit at position. Unit positions is incorrect.");
             }
 
-            ArrayList<HexPos> reachable = new ArrayList<>(Movement.getReachableHexes(simState, pos));
+            ArrayList<AxialPos> reachable = new ArrayList<>(Movement.getReachableHexes(simState, pos));
             if (reachable.isEmpty()) {
                 continue;
             }
 
             // Choose random tile of reachable to move to
             int randIdx = random.nextInt(reachable.size());
-            HexPos dest = reachable.get(randIdx);
+            AxialPos dest = reachable.get(randIdx);
 
             // Create and simulate the move
             Move simMove = Movement.planMove(simState, pos, dest);

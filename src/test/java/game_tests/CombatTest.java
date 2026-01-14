@@ -10,22 +10,22 @@ import org.junit.jupiter.api.Test;
 
 import tbs_game.game.Combat;
 import tbs_game.game.Game;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
 public class CombatTest {
 
     private Game game;
-    private HexPos attackerPos;
-    private HexPos defenderPos;
+    private AxialPos attackerPos;
+    private AxialPos defenderPos;
 
     @BeforeEach
     void init() {
         game = Game.allPlains(10, 10, 2);
 
-        attackerPos = new HexPos(0, 0);
-        defenderPos = new HexPos(0, 1);
+        attackerPos = new AxialPos(0, 0);
+        defenderPos = new AxialPos(0, 1);
     }
 
     @AfterEach

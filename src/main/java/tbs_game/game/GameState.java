@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import tbs_game.board.Board;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
 
@@ -18,9 +18,9 @@ public class GameState {
     private final Board board;
     private final int width;
 
-    private final Map<HexPos, Unit> units;
+    private final Map<AxialPos, Unit> units;
     private final Map<Player, Set<Unit>> unitsByPlayer;
-    private final Map<Player, Set<HexPos>> positionsByPlayer;
+    private final Map<Player, Set<AxialPos>> positionsByPlayer;
 
     private Player currentPlayer;
     private boolean isGameOver = false;
@@ -34,14 +34,14 @@ public class GameState {
         this.positionsByPlayer = new HashMap<>();
     }
 
-    public HexPos wrap(HexPos pos) {
+    public AxialPos wrap(AxialPos pos) {
         // Get offset col
         int parity = pos.r() & 1;
         int col = pos.q() + (pos.r() - parity) / 2;
 
         col = ((col % width) + width) % width;
 
-        return new HexPos(col, pos.r());
+        return new AxialPos(col, pos.r());
     }
 
     public void endGame() {
@@ -52,12 +52,12 @@ public class GameState {
         return this.isGameOver;
     }
 
-    public boolean isFriendly(HexPos pos, Player player) {
+    public boolean isFriendly(AxialPos pos, Player player) {
         Unit unit = getUnitAt(pos);
         return unit != null && unit.getOwner().equals(player);
     }
 
-    public void captureUnit(HexPos attackerPos, HexPos defenderPos) {
+    public void captureUnit(AxialPos attackerPos, AxialPos defenderPos) {
         removeUnitAt(defenderPos);
         moveUnitInternal(attackerPos, defenderPos);
     }
@@ -79,19 +79,19 @@ public class GameState {
         positionsByPlayer.put(player, new HashSet<>());
     }
 
-    public List<HexPos> getUnitPositionsForPlayer(Player p) {
+    public List<AxialPos> getUnitPositionsForPlayer(Player p) {
         return new ArrayList<>(positionsByPlayer.get(p));
     }
 
-    public Collection<HexPos> getAllUnitPositions() {
+    public Collection<AxialPos> getAllUnitPositions() {
         return List.copyOf(units.keySet());
     }
 
-    public Unit getUnitAt(HexPos pos) {
+    public Unit getUnitAt(AxialPos pos) {
         return units.get(pos);
     }
 
-    public void placeUnitAt(HexPos pos, Unit unit) {
+    public void placeUnitAt(AxialPos pos, Unit unit) {
         if (getUnitAt(pos) != null) {
             throw new IllegalArgumentException("Cannot place unit on an already occupied tile");
         }
@@ -101,7 +101,7 @@ public class GameState {
         positionsByPlayer.get(unit.getOwner()).add(pos);
     }
 
-    public void removeUnitAt(HexPos pos) {
+    public void removeUnitAt(AxialPos pos) {
         Unit unit = units.remove(pos);
         if (unit != null) {
             unitsByPlayer.get(unit.getOwner()).remove(unit);
@@ -109,7 +109,7 @@ public class GameState {
         }
     }
 
-    public void moveUnitInternal(HexPos from, HexPos to) {
+    public void moveUnitInternal(AxialPos from, AxialPos to) {
         Unit unit = units.remove(from);
         if (unit == null) {
             throw new IllegalArgumentException("No unit exists at pos " + from.toString());
@@ -135,9 +135,9 @@ public class GameState {
     // ----- COPYING FOR SIMLUATION -----
     private GameState(
             Board board,
-            Map<HexPos, Unit> units,
+            Map<AxialPos, Unit> units,
             Map<Player, Set<Unit>> unitsByPlayer,
-            Map<Player, Set<HexPos>> positionsByPlayer,
+            Map<Player, Set<AxialPos>> positionsByPlayer,
             Player currentPlayer
     ) {
         this.board = board;
@@ -150,9 +150,9 @@ public class GameState {
     }
 
     public GameState createSimluationCopy() {
-        Map<HexPos, Unit> unitsCopy = new HashMap<>();
+        Map<AxialPos, Unit> unitsCopy = new HashMap<>();
         Map<Player, Set<Unit>> unitsByPlayerCopy = new HashMap<>();
-        Map<Player, Set<HexPos>> positionsByPlayerCopy = new HashMap<>();
+        Map<Player, Set<AxialPos>> positionsByPlayerCopy = new HashMap<>();
 
         // Initialize player maps
         for (Player p : unitsByPlayer.keySet()) {
@@ -161,8 +161,8 @@ public class GameState {
         }
 
         // Copy units + positions
-        for (Map.Entry<HexPos, Unit> entry : units.entrySet()) {
-            HexPos pos = entry.getKey();
+        for (Map.Entry<AxialPos, Unit> entry : units.entrySet()) {
+            AxialPos pos = entry.getKey();
             Unit original = entry.getValue();
 
             Unit unitCopy = original.createCopy();

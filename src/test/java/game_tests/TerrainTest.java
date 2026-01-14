@@ -16,7 +16,7 @@ import tbs_game.game.Game;
 import tbs_game.game.Move;
 import tbs_game.game.Movement;
 import tbs_game.game.Rules;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
@@ -24,13 +24,13 @@ class TerrainTest {
 
     private Game game;
     private Board board;
-    private HexPos start;
+    private AxialPos start;
 
     @BeforeEach
     void init() {
         game = Game.allPlains(10, 10, 2);
         board = game.getBoard();
-        start = new HexPos(0, 0);
+        start = new AxialPos(0, 0);
 
         Unit unit = new Unit(UnitType.CAVALRY, game.getPlayer(0));
         game.placeUnitAt(start, unit);
@@ -39,9 +39,9 @@ class TerrainTest {
     // ----- BASIC TERRAIN COST TESTS -----
     @Test
     void testCannotMoveOntoImpassableTerrain() {
-        HexPos water = new HexPos(1, 0);
+        AxialPos water = new AxialPos(1, 0);
         board.getTile(water).setTerrain(Terrain.WATER);
-        HexPos mountain = new HexPos(0, 1);
+        AxialPos mountain = new AxialPos(0, 1);
         board.getTile(mountain).setTerrain(Terrain.MOUNTAIN);
 
         assertFalse(Rules.canMove(game.getState(), start, water));
@@ -50,7 +50,7 @@ class TerrainTest {
 
     @Test
     void testLowCostTerrainConsumesMovement() {
-        HexPos plains = new HexPos(1, 0);
+        AxialPos plains = new AxialPos(1, 0);
         board.getTile(plains).setTerrain(Terrain.PLAINS);
 
         Move move = Movement.planMove(game.getState(), start, plains);
@@ -61,7 +61,7 @@ class TerrainTest {
 
     @Test
     void testHighCostTerrainConsumesMoreMovement() {
-        HexPos forest = new HexPos(1, 0);
+        AxialPos forest = new AxialPos(1, 0);
         board.getTile(forest).setTerrain(Terrain.FOREST);
 
         Move move = Movement.planMove(game.getState(), start, forest);
@@ -82,12 +82,12 @@ class TerrainTest {
          * (0,0) -> (0,1) -> (1,1) -> (2,1) -> (3,0) total: 4
          * all plains (cost 1 each)
          */
-        HexPos forest1 = new HexPos(1, 0);
-        HexPos forest2 = new HexPos(1, 0);
+        AxialPos forest1 = new AxialPos(1, 0);
+        AxialPos forest2 = new AxialPos(1, 0);
         board.getTile(forest1).setTerrain(Terrain.FOREST);
         board.getTile(forest2).setTerrain(Terrain.FOREST);
 
-        HexPos target = new HexPos(3, 0);
+        AxialPos target = new AxialPos(3, 0);
 
         Move move = Movement.planMove(game.getState(), start, target);
 
@@ -97,10 +97,10 @@ class TerrainTest {
 
     @Test
     void testNoPathIfAllRoutesBlocked() {
-        HexPos target = new HexPos(2, 0);
+        AxialPos target = new AxialPos(2, 0);
 
         // Surround target by impassable water
-        for (HexPos neighbor : target.getNeighbors()) {
+        for (AxialPos neighbor : target.getNeighbors()) {
             board.getTile(neighbor).setTerrain(Terrain.WATER);
         }
 
@@ -110,17 +110,17 @@ class TerrainTest {
     // ----- ReachableHexes -----
     @Test
     void testReachableHexesRespectTerrainCost() {
-        HexPos forest = new HexPos(1, 0);
+        AxialPos forest = new AxialPos(1, 0);
         board.getTile(forest).setTerrain(Terrain.FOREST);
-        HexPos mountain = new HexPos(0, 1);
+        AxialPos mountain = new AxialPos(0, 1);
         board.getTile(mountain).setTerrain(Terrain.MOUNTAIN);
 
         Unit unit = game.getUnitAt(start);
         unit.spendMovementPoints(unit.getMovementPoints() - 1); // 1 movement point left
 
-        Set<HexPos> reachable = Movement.getReachableHexes(game.getState(), start);
+        Set<AxialPos> reachable = Movement.getReachableHexes(game.getState(), start);
 
-        for (HexPos pos : start.getNeighbors()) {
+        for (AxialPos pos : start.getNeighbors()) {
             if (pos.equals(forest)) {
                 assertFalse(reachable.contains(forest));
             } else if (pos.equals(mountain)) {

@@ -7,7 +7,7 @@ import java.util.Set;
 
 import javafx.scene.paint.Color;
 import tbs_game.board.Board;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.player.Player;
 import tbs_game.player.PlayerType;
 import tbs_game.player.RandomAI;
@@ -72,7 +72,7 @@ public class Game {
         return state.getCurrentPlayer();
     }
 
-    public List<HexPos> getPositionsForPlayer(Player player) {
+    public List<AxialPos> getPositionsForPlayer(Player player) {
         return state.getUnitPositionsForPlayer(player);
     }
 
@@ -88,7 +88,7 @@ public class Game {
         return this.numPlayersRemaining;
     }
 
-    public Collection<HexPos> getUnitPositions() {
+    public Collection<AxialPos> getUnitPositions() {
         return state.getAllUnitPositions();
     }
 
@@ -96,52 +96,52 @@ public class Game {
         return this.actionQueue;
     }
 
-    public Unit getUnitAt(HexPos pos) {
+    public Unit getUnitAt(AxialPos pos) {
         pos = state.wrap(pos);
         return state.getUnitAt(pos);
     }
 
-    public void placeUnitAt(HexPos pos, Unit unit) {
+    public void placeUnitAt(AxialPos pos, Unit unit) {
         pos = state.wrap(pos);
 
         state.placeUnitAt(pos, unit);
     }
 
-    public void removeUnitAt(HexPos pos) {
+    public void removeUnitAt(AxialPos pos) {
         pos = state.wrap(pos);
 
         state.removeUnitAt(pos);
     }
 
-    public void captureUnit(HexPos attackerPos, HexPos defenderPos) {
+    public void captureUnit(AxialPos attackerPos, AxialPos defenderPos) {
         attackerPos = state.wrap(attackerPos);
         defenderPos = state.wrap(defenderPos);
 
         state.captureUnit(attackerPos, defenderPos);
     }
 
-    public void moveUnitInternal(HexPos from, HexPos to) {
+    public void moveUnitInternal(AxialPos from, AxialPos to) {
         from = state.wrap(from);
         to = state.wrap(to);
 
         state.moveUnitInternal(from, to);
     }
 
-    public boolean canMove(HexPos from, HexPos to) {
+    public boolean canMove(AxialPos from, AxialPos to) {
         from = state.wrap(from);
         to = state.wrap(to);
 
         return Rules.canMove(state, from, to);
     }
 
-    public boolean canAttack(HexPos attackFrom, HexPos attackTo) {
+    public boolean canAttack(AxialPos attackFrom, AxialPos attackTo) {
         attackFrom = state.wrap(attackFrom);
         attackTo = state.wrap(attackTo);
 
         return Rules.canAttack(state, attackFrom, attackTo);
     }
 
-    public boolean canPerform(ActionType action, HexPos from, HexPos to) {
+    public boolean canPerform(ActionType action, AxialPos from, AxialPos to) {
         from = state.wrap(from);
         to = state.wrap(to);
 
@@ -153,34 +153,34 @@ public class Game {
         };
     }
 
-    public boolean resolveAction(HexPos from, HexPos to) {
+    public boolean resolveAction(AxialPos from, AxialPos to) {
         from = state.wrap(from);
         to = state.wrap(to);
 
         return ActionHandler.resolveAction(state, from, to);
     }
 
-    public boolean moveUnit(HexPos from, HexPos to) {
+    public boolean moveUnit(AxialPos from, AxialPos to) {
         from = state.wrap(from);
         to = state.wrap(to);
 
         return ActionHandler.moveUnit(state, from, to);
     }
 
-    public boolean attackUnit(HexPos from, HexPos to) {
+    public boolean attackUnit(AxialPos from, AxialPos to) {
         from = state.wrap(from);
         to = state.wrap(to);
 
         return ActionHandler.attackUnit(state, from, to);
     }
 
-    public Set<HexPos> getReachableHexes(HexPos from) {
+    public Set<AxialPos> getReachableHexes(AxialPos from) {
         from = state.wrap(from);
 
         return Movement.getReachableHexes(state, from);
     }
 
-    public boolean isFriendly(HexPos pos, Player player) {
+    public boolean isFriendly(AxialPos pos, Player player) {
         pos = state.wrap(pos);
 
         return state.isFriendly(pos, player);
@@ -237,8 +237,8 @@ public class Game {
     }
 
     public void setUpGame() {
-        ArrayList<HexPos> spawnLocations = SetupHandler.generateSpawnSpots(this, SEED);
-        ArrayList<HexPos> soldierSpawns = SetupHandler.generateUnitSpawns(this, spawnLocations, SEED);
+        ArrayList<AxialPos> spawnLocations = SetupHandler.generateSpawnSpots(this, SEED);
+        ArrayList<AxialPos> soldierSpawns = SetupHandler.generateUnitSpawns(this, spawnLocations, SEED);
         for (int i = 0; i < numPlayers; i++) {
             Unit settler = new Unit(UnitType.SETTLER, getPlayer(i));
             Unit soldier = new Unit(UnitType.SOLDIER, getPlayer(i));
@@ -257,8 +257,8 @@ public class Game {
     public static Game battleSim(int width, int height, int numPlayers) {
         Game game = new Game(width, height, numPlayers);
 
-        ArrayList<HexPos> soldierSpawns = SetupHandler.generateSpawnSpots(game, SEED);
-        ArrayList<HexPos> archerSpawns = SetupHandler.generateUnitSpawns(game, soldierSpawns, SEED);
+        ArrayList<AxialPos> soldierSpawns = SetupHandler.generateSpawnSpots(game, SEED);
+        ArrayList<AxialPos> archerSpawns = SetupHandler.generateUnitSpawns(game, soldierSpawns, SEED);
 
         for (int i = 0; i < game.getNumPlayers(); i++) {
             Unit soldier = new Unit(UnitType.SOLDIER, game.getPlayer(i));
@@ -269,7 +269,7 @@ public class Game {
         }
 
         // Do other cavalry after archers are placed so no overlap of spawns is possible
-        ArrayList<HexPos> cavalrySpawns = SetupHandler.generateUnitSpawns(game, soldierSpawns, SEED);
+        ArrayList<AxialPos> cavalrySpawns = SetupHandler.generateUnitSpawns(game, soldierSpawns, SEED);
         for (int i = 0; i < game.getNumPlayers(); i++) {
             Unit cavalry = new Unit(UnitType.CAVALRY, game.getPlayer(i));
             game.placeUnitAt(cavalrySpawns.get(i), cavalry);

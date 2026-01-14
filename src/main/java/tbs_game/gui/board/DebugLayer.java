@@ -6,7 +6,7 @@ import tbs_game.board.Board;
 import tbs_game.game.Game;
 import tbs_game.game.SetupHandler;
 import tbs_game.gui.HexMath;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 
 public class DebugLayer {
 
@@ -35,7 +35,7 @@ public class DebugLayer {
 
         Board board = game.getBoard();
 
-        for (HexPos pos : board.getPositions()) {
+        for (AxialPos pos : board.getPositions()) {
             double cx = HexMath.hexToPixelX(pos);
             double cy = HexMath.hexToPixelY(pos);
 
@@ -49,7 +49,7 @@ public class DebugLayer {
 
         Board board = game.getBoard();
 
-        for (HexPos pos : board.getPositions()) {
+        for (AxialPos pos : board.getPositions()) {
             double cx = HexMath.hexToPixelX(pos);
             double cy = HexMath.hexToPixelY(pos);
 
@@ -58,7 +58,7 @@ public class DebugLayer {
         }
     }
 
-    private Text getTileCoord(HexPos pos, double cx, double cy) {
+    private Text getTileCoord(AxialPos pos, double cx, double cy) {
         Text coord = new Text();
         coord.setText(pos.q() + " , " + pos.r());
         coord.setX(cx - 10);
@@ -67,7 +67,7 @@ public class DebugLayer {
         return coord;
     }
 
-    private Text getSpawnScore(HexPos pos, double cx, double cy) {
+    private Text getSpawnScore(AxialPos pos, double cx, double cy) {
         Text score = new Text();
         int spawnScore = SetupHandler.getSpawnScore(pos, game.getBoard());
         if (spawnScore == Integer.MIN_VALUE) {

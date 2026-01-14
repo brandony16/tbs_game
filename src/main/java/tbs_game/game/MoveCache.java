@@ -1,6 +1,6 @@
 package tbs_game.game;
 
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 
 public class MoveCache {
 
@@ -14,7 +14,7 @@ public class MoveCache {
         this.move = null;
     }
 
-    public Move get(HexPos from, HexPos to) {
+    public Move get(AxialPos from, AxialPos to) {
         if (move == null || move.path == null) {
             return null;
         }

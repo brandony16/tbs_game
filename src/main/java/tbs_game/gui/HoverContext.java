@@ -1,10 +1,10 @@
 package tbs_game.gui;
 
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 
 public record HoverContext(
-        HexPos selected,
-        HexPos hovered,
+        AxialPos selected,
+        AxialPos hovered,
         boolean canAttack
         ) {
 

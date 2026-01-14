@@ -14,7 +14,7 @@ import tbs_game.game.Movement;
 import tbs_game.gui.ClickResult;
 import tbs_game.gui.HexMath;
 import tbs_game.gui.HoverContext;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 
 public class BoardView {
@@ -25,10 +25,10 @@ public class BoardView {
 
     private final Group worldRoot = new Group();
 
-    private HexPos selectedPos;
-    private Set<HexPos> reachableHexes = Set.of();
+    private AxialPos selectedPos;
+    private Set<AxialPos> reachableHexes = Set.of();
 
-    private HexPos hoveredPos;
+    private AxialPos hoveredPos;
     private Consumer<HoverContext> onHoverChanged;
 
     private boolean isAnimating;
@@ -79,7 +79,7 @@ public class BoardView {
         return worldRoot;
     }
 
-    public HexPos getSelected() {
+    public AxialPos getSelected() {
         return selectedPos;
     }
 
@@ -101,7 +101,7 @@ public class BoardView {
     }
 
     public void handleMouseMoved(double mouseX, double mouseY) {
-        HexPos pos = getHexPosAt(mouseX, mouseY);
+        AxialPos pos = getHexPosAt(mouseX, mouseY);
 
         if (!Objects.equals(pos, hoveredPos)) {
             hoveredPos = pos;
@@ -115,7 +115,7 @@ public class BoardView {
             return ClickResult.NONE;
         }
 
-        HexPos clicked = getHexPosAt(mouseX, mouseY);
+        AxialPos clicked = getHexPosAt(mouseX, mouseY);
 
         if (!game.getBoard().isOnBoard(clicked)) {
             clearSelection();
@@ -133,7 +133,7 @@ public class BoardView {
 
         if (selectedPos != null) {
             if (reachableHexes.contains(clicked)) {
-                List<HexPos> path = Movement.findPath(selectedPos, clicked, game.getState());
+                List<AxialPos> path = Movement.findPath(selectedPos, clicked, game.getState());
 
                 if (!game.resolveAction(selectedPos, clicked)) {
                     return ClickResult.NONE;
@@ -154,7 +154,7 @@ public class BoardView {
         return ClickResult.NONE;
     }
 
-    private void selectPos(HexPos pos) {
+    private void selectPos(AxialPos pos) {
         this.selectedPos = pos;
         this.reachableHexes = game.getReachableHexes(pos);
         this.reachableHexes.add(pos); // Include current pos
@@ -167,7 +167,7 @@ public class BoardView {
         redraw();
     }
 
-    private void animateMove(List<HexPos> path) {
+    private void animateMove(List<AxialPos> path) {
         Runnable onFinish = () -> {
             clearSelection();
             redraw();
@@ -186,7 +186,7 @@ public class BoardView {
     }
 
     public void animateAIMove(Move move, Runnable onDone) {
-        List<HexPos> path = move.path;
+        List<AxialPos> path = move.path;
 
         Runnable onFinish = () -> {
             clearSelection();
@@ -232,7 +232,7 @@ public class BoardView {
         return center.getRoot().sceneToLocal(mouseX, mouseY);
     }
 
-    private HexPos getHexPosAt(double mouseX, double mouseY) {
+    private AxialPos getHexPosAt(double mouseX, double mouseY) {
         Point2D boardCoords = center.getRoot().sceneToLocal(mouseX, mouseY);
         return HexMath.pixelToHex(boardCoords.getX(), boardCoords.getY());
     }

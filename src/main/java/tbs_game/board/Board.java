@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import tbs_game.game.Game;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 
 public class Board {
 
@@ -15,7 +15,7 @@ public class Board {
 
     private final int width;
     private final int height;
-    private final Map<HexPos, Tile> tiles;
+    private final Map<AxialPos, Tile> tiles;
 
     public Board(int width, int height) {
         this.width = width;
@@ -27,15 +27,15 @@ public class Board {
         initializeTiles();
     }
 
-    public Collection<HexPos> getPositions() {
+    public Collection<AxialPos> getPositions() {
         return tiles.keySet();
     }
 
-    public Tile getTile(HexPos pos) {
+    public Tile getTile(AxialPos pos) {
         return tiles.get(pos);
     }
 
-    public Tile putTile(HexPos pos, Tile tile) {
+    public Tile putTile(AxialPos pos, Tile tile) {
         return tiles.put(pos, tile);
     }
 
@@ -47,15 +47,15 @@ public class Board {
         return height;
     }
 
-    public boolean isOnBoard(HexPos pos) {
+    public boolean isOnBoard(AxialPos pos) {
         return tiles.get(pos) != null;
     }
 
-    public ArrayList<HexPos> getNeighbors(HexPos pos) {
-        ArrayList<HexPos> neighbors = new ArrayList<>();
+    public ArrayList<AxialPos> getNeighbors(AxialPos pos) {
+        ArrayList<AxialPos> neighbors = new ArrayList<>();
 
-        for (HexPos dir : HexPos.directions) {
-            HexPos neighbor = pos.add(dir);
+        for (AxialPos dir : AxialPos.directions) {
+            AxialPos neighbor = pos.add(dir);
             if (isOnBoard(neighbor)) {
                 neighbors.add(neighbor);
             }
@@ -76,14 +76,14 @@ public class Board {
                 if (random.nextDouble() < 0.4) {
                     type = Terrain.WATER;
                 }
-                tiles.put(new HexPos(q, r), new Tile(type));
+                tiles.put(new AxialPos(q, r), new Tile(type));
             }
         }
 
         // Smooth water out
         for (int i = 0; i < 2; i++) {
-            for (Map.Entry<HexPos, Tile> entry : tiles.entrySet()) {
-                HexPos pos = entry.getKey();
+            for (Map.Entry<AxialPos, Tile> entry : tiles.entrySet()) {
+                AxialPos pos = entry.getKey();
                 Tile tile = entry.getValue();
 
                 int waterNeighbors = countNeighbors(pos, Terrain.WATER);
@@ -95,8 +95,8 @@ public class Board {
             }
         }
 
-        for (Map.Entry<HexPos, Tile> entry : tiles.entrySet()) {
-            HexPos pos = entry.getKey();
+        for (Map.Entry<AxialPos, Tile> entry : tiles.entrySet()) {
+            AxialPos pos = entry.getKey();
             Tile tile = entry.getValue();
 
             if (tile.getTerrain() == Terrain.PLAINS) {
@@ -110,8 +110,8 @@ public class Board {
             }
         }
 
-        for (Map.Entry<HexPos, Tile> entry : tiles.entrySet()) {
-            HexPos pos = entry.getKey();
+        for (Map.Entry<AxialPos, Tile> entry : tiles.entrySet()) {
+            AxialPos pos = entry.getKey();
             Tile tile = entry.getValue();
 
             if (tile.getTerrain() == Terrain.PLAINS) {
@@ -128,16 +128,16 @@ public class Board {
 
     }
 
-    public boolean isPassable(HexPos pos) {
+    public boolean isPassable(AxialPos pos) {
         Tile tile = tiles.get(pos);
         return tile != null && tile.getTerrain().passable;
     }
 
-    public int countNeighbors(HexPos pos, Terrain type) {
+    public int countNeighbors(AxialPos pos, Terrain type) {
         int count = 0;
 
-        for (HexPos direction : HexPos.directions) {
-            HexPos neighbor = pos.add(direction);
+        for (AxialPos direction : AxialPos.directions) {
+            AxialPos neighbor = pos.add(direction);
             if (!isOnBoard(neighbor)) {
                 continue;
             }
@@ -151,14 +151,14 @@ public class Board {
     }
 
     public void makeAllPlains() {
-        for (Map.Entry<HexPos, Tile> entry : tiles.entrySet()) {
+        for (Map.Entry<AxialPos, Tile> entry : tiles.entrySet()) {
             Tile tile = entry.getValue();
             tile.setTerrain(Terrain.PLAINS);
         }
     }
 
     public void makeAllForest() {
-        for (Map.Entry<HexPos, Tile> entry : tiles.entrySet()) {
+        for (Map.Entry<AxialPos, Tile> entry : tiles.entrySet()) {
             Tile tile = entry.getValue();
             tile.setTerrain(Terrain.FOREST);
         }
@@ -166,9 +166,9 @@ public class Board {
 
     public void createDebugMap() {
         makeAllPlains();
-        tiles.get(new HexPos(1, 0)).setTerrain(Terrain.PLAINS);
-        tiles.get(new HexPos(1, -1)).setTerrain(Terrain.FOREST);
-        tiles.get(new HexPos(0, -1)).setTerrain(Terrain.WATER);
-        tiles.get(new HexPos(-1, 0)).setTerrain(Terrain.MOUNTAIN);
+        tiles.get(new AxialPos(1, 0)).setTerrain(Terrain.PLAINS);
+        tiles.get(new AxialPos(1, -1)).setTerrain(Terrain.FOREST);
+        tiles.get(new AxialPos(0, -1)).setTerrain(Terrain.WATER);
+        tiles.get(new AxialPos(-1, 0)).setTerrain(Terrain.MOUNTAIN);
     }
 }

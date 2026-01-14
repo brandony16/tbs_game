@@ -12,7 +12,7 @@ import javafx.scene.shape.StrokeType;
 import tbs_game.board.Board;
 import tbs_game.game.Game;
 import tbs_game.gui.HexMath;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 
 public class HighlightLayer {
 
@@ -27,12 +27,12 @@ public class HighlightLayer {
         return this.highlightRoot;
     }
 
-    public void drawHighlights(HexPos selectedPos, Set<HexPos> reachableHexes) {
+    public void drawHighlights(AxialPos selectedPos, Set<AxialPos> reachableHexes) {
         highlightRoot.getChildren().clear();
 
         Board board = game.getBoard();
 
-        for (HexPos pos : board.getPositions()) {
+        for (AxialPos pos : board.getPositions()) {
             double cx = HexMath.hexToPixelX(pos);
             double cy = HexMath.hexToPixelY(pos);
 
@@ -51,7 +51,7 @@ public class HighlightLayer {
                     Point2D[] corners = HexFactory.hexCorners(cx, cy);
 
                     for (int edge = 0; edge < 6; edge++) {
-                        HexPos neighbor = pos.neighbor(edge);
+                        AxialPos neighbor = pos.neighbor(edge);
 
                         if (reachableHexes.contains(neighbor)) {
                             continue; // interior edge

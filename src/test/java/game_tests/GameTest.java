@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import tbs_game.game.Game;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
@@ -25,7 +25,7 @@ public class GameTest {
     @Test
     void placeUnit() {
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
-        HexPos from = new HexPos(0, 0);
+        AxialPos from = new AxialPos(0, 0);
 
         assertNull(game.getUnitAt(from));
         game.placeUnitAt(from, unit);
@@ -36,10 +36,10 @@ public class GameTest {
     @Test
     void moveCorrectlyUpdatesState() {
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
-        HexPos from = new HexPos(0, 0);
+        AxialPos from = new AxialPos(0, 0);
         game.placeUnitAt(from, unit);
 
-        HexPos to = new HexPos(1, 0);
+        AxialPos to = new AxialPos(1, 0);
         assertTrue(game.canMove(from, to));
         assertTrue(game.moveUnit(from, to));
 
@@ -50,10 +50,10 @@ public class GameTest {
     @Test
     void unitCannotMoveOnOtherPlayersTurn() {
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
-        HexPos from = new HexPos(0, 0);
+        AxialPos from = new AxialPos(0, 0);
         game.placeUnitAt(from, unit);
 
-        HexPos to = new HexPos(1, 0);
+        AxialPos to = new AxialPos(1, 0);
 
         assertFalse(game.canMove(to, from));
         assertFalse(game.moveUnit(from, to));
@@ -62,10 +62,10 @@ public class GameTest {
     @Test
     void unitCannotMoveWithoutMovementPoints() {
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
-        HexPos from = new HexPos(0, 0);
+        AxialPos from = new AxialPos(0, 0);
         game.placeUnitAt(from, unit);
 
-        HexPos to = new HexPos(1, 0);
+        AxialPos to = new AxialPos(1, 0);
         unit.spendMovementPoints(unit.getMovementPoints());
 
         assertFalse(game.canMove(from, to));
@@ -74,11 +74,11 @@ public class GameTest {
 
     @Test
     void unitCannotAttackTwiceInOneTurn() {
-        HexPos attackerPos = new HexPos(0, 0);
+        AxialPos attackerPos = new AxialPos(0, 0);
         Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(attackerPos, attacker);
 
-        HexPos defenderPos = new HexPos(0, 1);
+        AxialPos defenderPos = new AxialPos(0, 1);
         Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(defenderPos, defender);
 
@@ -91,11 +91,11 @@ public class GameTest {
 
     @Test
     void killingAUnitRemovesItFromBoard() {
-        HexPos attackerPos = new HexPos(0, 0);
+        AxialPos attackerPos = new AxialPos(0, 0);
         Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(attackerPos, attacker);
 
-        HexPos defenderPos = new HexPos(0, 1);
+        AxialPos defenderPos = new AxialPos(0, 1);
         Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(defenderPos, defender);
 
@@ -112,7 +112,7 @@ public class GameTest {
     @Test
     void endingTurnResetsUnits() {
         Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
-        HexPos from = new HexPos(0, 0);
+        AxialPos from = new AxialPos(0, 0);
         game.placeUnitAt(from, unit);
 
         unit.spendMovementPoints(unit.getMovementPoints());

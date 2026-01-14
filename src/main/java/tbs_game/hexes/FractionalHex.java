@@ -11,7 +11,7 @@ public class FractionalHex {
     public final double q;
     public final double r;
 
-    public HexPos hexRound() {
+    public AxialPos hexRound() {
         double s = -q - r;
 
         // Round each axis to nearest int
@@ -30,7 +30,7 @@ public class FractionalHex {
             rr = -rq - rs;
         }
 
-        return new HexPos(rq, rr);
+        return new AxialPos(rq, rr);
     }
 
     public FractionalHex hexLerp(FractionalHex b, double t) {
@@ -38,12 +38,12 @@ public class FractionalHex {
     }
 
     // Draws a "straight" line between two hexes
-    static public ArrayList<HexPos> hexLinedraw(HexPos a, HexPos b) {
+    static public ArrayList<AxialPos> hexLinedraw(AxialPos a, AxialPos b) {
         int N = a.distanceTo(b);
         FractionalHex a_nudge = new FractionalHex(a.q() + 1e-06, a.r() + 1e-06);
         FractionalHex b_nudge = new FractionalHex(b.q() + 1e-06, b.r() + 1e-06);
 
-        ArrayList<HexPos> results = new ArrayList<HexPos>() {
+        ArrayList<AxialPos> results = new ArrayList<AxialPos>() {
             {
             }
         };

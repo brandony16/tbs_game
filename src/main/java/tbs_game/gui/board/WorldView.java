@@ -6,7 +6,7 @@ import java.util.Set;
 import javafx.animation.SequentialTransition;
 import javafx.scene.Group;
 import tbs_game.game.Game;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 
 public class WorldView {
 
@@ -50,20 +50,20 @@ public class WorldView {
     }
 
     // ----- Drawing -----
-    public void drawInitial(HexPos selected, Set<HexPos> reachableHexes) {
+    public void drawInitial(AxialPos selected, Set<AxialPos> reachableHexes) {
         board.drawBoard();
         highlights.drawHighlights(selected, reachableHexes);
         units.drawUnits();
     }
 
-    public void redraw(HexPos selected, Set<HexPos> reachableHexes) {
+    public void redraw(AxialPos selected, Set<AxialPos> reachableHexes) {
         highlights.drawHighlights(selected, reachableHexes);
         units.drawUnits();
     }
 
-    public SequentialTransition buildMoveAnimation(List<HexPos> path, Runnable onFinish) {
-        HexPos start = path.get(0);
-        HexPos end = path.get(path.size() - 1);
+    public SequentialTransition buildMoveAnimation(List<AxialPos> path, Runnable onFinish) {
+        AxialPos start = path.get(0);
+        AxialPos end = path.get(path.size() - 1);
 
         SequentialTransition sequence = units.buildMoveAnimation(path);
 

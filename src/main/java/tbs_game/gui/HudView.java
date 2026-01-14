@@ -10,7 +10,7 @@ import tbs_game.gui.hud_elements.BattlePreview;
 import tbs_game.gui.hud_elements.NextTurn;
 import tbs_game.gui.hud_elements.TurnInfo;
 import tbs_game.gui.hud_elements.UnitInfo;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;
 
@@ -59,7 +59,7 @@ public class HudView {
         nextTurnButton.setOnAction(e -> handleEndTurn());
     }
 
-    public void updateHUD(HexPos selected) {
+    public void updateHUD(AxialPos selected) {
         // Update player turn
         Player current = game.getCurrentPlayer();
         turnInfo.updateInfo(current);

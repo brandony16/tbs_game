@@ -1,11 +1,11 @@
 package tbs_game.game;
 
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 
 public class Combat {
 
-    public static void attack(GameState state, HexPos attackSq, HexPos defenseSq) {
+    public static void attack(GameState state, AxialPos attackSq, AxialPos defenseSq) {
         Unit attacker = state.getUnitAt(attackSq);
         Unit defender = state.getUnitAt(defenseSq);
 

@@ -13,7 +13,7 @@ import tbs_game.board.Board;
 import tbs_game.board.Terrain;
 import tbs_game.game.Game;
 import tbs_game.gui.HexMath;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 
 public class BoardLayer {
 
@@ -39,7 +39,7 @@ public class BoardLayer {
 
         Board board = game.getBoard();
 
-        for (HexPos pos : board.getPositions()) {
+        for (AxialPos pos : board.getPositions()) {
             double cx = HexMath.hexToPixelX(pos);
             double cy = HexMath.hexToPixelY(pos);
 

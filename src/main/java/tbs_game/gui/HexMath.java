@@ -1,28 +1,28 @@
 package tbs_game.gui;
 
 import tbs_game.gui.board.BoardView;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 
 public class HexMath {
 
     private static final double SQRT3 = Math.sqrt(3);
     public static final double HEX_WIDTH = SQRT3 * BoardView.TILE_RADIUS;
 
-    public static double hexToPixelX(HexPos p) {
+    public static double hexToPixelX(AxialPos p) {
         return BoardView.TILE_RADIUS * (SQRT3 * p.q() + SQRT3 / 2 * p.r());
     }
 
-    public static double hexToPixelY(HexPos p) {
+    public static double hexToPixelY(AxialPos p) {
         return BoardView.TILE_RADIUS * (3.0 / 2 * p.r());
     }
 
-    public static HexPos pixelToHex(double x, double y) {
+    public static AxialPos pixelToHex(double x, double y) {
         double q = (SQRT3 / 3 * x - 1.0 / 3 * y) / BoardView.TILE_RADIUS;
         double r = (2.0 / 3 * y) / BoardView.TILE_RADIUS;
         return hexRound(q, r);
     }
 
-    public static HexPos hexRound(double q, double r) {
+    public static AxialPos hexRound(double q, double r) {
         double s = -q - r;
 
         // Round each axis to nearest int
@@ -41,6 +41,6 @@ public class HexMath {
             rr = -rq - rs;
         }
 
-        return new HexPos(rq, rr);
+        return new AxialPos(rq, rr);
     }
 }

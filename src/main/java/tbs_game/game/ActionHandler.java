@@ -3,12 +3,12 @@ package tbs_game.game;
 import java.util.ArrayList;
 
 import tbs_game.hexes.FractionalHex;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 
 public class ActionHandler {
 
-    public static boolean resolveAction(GameState state, HexPos from, HexPos to) {
+    public static boolean resolveAction(GameState state, AxialPos from, AxialPos to) {
         if (!Rules.canDoAction(state, from, to)) {
             return false;
         }
@@ -22,15 +22,15 @@ public class ActionHandler {
             return attackUnit(state, from, to);
         }
 
-        ArrayList<HexPos> path = FractionalHex.hexLinedraw(from, to);
-        HexPos penultimatePos = path.get(path.size() - 2);
+        ArrayList<AxialPos> path = FractionalHex.hexLinedraw(from, to);
+        AxialPos penultimatePos = path.get(path.size() - 2);
         if (!moveUnit(state, from, penultimatePos)) {
             return false;
         }
         return attackUnit(state, penultimatePos, to);
     }
 
-    public static boolean moveUnit(GameState state, HexPos from, HexPos to) {
+    public static boolean moveUnit(GameState state, AxialPos from, AxialPos to) {
         if (!Rules.canMove(state, from, to)) {
             return false;
         }
@@ -39,7 +39,7 @@ public class ActionHandler {
         return true;
     }
 
-    public static boolean attackUnit(GameState state, HexPos from, HexPos to) {
+    public static boolean attackUnit(GameState state, AxialPos from, AxialPos to) {
         if (!Rules.canAttack(state, from, to)) {
             return false;
         }

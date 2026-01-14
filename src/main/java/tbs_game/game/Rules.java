@@ -1,12 +1,12 @@
 package tbs_game.game;
 
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.units.AttackType;
 import tbs_game.units.Unit;
 
 public class Rules {
 
-    public static boolean canMove(GameState state, HexPos from, HexPos to) {
+    public static boolean canMove(GameState state, AxialPos from, AxialPos to) {
         if (state.isGameOver()) {
             return false;
         }
@@ -35,7 +35,7 @@ public class Rules {
         return move.cost <= unit.getMovementPoints();
     }
 
-    public static boolean canAttack(GameState state, HexPos attackFrom, HexPos attackTo) {
+    public static boolean canAttack(GameState state, AxialPos attackFrom, AxialPos attackTo) {
         if (state.isGameOver()) {
             return false;
         }
@@ -67,14 +67,14 @@ public class Rules {
         return dist <= range;
     }
 
-    public static boolean canUnitMoveDistance(Unit unit, HexPos from, HexPos to) {
+    public static boolean canUnitMoveDistance(Unit unit, AxialPos from, AxialPos to) {
         int maxMoveDist = unit.getMovementPoints();
         int moveDist = from.distanceTo(to);
 
         return moveDist <= maxMoveDist;
     }
 
-    public static boolean canDoAction(GameState state, HexPos from, HexPos to) {
+    public static boolean canDoAction(GameState state, AxialPos from, AxialPos to) {
         if (state.isGameOver()) {
             return false;
         }

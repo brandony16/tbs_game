@@ -13,15 +13,15 @@ import org.junit.jupiter.api.Test;
 import tbs_game.game.Game;
 import tbs_game.game.Movement;
 import tbs_game.game.Rules;
-import tbs_game.hexes.HexPos;
+import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
 public class RulesTest {
 
     private Game game;
-    private HexPos unitPos;
-    private HexPos otherPos;
+    private AxialPos unitPos;
+    private AxialPos otherPos;
 
     @BeforeEach
     void init() {
@@ -38,7 +38,7 @@ public class RulesTest {
     void setUpSolo() {
         reset();
 
-        unitPos = new HexPos(0, 0);
+        unitPos = new AxialPos(0, 0);
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
     }
@@ -46,11 +46,11 @@ public class RulesTest {
     void setUpBattle() {
         reset();
 
-        unitPos = new HexPos(0, 0);
+        unitPos = new AxialPos(0, 0);
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
-        otherPos = new HexPos(0, 1);
+        otherPos = new AxialPos(0, 1);
         Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
@@ -58,11 +58,11 @@ public class RulesTest {
     void setUpBattleMoveThenAttack() {
         reset();
 
-        unitPos = new HexPos(0, 0);
+        unitPos = new AxialPos(0, 0);
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
-        otherPos = new HexPos(0, 2);
+        otherPos = new AxialPos(0, 2);
         Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
@@ -70,11 +70,11 @@ public class RulesTest {
     void setUpBattleTooFar() {
         reset();
 
-        unitPos = new HexPos(0, 0);
+        unitPos = new AxialPos(0, 0);
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
-        otherPos = new HexPos(0, 3);
+        otherPos = new AxialPos(0, 3);
         Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
@@ -82,17 +82,17 @@ public class RulesTest {
     void setUpFriendly() {
         reset();
 
-        unitPos = new HexPos(0, 0);
+        unitPos = new AxialPos(0, 0);
         Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
-        otherPos = new HexPos(0, 1);
+        otherPos = new AxialPos(0, 1);
         Unit friendlyUnit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
         game.placeUnitAt(otherPos, friendlyUnit);
     }
 
-    void canMoveManyTiles(HexPos from, List<HexPos> tiles) {
-        for (HexPos pos : tiles) {
+    void canMoveManyTiles(AxialPos from, List<AxialPos> tiles) {
+        for (AxialPos pos : tiles) {
             assertTrue(Rules.canMove(game.getState(), from, pos));
         }
     }
@@ -102,14 +102,14 @@ public class RulesTest {
     void testCanMoveNoMover() {
         setUpSolo();
         // No unit at 2,2
-        assertFalse(Rules.canMove(game.getState(), new HexPos(2, 2), otherPos));
+        assertFalse(Rules.canMove(game.getState(), new AxialPos(2, 2), otherPos));
     }
 
     @Test
     void testCanMoveWrongTurn() {
         setUpBattle();
         // Not that units turn
-        assertFalse(Rules.canMove(game.getState(), otherPos, new HexPos(0, 2)));
+        assertFalse(Rules.canMove(game.getState(), otherPos, new AxialPos(0, 2)));
     }
 
     @Test
@@ -125,25 +125,25 @@ public class RulesTest {
     void testCanMoveNoActionsRemaining() {
         setUpSolo();
         game.getUnitAt(unitPos).markAttacked();
-        assertFalse(Rules.canMove(game.getState(), unitPos, new HexPos(-1, 0)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, new AxialPos(-1, 0)));
 
         setUpSolo();
         Unit unit = game.getUnitAt(unitPos);
         unit.spendMovementPoints(unit.getMovementPoints());
-        assertFalse(Rules.canMove(game.getState(), unitPos, new HexPos(-1, 0)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, new AxialPos(-1, 0)));
     }
 
     @Test
     void testCanMoveTooFar() {
-        assertFalse(Rules.canMove(game.getState(), unitPos, new HexPos(1, 1)));
-        assertFalse(Rules.canMove(game.getState(), unitPos, new HexPos(2, 0)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, new AxialPos(1, 1)));
+        assertFalse(Rules.canMove(game.getState(), unitPos, new AxialPos(2, 0)));
     }
 
     @Test
     void testCanMoveValid() {
         setUpSolo();
-        Set<HexPos> reachableSet = Movement.getReachableHexes(game.getState(), unitPos);
-        List<HexPos> movable = new ArrayList<>(reachableSet);
+        Set<AxialPos> reachableSet = Movement.getReachableHexes(game.getState(), unitPos);
+        List<AxialPos> movable = new ArrayList<>(reachableSet);
 
         canMoveManyTiles(unitPos, movable);
     }
@@ -153,7 +153,7 @@ public class RulesTest {
     void testCanAttackNoAttacker() {
         setUpBattle();
         // No unit at 2,2
-        HexPos emptyPos = new HexPos(2, 2);
+        AxialPos emptyPos = new AxialPos(2, 2);
         assertFalse(Rules.canAttack(game.getState(), emptyPos, otherPos));
     }
 
@@ -161,7 +161,7 @@ public class RulesTest {
     void testCanAttackNoTarget() {
         setUpSolo();
         // There is no unit at the target
-        HexPos target = new HexPos(1, 0);
+        AxialPos target = new AxialPos(1, 0);
         assertFalse(Rules.canAttack(game.getState(), unitPos, target));
     }
 
@@ -206,7 +206,7 @@ public class RulesTest {
         int range = unit.getMovementPoints();
 
         // Move within movement points
-        HexPos target = new HexPos(unitPos.q() + range, unitPos.r());
+        AxialPos target = new AxialPos(unitPos.q() + range, unitPos.r());
         assertTrue(Rules.canUnitMoveDistance(unit, unitPos, target));
     }
 
@@ -217,7 +217,7 @@ public class RulesTest {
         int range = unit.getMaxMovementPoints();
 
         // Move exactly max distance
-        HexPos target = new HexPos(unitPos.q() + range, unitPos.r());
+        AxialPos target = new AxialPos(unitPos.q() + range, unitPos.r());
         assertTrue(Rules.canUnitMoveDistance(unit, unitPos, target));
     }
 
@@ -228,7 +228,7 @@ public class RulesTest {
         int range = unit.getMovementPoints();
 
         // Move one further than allowed
-        HexPos target = new HexPos(unitPos.q() + range + 1, unitPos.r());
+        AxialPos target = new AxialPos(unitPos.q() + range + 1, unitPos.r());
         assertFalse(Rules.canUnitMoveDistance(unit, unitPos, target));
     }
 
@@ -236,14 +236,14 @@ public class RulesTest {
     @Test
     void testCanDoActionNoUnitAtSource() {
         setUpBattle();
-        HexPos empty = new HexPos(2, 2);
+        AxialPos empty = new AxialPos(2, 2);
         assertFalse(Rules.canDoAction(game.getState(), empty, otherPos));
     }
 
     @Test
     void testCanDoActionMoveOnly() {
         setUpSolo();
-        assertTrue(Rules.canDoAction(game.getState(), unitPos, new HexPos(1, 0)));
+        assertTrue(Rules.canDoAction(game.getState(), unitPos, new AxialPos(1, 0)));
     }
 
     @Test
