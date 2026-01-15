@@ -26,7 +26,6 @@ public class GameGUI {
 
         this.boardView = new BoardView(game);
         this.hudView = new HudView(game);
-        boardView.showCoords();
 
         this.root = new StackPane();
 

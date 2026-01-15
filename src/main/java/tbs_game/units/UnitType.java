@@ -1,7 +1,7 @@
 package tbs_game.units;
 
 public enum UnitType {
-    SOLDIER(2, AttackType.MELEE, 1, 4, 10, "Soldier", "soldier.png"),
+    WARRIOR(2, AttackType.MELEE, 1, 4, 10, "Warrior", "warrior.png"),
     ARCHER(2, AttackType.RANGED, 2, 2, 8, "Archer", "archer.png"),
     CAVALRY(3, AttackType.MELEE, 1, 3, 12, "Cavalry", "settler.png"),
     SETTLER(2, AttackType.NONE, 0, 0, 1, "Settler", "settler.png");

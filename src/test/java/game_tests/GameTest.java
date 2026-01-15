@@ -26,7 +26,7 @@ public class GameTest {
 
     @Test
     void placeUnit() {
-        Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
+        Unit unit = new Unit(UnitType.WARRIOR, game.getCurrentPlayer());
 
         assertNull(game.getUnitAt(start));
         game.placeUnitAt(start, unit);
@@ -36,7 +36,7 @@ public class GameTest {
 
     @Test
     void moveCorrectlyUpdatesState() {
-        Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
+        Unit unit = new Unit(UnitType.WARRIOR, game.getCurrentPlayer());
         game.placeUnitAt(start, unit);
 
         AxialPos to = start.neighbor(2);
@@ -49,7 +49,7 @@ public class GameTest {
 
     @Test
     void unitCannotMoveOnOtherPlayersTurn() {
-        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit unit = new Unit(UnitType.WARRIOR, game.getPlayer(1));
         game.placeUnitAt(start, unit);
 
         AxialPos to = start.neighbor(2);
@@ -60,7 +60,7 @@ public class GameTest {
 
     @Test
     void unitCannotMoveWithoutMovementPoints() {
-        Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
+        Unit unit = new Unit(UnitType.WARRIOR, game.getCurrentPlayer());
         game.placeUnitAt(start, unit);
 
         AxialPos to = start.neighbor(2);
@@ -72,11 +72,11 @@ public class GameTest {
 
     @Test
     void unitCannotAttackTwiceInOneTurn() {
-        Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        Unit attacker = new Unit(UnitType.WARRIOR, game.getPlayer(0));
         game.placeUnitAt(start, attacker);
 
         AxialPos defenderPos = start.neighbor(2);
-        Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit defender = new Unit(UnitType.WARRIOR, game.getPlayer(1));
         game.placeUnitAt(defenderPos, defender);
 
         assertTrue(game.canAttack(start, defenderPos));
@@ -88,11 +88,11 @@ public class GameTest {
 
     @Test
     void killingAUnitRemovesItstartBoard() {
-        Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        Unit attacker = new Unit(UnitType.WARRIOR, game.getPlayer(0));
         game.placeUnitAt(start, attacker);
 
         AxialPos defenderPos = start.neighbor(2);
-        Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit defender = new Unit(UnitType.WARRIOR, game.getPlayer(1));
         game.placeUnitAt(defenderPos, defender);
 
         defender.dealDamage(defender.getHealth());
@@ -107,7 +107,7 @@ public class GameTest {
 
     @Test
     void endingTurnResetsUnits() {
-        Unit unit = new Unit(UnitType.SOLDIER, game.getCurrentPlayer());
+        Unit unit = new Unit(UnitType.WARRIOR, game.getCurrentPlayer());
         game.placeUnitAt(start, unit);
 
         unit.spendMovementPoints(unit.getMovementPoints());

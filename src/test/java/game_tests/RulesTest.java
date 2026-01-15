@@ -39,51 +39,51 @@ public class RulesTest {
     void setUpSolo() {
         reset();
 
-        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        Unit unit = new Unit(UnitType.WARRIOR, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
     }
 
     void setUpBattle() {
         reset();
 
-        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        Unit unit = new Unit(UnitType.WARRIOR, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
         otherPos = unitPos.neighbor(0);
-        Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit aiUnit = new Unit(UnitType.WARRIOR, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
 
     void setUpBattleMoveThenAttack() {
         reset();
 
-        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        Unit unit = new Unit(UnitType.WARRIOR, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
         otherPos = unitPos.diagonalNeighbor(1); // 2 moves away
-        Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit aiUnit = new Unit(UnitType.WARRIOR, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
 
     void setUpBattleTooFar() {
         reset();
 
-        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        Unit unit = new Unit(UnitType.WARRIOR, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
         otherPos = unitPos.add(new AxialPos(unit.getMaxMovementPoints() + 1, 0));
-        Unit aiUnit = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit aiUnit = new Unit(UnitType.WARRIOR, game.getPlayer(1));
         game.placeUnitAt(otherPos, aiUnit);
     }
 
     void setUpFriendly() {
         reset();
 
-        Unit unit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        Unit unit = new Unit(UnitType.WARRIOR, game.getPlayer(0));
         game.placeUnitAt(unitPos, unit);
 
         otherPos = unitPos.neighbor(3);
-        Unit friendlyUnit = new Unit(UnitType.SOLDIER, game.getPlayer(0));
+        Unit friendlyUnit = new Unit(UnitType.WARRIOR, game.getPlayer(0));
         game.placeUnitAt(otherPos, friendlyUnit);
     }
 

@@ -37,8 +37,8 @@ public class CombatTest {
     }
 
     private Unit setUpBattle() {
-        Unit attacker = new Unit(UnitType.SOLDIER, game.getPlayer(0));
-        Unit defender = new Unit(UnitType.SOLDIER, game.getPlayer(1));
+        Unit attacker = new Unit(UnitType.WARRIOR, game.getPlayer(0));
+        Unit defender = new Unit(UnitType.WARRIOR, game.getPlayer(1));
 
         game.placeUnitAt(attackerPos, attacker);
         game.placeUnitAt(defenderPos, defender);

@@ -238,12 +238,12 @@ public class Game {
 
     public void setUpGame() {
         ArrayList<AxialPos> spawnLocations = SetupHandler.generateSpawnSpots(this, SEED);
-        ArrayList<AxialPos> soldierSpawns = SetupHandler.generateUnitSpawns(this, spawnLocations, SEED);
+        ArrayList<AxialPos> warriorSpawns = SetupHandler.generateUnitSpawns(this, spawnLocations, SEED);
         for (int i = 0; i < numPlayers; i++) {
             Unit settler = new Unit(UnitType.SETTLER, getPlayer(i));
-            Unit soldier = new Unit(UnitType.SOLDIER, getPlayer(i));
+            Unit warrior = new Unit(UnitType.WARRIOR, getPlayer(i));
             state.placeUnitAt(spawnLocations.get(i), settler);
-            state.placeUnitAt(soldierSpawns.get(i), soldier);
+            state.placeUnitAt(warriorSpawns.get(i), warrior);
         }
     }
 
@@ -257,19 +257,19 @@ public class Game {
     public static Game battleSim(int width, int height, int numPlayers) {
         Game game = new Game(width, height, numPlayers);
 
-        ArrayList<AxialPos> soldierSpawns = SetupHandler.generateSpawnSpots(game, SEED);
-        ArrayList<AxialPos> archerSpawns = SetupHandler.generateUnitSpawns(game, soldierSpawns, SEED);
+        ArrayList<AxialPos> warriorSpawns = SetupHandler.generateSpawnSpots(game, SEED);
+        ArrayList<AxialPos> archerSpawns = SetupHandler.generateUnitSpawns(game, warriorSpawns, SEED);
 
         for (int i = 0; i < game.getNumPlayers(); i++) {
-            Unit soldier = new Unit(UnitType.SOLDIER, game.getPlayer(i));
+            Unit warrior = new Unit(UnitType.WARRIOR, game.getPlayer(i));
             Unit archer = new Unit(UnitType.ARCHER, game.getPlayer(i));
 
-            game.placeUnitAt(soldierSpawns.get(i), soldier);
+            game.placeUnitAt(warriorSpawns.get(i), warrior);
             game.placeUnitAt(archerSpawns.get(i), archer);
         }
 
         // Do other cavalry after archers are placed so no overlap of spawns is possible
-        ArrayList<AxialPos> cavalrySpawns = SetupHandler.generateUnitSpawns(game, soldierSpawns, SEED);
+        ArrayList<AxialPos> cavalrySpawns = SetupHandler.generateUnitSpawns(game, warriorSpawns, SEED);
         for (int i = 0; i < game.getNumPlayers(); i++) {
             Unit cavalry = new Unit(UnitType.CAVALRY, game.getPlayer(i));
             game.placeUnitAt(cavalrySpawns.get(i), cavalry);
