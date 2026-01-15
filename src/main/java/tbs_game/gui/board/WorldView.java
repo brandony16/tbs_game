@@ -20,6 +20,11 @@ public class WorldView {
         this.highlights = new HighlightLayer(game);
         this.units = new UnitLayer(game);
         this.debug = new DebugLayer(game);
+
+        highlights.getRoot().setManaged(false);
+        board.getOverlayRoot().setManaged(false);
+        units.getRoot().setManaged(false);
+        debug.getRoot().setManaged(false);
     }
 
     public void setOffsetX(double offset) {

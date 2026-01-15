@@ -51,7 +51,8 @@ public class HighlightLayer {
                     Point2D[] corners = HexFactory.hexCorners(cx, cy);
 
                     for (int edge = 0; edge < 6; edge++) {
-                        AxialPos neighbor = pos.neighbor(edge);
+                        AxialPos rawNeighbor = pos.neighbor(edge);
+                        AxialPos neighbor = game.getState().wrap(rawNeighbor);
 
                         if (reachableHexes.contains(neighbor)) {
                             continue; // interior edge

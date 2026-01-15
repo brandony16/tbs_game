@@ -68,11 +68,14 @@ public class BoardView {
         units.getChildren().addAll(left.getUnitsRoot(), center.getUnitsRoot(), right.getUnitsRoot());
         debug.getChildren().addAll(left.getDebugRoot(), center.getDebugRoot(), right.getDebugRoot());
 
-        worldRoot.getChildren().addAll(boards, boardOverlays, highlights, units, debug);
+        worldRoot.getChildren().addAll(boards, highlights, boardOverlays, units, debug);
 
         left.drawInitial(selectedPos, reachableHexes);
         center.drawInitial(selectedPos, reachableHexes);
         right.drawInitial(selectedPos, reachableHexes);
+
+        // Prevent any animations from shifting board
+        worldRoot.setManaged(false);
     }
 
     public void showCoords() {
