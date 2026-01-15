@@ -4,13 +4,12 @@ import java.util.List;
 import java.util.Set;
 
 import javafx.animation.SequentialTransition;
-import javafx.scene.Group;
+import javafx.scene.Node;
 import tbs_game.game.Game;
 import tbs_game.hexes.AxialPos;
 
 public class WorldView {
 
-    private final Group root = new Group();
     private final BoardLayer board;
     private final HighlightLayer highlights;
     private final UnitLayer units;
@@ -21,17 +20,33 @@ public class WorldView {
         this.highlights = new HighlightLayer(game);
         this.units = new UnitLayer(game);
         this.debug = new DebugLayer(game);
-
-        root.getChildren().addAll(
-                board.getRoot(),
-                highlights.getRoot(),
-                units.getRoot(),
-                debug.getRoot()
-        );
     }
 
-    public Group getRoot() {
-        return root;
+    public void setOffsetX(double offset) {
+        board.setTranslateX(offset);
+        highlights.getRoot().setTranslateX(offset);
+        units.getRoot().setTranslateX(offset);
+        debug.getRoot().setTranslateX(offset);
+    }
+
+    public Node getBaseRoot() {
+        return board.getBaseRoot();
+    }
+
+    public Node getOverlayRoot() {
+        return board.getOverlayRoot();
+    }
+
+    public Node getHighlightsRoot() {
+        return highlights.getRoot();
+    }
+
+    public Node getUnitsRoot() {
+        return units.getRoot();
+    }
+
+    public Node getDebugRoot() {
+        return debug.getRoot();
     }
 
     // ----- Debug Layer -----

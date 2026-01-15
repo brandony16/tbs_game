@@ -36,6 +36,12 @@ public class BoardView {
     private final WorldView center;
     private final WorldView right;
 
+    private final Group boards;
+    private final Group boardOverlays;
+    private final Group highlights;
+    private final Group units;
+    private final Group debug;
+
     public BoardView(Game game) {
         this.game = game;
 
@@ -45,15 +51,28 @@ public class BoardView {
         this.center = new WorldView(game);
         this.right = new WorldView(game);
 
+        this.boards = new Group();
+        this.boardOverlays = new Group();
+        this.highlights = new Group();
+        this.units = new Group();
+        this.debug = new Group();
+
+        double boardWidth = game.getBoard().getWidth() * HexMath.HEX_WIDTH;
+        left.setOffsetX(-boardWidth);
+        right.setOffsetX(boardWidth);
+
+        // Build board layer by layer so no weird overlapping happens at board edges
+        boards.getChildren().addAll(left.getBaseRoot(), center.getBaseRoot(), right.getBaseRoot());
+        boardOverlays.getChildren().addAll(left.getOverlayRoot(), center.getOverlayRoot(), right.getOverlayRoot());
+        highlights.getChildren().addAll(left.getHighlightsRoot(), center.getHighlightsRoot(), right.getHighlightsRoot());
+        units.getChildren().addAll(left.getUnitsRoot(), center.getUnitsRoot(), right.getUnitsRoot());
+        debug.getChildren().addAll(left.getDebugRoot(), center.getDebugRoot(), right.getDebugRoot());
+
+        worldRoot.getChildren().addAll(boards, boardOverlays, highlights, units, debug);
+
         left.drawInitial(selectedPos, reachableHexes);
         center.drawInitial(selectedPos, reachableHexes);
         right.drawInitial(selectedPos, reachableHexes);
-
-        double boardWidth = game.getBoard().getWidth() * HexMath.HEX_WIDTH;
-        left.getRoot().setTranslateX(-boardWidth);
-        right.getRoot().setTranslateX(boardWidth);
-
-        worldRoot.getChildren().addAll(left.getRoot(), center.getRoot(), right.getRoot());
     }
 
     public void showCoords() {
@@ -228,11 +247,11 @@ public class BoardView {
 
     // ----- Utility -----
     public Point2D getLocalCoords(double mouseX, double mouseY) {
-        return center.getRoot().sceneToLocal(mouseX, mouseY);
+        return center.getBaseRoot().sceneToLocal(mouseX, mouseY);
     }
 
     private AxialPos getHexPosAt(double mouseX, double mouseY) {
-        Point2D boardCoords = center.getRoot().sceneToLocal(mouseX, mouseY);
+        Point2D boardCoords = center.getBaseRoot().sceneToLocal(mouseX, mouseY);
         return HexMath.pixelToAxial(boardCoords.getX(), boardCoords.getY());
     }
 

@@ -18,19 +18,25 @@ import tbs_game.hexes.AxialPos;
 public class BoardLayer {
 
     private final Game game;
-    private final Group boardRoot = new Group();
 
     private final Group baseLayer = new Group();
     private final Group overlayLayer = new Group();
 
     public BoardLayer(Game game) {
         this.game = game;
-
-        boardRoot.getChildren().addAll(baseLayer, overlayLayer);
     }
 
-    public Group getRoot() {
-        return this.boardRoot;
+    public Group getBaseRoot() {
+        return this.baseLayer;
+    }
+
+    public Group getOverlayRoot() {
+        return this.overlayLayer;
+    }
+
+    public void setTranslateX(double offset) {
+        baseLayer.setTranslateX(offset);
+        overlayLayer.setTranslateX(offset);
     }
 
     public void drawBoard() {
