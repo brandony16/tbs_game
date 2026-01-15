@@ -15,7 +15,6 @@ import tbs_game.gui.ClickResult;
 import tbs_game.gui.HexMath;
 import tbs_game.gui.HoverContext;
 import tbs_game.hexes.AxialPos;
-import tbs_game.units.Unit;
 
 public class BoardView {
 
@@ -116,26 +115,26 @@ public class BoardView {
         }
 
         AxialPos clicked = getHexPosAt(mouseX, mouseY);
+        AxialPos wrapped = game.getState().wrap(clicked);
 
-        if (!game.getBoard().isOnBoard(clicked)) {
+        if (!game.getBoard().isOnBoard(wrapped)) {
             clearSelection();
             return ClickResult.SELECTION_CHANGED;
         }
 
-        Unit unit = game.getUnitAt(clicked);
-        boolean isFriendlyUnit = unit != null && unit.getOwner().equals(game.getCurrentPlayer());
+        boolean isFriendlyUnit = game.isFriendly(wrapped, game.getCurrentPlayer());
 
         if (selectedPos == null && isFriendlyUnit) {
-            selectPos(clicked);
+            selectPos(wrapped);
 
             return ClickResult.SELECTION_CHANGED;
         }
 
         if (selectedPos != null) {
-            if (reachableHexes.contains(clicked)) {
-                List<AxialPos> path = Movement.findPath(selectedPos, clicked, game.getState());
+            if (reachableHexes.contains(wrapped)) {
+                List<AxialPos> path = Movement.findPath(selectedPos, wrapped, game.getState());
 
-                if (!game.resolveAction(selectedPos, clicked)) {
+                if (!game.resolveAction(selectedPos, wrapped)) {
                     return ClickResult.NONE;
                 }
 
@@ -144,7 +143,7 @@ public class BoardView {
             }
 
             if (isFriendlyUnit) {
-                selectPos(clicked);
+                selectPos(wrapped);
                 return ClickResult.SELECTION_CHANGED;
             }
 

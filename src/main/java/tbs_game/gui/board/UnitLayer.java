@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.util.Duration;
@@ -20,6 +21,18 @@ public class UnitLayer {
     private final Game game;
     private final Group unitRoot = new Group();
     private final Map<AxialPos, Group> unitElements = new HashMap<>();
+
+    static final Point2D[] DIR_PIXEL_OFFSETS = new Point2D[AxialPos.directions.size()];
+
+    static {
+        for (int i = 0; i < AxialPos.directions.size(); i++) {
+            AxialPos d = AxialPos.directions.get(i);
+            DIR_PIXEL_OFFSETS[i] = new Point2D(
+                    HexMath.axialToPixelX(d),
+                    HexMath.axialToPixelY(d)
+            );
+        }
+    }
 
     public UnitLayer(Game game) {
         this.game = game;
@@ -78,16 +91,41 @@ public class UnitLayer {
             AxialPos a = path.get(i - 1);
             AxialPos b = path.get(i);
 
-            double dx = HexMath.axialToPixelX(b) - HexMath.axialToPixelX(a);
-            double dy = HexMath.axialToPixelY(b) - HexMath.axialToPixelY(a);
+            AxialPos offsetDir = wrapDelta(a, b);
+            Point2D offset = DIR_PIXEL_OFFSETS[getOffsetIndex(offsetDir)];
 
             TranslateTransition tt = new TranslateTransition(Duration.millis(200));
-            tt.setByX(dx);
-            tt.setByY(dy);
+            tt.setByX(offset.getX());
+            tt.setByY(offset.getY());
 
             sequence.getChildren().add(tt);
         }
 
         return sequence;
+    }
+
+    private AxialPos wrapDelta(AxialPos a, AxialPos b) {
+        int width = game.getBoard().getWidth();
+
+        int dq = b.q() - a.q();
+        int dr = b.r() - a.r();
+
+        // Account for wrapping width. Height is not wrapped
+        if (dq > width / 2) {
+            dq -= width;
+        } else if (dq < -width / 2) {
+            dq += width;
+        }
+
+        return new AxialPos(dq, dr);
+    }
+
+    private int getOffsetIndex(AxialPos offset) {
+        for (int i = 0; i < AxialPos.directions.size(); i++) {
+            if (AxialPos.directions.get(i).equals(offset)) {
+                return i;
+            }
+        }
+        throw new IllegalStateException("Invalid move delta: " + offset);
     }
 }
