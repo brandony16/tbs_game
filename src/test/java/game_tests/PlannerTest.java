@@ -7,26 +7,30 @@ import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import tbs_game.game.Game;
 import tbs_game.game.GameState;
-import tbs_game.game.Movement;
+import tbs_game.game.game_helpers.MovementPlanner;
 import tbs_game.hexes.AxialPos;
 import tbs_game.hexes.OffsetPos;
+import tbs_game.player.Player;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 
-public class MovementTest {
+public class PlannerTest {
 
     // All tests are under the assumption that movement cost = hex distance, 
     // which is true on maps with tiles that all have a movement cost of 1.
     // Tests for different terrain are in TerrainTest.
-    private Game game;
     private GameState state;
+    private MovementPlanner planner;
+
+    private Player player1;
+    private Player player2;
+
     private AxialPos unitPos;
     private AxialPos rightEdgePos;
     private AxialPos leftEdgePos;
@@ -35,101 +39,58 @@ public class MovementTest {
     void init() {
         int width = 20;
         int height = 20;
-        game = Game.allPlains(width, height, 2);
-        state = game.getState();
-        unitPos = new OffsetPos(width / 2, height / 2).toAxial();
+        Game game = Game.allPlains(width, height, 2);
 
-        leftEdgePos = new OffsetPos(0, 4).toAxial();
-        rightEdgePos = new OffsetPos(width - 1, 4).toAxial();
+        this.state = game.copyState();
+        this.planner = new MovementPlanner(state);
+
+        this.player1 = game.getPlayer(0);
+        this.player2 = game.getPlayer(1);
+
+        this.unitPos = new OffsetPos(width / 2, height / 2).toAxial();
+        this.leftEdgePos = new OffsetPos(0, 4).toAxial();
+        this.rightEdgePos = new OffsetPos(width - 1, 4).toAxial();
     }
 
     @AfterEach
     void reset() {
-        game = null;
-        state = null;
-        unitPos = null;
-        rightEdgePos = null;
-        leftEdgePos = null;
+        this.state = null;
+        this.planner = null;
+
+        this.player1 = null;
+        this.player2 = null;
+
+        this.unitPos = null;
+        this.rightEdgePos = null;
+        this.leftEdgePos = null;
     }
 
     private void setUpSoloUnit(AxialPos pos) {
-        Unit unit = new Unit(UnitType.CAVALRY, game.getPlayer(0));
-        game.placeUnitAt(pos, unit);
+        Unit unit = new Unit(UnitType.CAVALRY, player1);
+        state.placeUnitAt(pos, unit);
     }
 
     private void setUpFriendlyBlocker(AxialPos pos) {
-        Unit friendly = new Unit(UnitType.CAVALRY, game.getPlayer(0));
-        game.placeUnitAt(pos, friendly);
+        Unit friendly = new Unit(UnitType.CAVALRY, player1);
+        state.placeUnitAt(pos, friendly);
     }
 
     private void setUpEnemyUnit(AxialPos pos) {
-        Unit enemy = new Unit(UnitType.CAVALRY, game.getPlayer(1));
-        game.placeUnitAt(pos, enemy);
-    }
-
-    // ----- move -----
-    @Test
-    void testMoveUpdatesPosition() {
-        setUpSoloUnit(unitPos);
-        AxialPos target = unitPos.neighbor(0);
-
-        Movement.move(state, unitPos, target);
-
-        assertNull(game.getUnitAt(unitPos));
-        assertNotNull(game.getUnitAt(target));
-    }
-
-    @Test
-    void testMoveSpendsMovementPoints() {
-        setUpSoloUnit(unitPos);
-        Unit unit = game.getUnitAt(unitPos);
-        int startMP = unit.getMovementPoints();
-
-        AxialPos target = unitPos.neighbor(1);
-        int dist = unitPos.distanceTo(target);
-
-        Movement.move(state, unitPos, target);
-
-        assertEquals(startMP - dist, unit.getMovementPoints());
-    }
-
-    @Test
-    void testMoveExactDistanceSpent() {
-        setUpSoloUnit(unitPos);
-        Unit unit = game.getUnitAt(unitPos);
-
-        AxialPos target = unitPos.add(new AxialPos(unit.getMaxMovementPoints(), 0));
-        int dist = unitPos.distanceTo(target);
-
-        Movement.move(state, unitPos, target);
-
-        assertEquals(unit.getMaxMovementPoints() - dist, unit.getMovementPoints());
-    }
-
-    @Test
-    void testMoveAcrossHorizontalWrap() {
-        setUpSoloUnit(rightEdgePos);
-
-        AxialPos target = rightEdgePos.neighbor(0); // 0 is directly to the left
-        target = state.wrap(target);
-
-        Movement.move(state, rightEdgePos, target);
-
-        assertNull(game.getUnitAt(rightEdgePos));
-        assertNotNull(game.getUnitAt(target));
+        Unit enemy = new Unit(UnitType.CAVALRY, player2);
+        state.placeUnitAt(pos, enemy);
     }
 
     // ----- getReachableHexes -----
     @Test
     void testGetReachableHexesNoUnit() {
-        Set<AxialPos> reachable = Movement.getReachableHexes(state, unitPos);
+        Set<AxialPos> reachable = planner.getReachableHexes(unitPos);
         assertTrue(reachable.isEmpty());
     }
 
     @Test
     void testGetReachableHexesDoesNotIncludeOrigin() {
         setUpSoloUnit(unitPos);
-        Set<AxialPos> reachable = Movement.getReachableHexes(state, unitPos);
+        Set<AxialPos> reachable = planner.getReachableHexes(unitPos);
 
         assertFalse(reachable.contains(unitPos));
     }
@@ -137,10 +98,10 @@ public class MovementTest {
     @Test
     void testGetReachableHexesWithinRange() {
         setUpSoloUnit(unitPos);
-        Unit unit = game.getUnitAt(unitPos);
+        Unit unit = state.getUnitAt(unitPos);
         int range = unit.getMovementPoints();
 
-        Set<AxialPos> reachable = Movement.getReachableHexes(state, unitPos);
+        Set<AxialPos> reachable = planner.getReachableHexes(unitPos);
 
         for (AxialPos pos : reachable) {
             assertTrue(unitPos.distanceTo(pos) <= range);
@@ -153,7 +114,7 @@ public class MovementTest {
         AxialPos friendlyPos = unitPos.neighbor(4);
         setUpFriendlyBlocker(friendlyPos);
 
-        Set<AxialPos> reachable = Movement.getReachableHexes(state, unitPos);
+        Set<AxialPos> reachable = planner.getReachableHexes(unitPos);
 
         assertFalse(reachable.contains(friendlyPos));
     }
@@ -164,7 +125,7 @@ public class MovementTest {
         AxialPos enemyPos = unitPos.neighbor(4);
         setUpEnemyUnit(enemyPos);
 
-        Set<AxialPos> reachable = Movement.getReachableHexes(state, unitPos);
+        Set<AxialPos> reachable = planner.getReachableHexes(unitPos);
 
         assertTrue(reachable.contains(enemyPos));
     }
@@ -172,12 +133,12 @@ public class MovementTest {
     @Test
     void testGetReachableHexesRespectsMovementPoints() {
         setUpSoloUnit(unitPos);
-        Unit unit = game.getUnitAt(unitPos);
+        Unit unit = state.getUnitAt(unitPos);
 
         // Spend all but 1 movement
         unit.spendMovementPoints(unit.getMovementPoints() - 1);
 
-        Set<AxialPos> reachable = Movement.getReachableHexes(state, unitPos);
+        Set<AxialPos> reachable = planner.getReachableHexes(unitPos);
 
         assertEquals(6, reachable.size());
         for (AxialPos pos : reachable) {
@@ -194,7 +155,7 @@ public class MovementTest {
             setUpEnemyUnit(pos);
         }
 
-        Set<AxialPos> reachable = Movement.getReachableHexes(state, unitPos);
+        Set<AxialPos> reachable = planner.getReachableHexes(unitPos);
 
         // Should be just the neighbors of the tile
         assertEquals(6, reachable.size());
@@ -209,7 +170,7 @@ public class MovementTest {
 
         Unit unit = state.getUnitAt(leftEdgePos);
         unit.spendMovementPoints(unit.getMovementPoints() - 1); // Set to 1 movement point for ease
-        Set<AxialPos> reachable = Movement.getReachableHexes(state, leftEdgePos);
+        Set<AxialPos> reachable = planner.getReachableHexes(leftEdgePos);
 
         // Wrapped neighbor on the left side
         AxialPos wrappedNeighbor = leftEdgePos.neighbor(3); // Neighbor 3 is directly to left
@@ -222,7 +183,7 @@ public class MovementTest {
     void testAllReachableHexesAreCanonical() {
         setUpSoloUnit(rightEdgePos);
 
-        Set<AxialPos> reachable = Movement.getReachableHexes(game.getState(), rightEdgePos);
+        Set<AxialPos> reachable = planner.getReachableHexes(rightEdgePos);
 
         for (AxialPos pos : reachable) {
             assertEquals(pos, state.wrap(pos));
@@ -237,7 +198,7 @@ public class MovementTest {
         AxialPos end = leftEdgePos.add(new AxialPos(-3, 0)); // 3 to left
         end = state.wrap(end);
 
-        ArrayList<AxialPos> path = Movement.findPath(leftEdgePos, end, state);
+        ArrayList<AxialPos> path = planner.findPath(leftEdgePos, end);
 
         assertNotNull(path);
         // Distance + 1 because path includes the starting tile

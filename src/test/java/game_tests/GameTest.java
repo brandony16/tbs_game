@@ -40,7 +40,7 @@ public class GameTest {
         game.placeUnitAt(start, unit);
 
         AxialPos to = start.neighbor(2);
-        assertTrue(game.canMove(start, to));
+        assertTrue(game.isValidMove(start, to));
         assertTrue(game.moveUnit(start, to));
 
         assertNull(game.getUnitAt(start));
@@ -54,21 +54,23 @@ public class GameTest {
 
         AxialPos to = start.neighbor(2);
 
-        assertFalse(game.canMove(to, start));
+        assertFalse(game.isValidMove(to, start));
         assertFalse(game.moveUnit(start, to));
     }
 
     @Test
-    void unitCannotMoveWithoutMovementPoints() {
+    void unitCannotMoveAfterAttack() {
         Unit unit = new Unit(UnitType.WARRIOR, game.getCurrentPlayer());
         game.placeUnitAt(start, unit);
 
         AxialPos to = start.neighbor(2);
-        unit.spendMovementPoints(unit.getMovementPoints());
+        unit.markAttacked();
 
-        assertFalse(game.canMove(start, to));
+        assertFalse(game.isValidMove(start, to));
         assertFalse(game.moveUnit(start, to));
     }
+
+    // ----- Attacks -----
 
     @Test
     void unitCannotAttackTwiceInOneTurn() {
@@ -79,11 +81,11 @@ public class GameTest {
         Unit defender = new Unit(UnitType.WARRIOR, game.getPlayer(1));
         game.placeUnitAt(defenderPos, defender);
 
-        assertTrue(game.canAttack(start, defenderPos));
+        assertTrue(game.isValidAttack(start, defenderPos));
         assertTrue(game.attackUnit(start, defenderPos));
 
         assertTrue(attacker.hasAttacked());
-        assertFalse(game.canAttack(start, defenderPos));
+        assertFalse(game.isValidAttack(start, defenderPos));
     }
 
     @Test

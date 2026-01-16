@@ -10,9 +10,14 @@ import tbs_game.units.Unit;
 public class ActionExecutor {
 
     private final GameState state;
+    private ActionPath lastExecuted;
 
     public ActionExecutor(GameState state) {
         this.state = state;
+    }
+
+    public ActionPath getLastExecuted() {
+        return this.lastExecuted;
     }
 
     public void moveThenAttack(ActionPath path) {
@@ -34,6 +39,7 @@ public class ActionExecutor {
         }
 
         attack(prev, path.to);
+        this.lastExecuted = path;
     }
 
     public void move(ActionPath path) {
@@ -53,6 +59,7 @@ public class ActionExecutor {
             mover.spendMovementPoints(cost);
             prev = step;
         }
+        this.lastExecuted = path;
     }
 
     public void attack(AxialPos from, AxialPos to) {
@@ -66,5 +73,10 @@ public class ActionExecutor {
         if (defender.isDead()) {
             state.captureUnit(from, to);
         }
+
+        ArrayList<AxialPos> path = new ArrayList<>();
+        path.add(from);
+        path.add(to);
+        this.lastExecuted = new ActionPath(from, to, path, -1);
     }
 }

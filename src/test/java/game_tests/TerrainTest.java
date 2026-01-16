@@ -12,10 +12,11 @@ import org.junit.jupiter.api.Test;
 
 import tbs_game.board.Board;
 import tbs_game.board.Terrain;
+import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
-import tbs_game.game.ActionPath;
-import tbs_game.game.ActionPath;
+import tbs_game.game.GameState;
 import tbs_game.game.Rules;
+import tbs_game.game.game_helpers.MovementPlanner;
 import tbs_game.hexes.AxialPos;
 import tbs_game.hexes.OffsetPos;
 import tbs_game.units.Unit;
@@ -23,18 +24,22 @@ import tbs_game.units.UnitType;
 
 class TerrainTest {
 
-    private Game game;
+    private GameState state;
+    private MovementPlanner planner;
     private Board board;
     private AxialPos start;
 
     @BeforeEach
     void init() {
-        game = Game.allPlains(20, 20, 2);
-        board = game.getBoard();
-        start = new OffsetPos(10, 10).toAxial();
+        Game game = Game.allPlains(20, 20, 2);
+
+        this.state = game.copyState();
+        this.planner = new MovementPlanner(state);
+        this.board = state.getBoard();
+        this.start = new OffsetPos(10, 10).toAxial();
 
         Unit unit = new Unit(UnitType.CAVALRY, game.getPlayer(0));
-        game.placeUnitAt(start, unit);
+        state.placeUnitAt(start, unit);
     }
 
     // ----- BASIC TERRAIN COST TESTS -----
@@ -46,8 +51,8 @@ class TerrainTest {
         AxialPos mountain = start.neighbor(1);
         board.getTile(mountain).setTerrain(Terrain.MOUNTAIN);
 
-        assertFalse(Rules.canMove(game.getState(), start, water));
-        assertFalse(Rules.canMove(game.getState(), start, mountain));
+        assertFalse(Rules.isValidMove(state, start, water));
+        assertFalse(Rules.isValidMove(state, start, mountain));
     }
 
     @Test
@@ -55,7 +60,7 @@ class TerrainTest {
         AxialPos plains = start.neighbor(0);
         board.getTile(plains).setTerrain(Terrain.PLAINS);
 
-        ActionPath move = Movement.planMove(game.getState(), start, plains);
+        ActionPath move = planner.planAction(start, plains);
 
         assertNotNull(move);
         assertEquals(1, move.cost);
@@ -66,7 +71,7 @@ class TerrainTest {
         AxialPos forest = start.neighbor(0);
         board.getTile(forest).setTerrain(Terrain.FOREST);
 
-        ActionPath move = Movement.planMove(game.getState(), start, forest);
+        ActionPath move = planner.planAction(start, forest);
 
         assertNotNull(move);
         assertEquals(2, move.cost);
@@ -91,7 +96,7 @@ class TerrainTest {
 
         AxialPos target = start.add(new AxialPos(3, 0));
 
-        ActionPath move = Movement.planMove(game.getState(), start, target);
+        ActionPath move = planner.planAction(start, target);
 
         assertNotNull(move);
         assertEquals(4, move.cost); // Longer but cheaper path
@@ -106,7 +111,7 @@ class TerrainTest {
             board.getTile(neighbor).setTerrain(Terrain.WATER);
         }
 
-        assertNull(Movement.planMove(game.getState(), start, target));
+        assertNull(planner.planAction(start, target));
     }
 
     // ----- ReachableHexes -----
@@ -117,10 +122,10 @@ class TerrainTest {
         AxialPos mountain = start.neighbor(1);
         board.getTile(mountain).setTerrain(Terrain.MOUNTAIN);
 
-        Unit unit = game.getUnitAt(start);
+        Unit unit = state.getUnitAt(start);
         unit.spendMovementPoints(unit.getMovementPoints() - 1); // 1 movement point left
 
-        Set<AxialPos> reachable = Movement.getReachableHexes(game.getState(), start);
+        Set<AxialPos> reachable = planner.getReachableHexes(start);
 
         for (AxialPos pos : start.getNeighbors()) {
             if (pos.equals(forest)) {

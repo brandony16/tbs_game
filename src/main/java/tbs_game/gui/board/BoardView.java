@@ -8,9 +8,8 @@ import java.util.function.Consumer;
 import javafx.animation.SequentialTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
-import tbs_game.game.ActionPath;
-import tbs_game.game.ActionPath;
 import tbs_game.gui.ClickResult;
 import tbs_game.gui.HexMath;
 import tbs_game.gui.HoverContext;
@@ -137,7 +136,7 @@ public class BoardView {
         }
 
         AxialPos clicked = getHexPosAt(mouseX, mouseY);
-        AxialPos wrapped = game.getState().wrap(clicked);
+        AxialPos wrapped = game.wrap(clicked);
 
         if (!game.getBoard().isOnBoard(wrapped)) {
             clearSelection();
@@ -154,13 +153,11 @@ public class BoardView {
 
         if (selectedPos != null) {
             if (reachableHexes.contains(wrapped)) {
-                List<AxialPos> path = Movement.findPath(selectedPos, wrapped, game.getState());
-
                 if (!game.resolveAction(selectedPos, wrapped)) {
                     return ClickResult.NONE;
                 }
 
-                animateMove(path);
+                animateMove(game.getLastExecuted().path);
                 return ClickResult.MOVE_STARTED;
             }
 
@@ -241,10 +238,10 @@ public class BoardView {
             return;
         }
 
-        boolean canAttack = game.canAttack(selectedPos, hoveredPos);
+        boolean isValidAttack = game.isValidAttack(selectedPos, hoveredPos);
 
         onHoverChanged.accept(
-                new HoverContext(selectedPos, hoveredPos, canAttack)
+                new HoverContext(selectedPos, hoveredPos, isValidAttack)
         );
     }
 

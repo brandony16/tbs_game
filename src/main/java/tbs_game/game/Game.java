@@ -72,8 +72,8 @@ public class Game {
         return this.board;
     }
 
-    public GameState getState() {
-        return this.state;
+    public GameState copyState() {
+        return state.createSimluationCopy();
     }
 
     public Player getCurrentPlayer() {
@@ -82,6 +82,14 @@ public class Game {
 
     public List<AxialPos> getPositionsForPlayer(Player player) {
         return state.getUnitPositionsForPlayer(player);
+    }
+
+    public int distanceBetween(AxialPos a, AxialPos b) {
+        return state.distanceBetween(a, b);
+    }
+
+    public AxialPos wrap(AxialPos pos) {
+        return state.wrap(pos);
     }
 
     public Player getPlayer(int i) {
@@ -102,6 +110,10 @@ public class Game {
 
     public ActionQueue getActionQueue() {
         return this.actionQueue;
+    }
+
+    public ActionPath getLastExecuted() {
+        return executor.getLastExecuted();
     }
 
     public Unit getUnitAt(AxialPos pos) {
