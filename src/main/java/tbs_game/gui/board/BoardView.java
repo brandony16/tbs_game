@@ -9,8 +9,8 @@ import javafx.animation.SequentialTransition;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import tbs_game.game.Game;
-import tbs_game.game.Move;
-import tbs_game.game.Movement;
+import tbs_game.game.ActionPath;
+import tbs_game.game.ActionPath;
 import tbs_game.gui.ClickResult;
 import tbs_game.gui.HexMath;
 import tbs_game.gui.HoverContext;
@@ -206,7 +206,7 @@ public class BoardView {
         rightSequence.play();
     }
 
-    public void animateAIMove(Move move, Runnable onDone) {
+    public void animateAIMove(ActionPath move, Runnable onDone) {
         List<AxialPos> path = move.path;
 
         Runnable onFinish = () -> {

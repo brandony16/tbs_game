@@ -3,8 +3,8 @@ package tbs_game.gui;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
+import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
-import tbs_game.game.Move;
 import tbs_game.gui.board.BoardView;
 
 public class GameGUI {
@@ -94,7 +94,7 @@ public class GameGUI {
         return root;
     }
 
-    public void animateAIMove(Move move, Runnable onFinish) {
+    public void animateAIMove(ActionPath move, Runnable onFinish) {
         this.boardView.animateAIMove(move, onFinish);
     }
 

@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import tbs_game.board.Board;
 import tbs_game.board.Terrain;
 import tbs_game.game.Game;
-import tbs_game.game.Move;
-import tbs_game.game.Movement;
+import tbs_game.game.ActionPath;
+import tbs_game.game.ActionPath;
 import tbs_game.game.Rules;
 import tbs_game.hexes.AxialPos;
 import tbs_game.hexes.OffsetPos;
@@ -55,7 +55,7 @@ class TerrainTest {
         AxialPos plains = start.neighbor(0);
         board.getTile(plains).setTerrain(Terrain.PLAINS);
 
-        Move move = Movement.planMove(game.getState(), start, plains);
+        ActionPath move = Movement.planMove(game.getState(), start, plains);
 
         assertNotNull(move);
         assertEquals(1, move.cost);
@@ -66,7 +66,7 @@ class TerrainTest {
         AxialPos forest = start.neighbor(0);
         board.getTile(forest).setTerrain(Terrain.FOREST);
 
-        Move move = Movement.planMove(game.getState(), start, forest);
+        ActionPath move = Movement.planMove(game.getState(), start, forest);
 
         assertNotNull(move);
         assertEquals(2, move.cost);
@@ -91,7 +91,7 @@ class TerrainTest {
 
         AxialPos target = start.add(new AxialPos(3, 0));
 
-        Move move = Movement.planMove(game.getState(), start, target);
+        ActionPath move = Movement.planMove(game.getState(), start, target);
 
         assertNotNull(move);
         assertEquals(4, move.cost); // Longer but cheaper path

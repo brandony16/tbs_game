@@ -7,6 +7,8 @@ import java.util.Set;
 
 import javafx.scene.paint.Color;
 import tbs_game.board.Board;
+import tbs_game.game.game_helpers.ActionExecutor;
+import tbs_game.game.game_helpers.MovementPlanner;
 import tbs_game.hexes.AxialPos;
 import tbs_game.player.Player;
 import tbs_game.player.PlayerType;
@@ -24,6 +26,9 @@ public class Game {
     private final Board board;
     private final GameState state;
 
+    private final MovementPlanner planner;
+    private final ActionExecutor executor;
+
     // For queueing AI actions
     private final ActionQueue actionQueue = new ActionQueue();
 
@@ -36,6 +41,9 @@ public class Game {
     public Game(int width, int height, int numPlayers) {
         this.board = new Board(width, height);
         this.state = new GameState(board);
+
+        this.planner = new MovementPlanner(state);
+        this.executor = new ActionExecutor(state);
 
         // Set up players
         assert (numPlayers >= MIN_PLAYERS);
@@ -127,57 +135,108 @@ public class Game {
         state.moveUnitInternal(from, to);
     }
 
-    public boolean canMove(AxialPos from, AxialPos to) {
+    public boolean isValidMove(AxialPos from, AxialPos to) {
         from = state.wrap(from);
         to = state.wrap(to);
 
-        return Rules.canMove(state, from, to);
+        return Rules.isValidMove(state, from, to);
     }
 
-    public boolean canAttack(AxialPos attackFrom, AxialPos attackTo) {
+    public boolean isValidAttack(AxialPos attackFrom, AxialPos attackTo) {
         attackFrom = state.wrap(attackFrom);
         attackTo = state.wrap(attackTo);
 
-        return Rules.canAttack(state, attackFrom, attackTo);
-    }
-
-    public boolean canPerform(ActionType action, AxialPos from, AxialPos to) {
-        from = state.wrap(from);
-        to = state.wrap(to);
-
-        return switch (action) {
-            case MOVE ->
-                canMove(from, to);
-            case ATTACK ->
-                canAttack(from, to);
-        };
+        return Rules.isValidAttack(state, attackFrom, attackTo);
     }
 
     public boolean resolveAction(AxialPos from, AxialPos to) {
         from = state.wrap(from);
         to = state.wrap(to);
 
-        return ActionHandler.resolveAction(state, from, to);
+        Unit unit = state.getUnitAt(from);
+        if (unit == null || !unit.getOwner().equals(state.getCurrentPlayer())) {
+            return false;
+        }
+
+        ActionPath planned = planner.planAction(from, to);
+        if (planned == null) {
+            return false;
+        }
+        if (planned.cost > unit.getMovementPoints()) {
+            return false;
+        }
+
+        if (Rules.isValidMove(state, from, to)) {
+            executor.move(planned);
+            return true;
+        }
+        if (Rules.isValidAttack(state, from, to)) {
+            executor.attack(from, to);
+            return true;
+        }
+
+        // Check if unit can move to the penultimate tile then attack
+        boolean canAttack = Rules.isValidAttack(state, planned.path.get(planned.path.size() - 1), to);
+        boolean canMove = Rules.isValidMove(state, from, planned.path.get(planned.path.size() - 1));
+        if (!canMove && !canAttack) {
+            return false;
+        }
+
+        executor.moveThenAttack(planned);
+        return true;
     }
 
     public boolean moveUnit(AxialPos from, AxialPos to) {
         from = state.wrap(from);
         to = state.wrap(to);
 
-        return ActionHandler.moveUnit(state, from, to);
+        Unit unit = state.getUnitAt(from);
+        if (unit == null || !unit.getOwner().equals(state.getCurrentPlayer())) {
+            return false;
+        }
+
+        ActionPath planned = planner.planAction(from, to);
+        if (planned == null) {
+            return false;
+        }
+        if (planned.cost > unit.getMovementPoints()) {
+            return false;
+        }
+        if (!Rules.isValidMove(state, from, to)) {
+            return false;
+        }
+
+        executor.move(planned);
+        return true;
     }
 
     public boolean attackUnit(AxialPos from, AxialPos to) {
         from = state.wrap(from);
         to = state.wrap(to);
 
-        return ActionHandler.attackUnit(state, from, to);
+        Unit unit = state.getUnitAt(from);
+        if (unit == null || !unit.getOwner().equals(state.getCurrentPlayer())) {
+            return false;
+        }
+
+        ActionPath planned = planner.planAction(from, to);
+        if (planned == null) {
+            return false;
+        }
+        if (planned.cost > unit.getMovementPoints()) {
+            return false;
+        }
+        if (!Rules.isValidAttack(state, from, to)) {
+            return false;
+        }
+        executor.attack(from, to);
+        return true;
     }
 
     public Set<AxialPos> getReachableHexes(AxialPos from) {
         from = state.wrap(from);
 
-        return Movement.getReachableHexes(state, from);
+        return planner.getReachableHexes(from);
     }
 
     public boolean isFriendly(AxialPos pos, Player player) {

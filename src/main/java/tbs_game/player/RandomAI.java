@@ -6,8 +6,8 @@ import java.util.Random;
 import tbs_game.game.ActionHandler;
 import tbs_game.game.Game;
 import tbs_game.game.GameState;
-import tbs_game.game.Move;
-import tbs_game.game.Movement;
+import tbs_game.game.ActionPath;
+import tbs_game.game.ActionPath;
 import tbs_game.game.actions.Action;
 import tbs_game.game.actions.EndTurnAction;
 import tbs_game.game.actions.MoveAction;
@@ -43,7 +43,7 @@ public class RandomAI implements AI {
             AxialPos dest = reachable.get(randIdx);
 
             // Create and simulate the move
-            Move simMove = Movement.planMove(simState, pos, dest);
+            ActionPath simMove = Movement.planMove(simState, pos, dest);
             if (simMove == null) {
                 throw new Error("Issue planning move. No move created.");
             }

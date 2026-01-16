@@ -4,9 +4,9 @@ import tbs_game.hexes.AxialPos;
 
 public class MoveCache {
 
-    private Move move;
+    private ActionPath move;
 
-    public void store(Move move) {
+    public void store(ActionPath move) {
         this.move = move;
     }
 
@@ -14,7 +14,7 @@ public class MoveCache {
         this.move = null;
     }
 
-    public Move get(AxialPos from, AxialPos to) {
+    public ActionPath get(AxialPos from, AxialPos to) {
         if (move == null || move.path == null) {
             return null;
         }

@@ -1,15 +1,15 @@
 package tbs_game.game.actions;
 
+import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
-import tbs_game.game.Move;
 import tbs_game.gui.GameGUI;
 
 public class MoveAction implements Action {
 
     private final Game game;
-    private final Move move;
+    private final ActionPath move;
 
-    public MoveAction(Game game, Move move) {
+    public MoveAction(Game game, ActionPath move) {
         this.game = game;
         this.move = move;
     }

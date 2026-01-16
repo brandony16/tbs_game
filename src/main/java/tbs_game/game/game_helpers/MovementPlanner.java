@@ -1,4 +1,4 @@
-package tbs_game.game;
+package tbs_game.game.game_helpers;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,44 +11,32 @@ import java.util.Set;
 
 import tbs_game.board.Board;
 import tbs_game.board.Tile;
+import tbs_game.game.GameState;
+import tbs_game.game.ActionPath;
 import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 
-public final class Movement {
+public class MovementPlanner {
 
     private static final int INF = Integer.MAX_VALUE / 4;
 
-    public static Move planMove(GameState state, AxialPos from, AxialPos to) {
-        ArrayList<AxialPos> path = findPath(from, to, state);
+    private final GameState state;
+
+    public MovementPlanner(GameState state) {
+        this.state = state;
+    }
+
+    public ActionPath planAction(AxialPos from, AxialPos to) {
+        ArrayList<AxialPos> path = findPath(from, to);
         if (path == null) {
             return null;
         }
 
-        int cost = countMovementCost(path, state);
-        return new Move(from, to, path, cost);
+        int cost = countMovementCost(path);
+        return new ActionPath(from, to, path, cost);
     }
 
-    public static void move(GameState state, AxialPos from, AxialPos to) {
-        Move move = planMove(state, from, to);
-
-        Unit mover = state.getUnitAt(from);
-        ArrayList<AxialPos> path = move.path;
-        AxialPos prev = path.get(0);
-        for (int i = 1; i < path.size(); i++) {
-            AxialPos step = path.get(i);
-            int cost = state.getBoard().getTile(step).cost();
-
-            if (mover.getMovementPoints() < cost) {
-                break;
-            }
-
-            state.moveUnitInternal(prev, step);
-            mover.spendMovementPoints(cost);
-            prev = step;
-        }
-    }
-
-    public static Set<AxialPos> getReachableHexes(GameState state, AxialPos from) {
+    public Set<AxialPos> getReachableHexes(AxialPos from) {
         Set<AxialPos> reachableHexes = new HashSet<>();
 
         // Confirm a unit is at the tile
@@ -117,7 +105,7 @@ public final class Movement {
      * @param end - The pos to end at
      * @return Ordered list of HexPos that represent the path found
      */
-    public static ArrayList<AxialPos> findPath(AxialPos start, AxialPos end, GameState state) {
+    public ArrayList<AxialPos> findPath(AxialPos start, AxialPos end) {
         if (state.distanceBetween(start, end) == 1) { // Adjacent tiles
             return new ArrayList<AxialPos>() {
                 {
@@ -134,7 +122,7 @@ public final class Movement {
         PriorityQueue<AxialPos> openSet = new PriorityQueue<>(Comparator.comparingDouble(n -> fScore.get(n)));
 
         gScore.put(start, 0);
-        fScore.put(start, heuristic(state, start, end));
+        fScore.put(start, heuristic(start, end));
         openSet.add(start);
 
         Board board = state.getBoard();
@@ -169,7 +157,7 @@ public final class Movement {
 
                 cameFrom.put(neighbor, current);
                 gScore.put(neighbor, tentativeG);
-                fScore.put(neighbor, tentativeG + heuristic(state, neighbor, end));
+                fScore.put(neighbor, tentativeG + heuristic(neighbor, end));
                 openSet.add(neighbor);
             }
         }
@@ -177,7 +165,7 @@ public final class Movement {
         return null; // unreachable
     }
 
-    public static int countMovementCost(ArrayList<AxialPos> path, GameState state) {
+    public int countMovementCost(ArrayList<AxialPos> path) {
         int count = 0;
         for (int i = 1; i < path.size(); i++) { // Skip first tile
             AxialPos pos = path.get(i);
@@ -188,11 +176,11 @@ public final class Movement {
         return count;
     }
 
-    private static int heuristic(GameState state, AxialPos a, AxialPos b) {
+    private int heuristic(AxialPos a, AxialPos b) {
         return state.distanceBetween(a, b) * 1; // dist * min terrain cost
     }
 
-    private static ArrayList<AxialPos> reconstructPath(
+    private ArrayList<AxialPos> reconstructPath(
             Map<AxialPos, AxialPos> cameFrom,
             AxialPos current
     ) {
