@@ -18,6 +18,7 @@ public class Main extends Application {
     public void start(Stage stage) {
         Game game = new Game(15, 20, 4);
         game.setUpGame();
+        // Game game = Game.battleSim(25, 20, 5);
 
         GameGUI gui = new GameGUI(game);
 
