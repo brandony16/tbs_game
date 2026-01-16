@@ -18,9 +18,9 @@ public class HudView {
 
     public static final String FONT_FAMILY = "System";
     public static final int FONT_SIZE = 16;
-    public static final int HEDAER_SIZE = 24;
+    public static final int HEADER_SIZE = 24;
     public static final Font HUD_FONT = Font.font(FONT_FAMILY, FontWeight.NORMAL, FONT_SIZE);
-    public static final Font HEADER_FONT = Font.font(FONT_FAMILY, FontWeight.BOLD, HEDAER_SIZE);
+    public static final Font HEADER_FONT = Font.font(FONT_FAMILY, FontWeight.BOLD, HEADER_SIZE);
 
     private final Game game;
     private final StackPane hudLayer;
