@@ -16,11 +16,11 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        Game game = new Game(15, 20, 4);
+        Game game = new Game(25, 20, 4);
         game.setUpGame();
         // Game game = Game.battleSim(25, 20, 5);
 
-        GameGUI gui = new GameGUI(game);
+        GameGUI gui = new GameGUI(game, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         Scene scene = new Scene(gui.getRoot(), WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -30,6 +30,16 @@ public class Main extends Application {
         // stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
+
+        scene.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double sceneWidth = newVal.doubleValue();
+            gui.setSceneWidth(sceneWidth);
+        });
+
+        scene.heightProperty().addListener((obs, oldVal, newVal) -> {
+            double sceneHeight = newVal.doubleValue();
+            gui.setSceneHeight(sceneHeight);
+        });
 
         AnimationTimer timer = new AnimationTimer() {
             @Override

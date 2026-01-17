@@ -12,6 +12,9 @@ import tbs_game.hexes.AxialPos;
 
 public class GameGUI {
 
+    private double sceneWidth;
+    private double sceneHeight;
+
     private final Game game;
     private final BoardView boardView;
     private final HudView hudView;
@@ -21,7 +24,10 @@ public class GameGUI {
     private final Camera camera;
     private Point2D lastMousePos;
 
-    public GameGUI(Game game) {
+    public GameGUI(Game game, double defaultWidth, double defaultHeight) {
+        this.sceneWidth = defaultWidth;
+        this.sceneHeight = defaultHeight;
+
         this.game = game;
 
         double boardWidth = game.getBoard().getWidth() * HexMath.HEX_WIDTH;
@@ -63,7 +69,7 @@ public class GameGUI {
         });
         root.setOnScroll(e -> {
             boolean zoomIn = e.getDeltaY() > 0;
-            double factor = zoomIn ? 1.1 : 0.9;
+            double factor = zoomIn ? 1.1111 : 0.9;
 
             Point2D before = boardView.getLocalCoords(e.getX(), e.getY());
             camera.zoom(factor);
@@ -72,9 +78,7 @@ public class GameGUI {
             Point2D after = boardView.getLocalCoords(e.getX(), e.getY());
             Point2D delta = after.subtract(before);
 
-            if (zoomIn) {
-                camera.pan(delta.getX(), delta.getY());
-            }
+            camera.pan(delta.getX() * camera.getZoom(), delta.getY() * camera.getZoom());
             updateBoard();
         });
 
@@ -140,7 +144,23 @@ public class GameGUI {
         double wx = HexMath.axialToPixelX(unitPos);
         double wy = HexMath.axialToPixelY(unitPos);
 
-        camera.setCenter(wx, wy, 1960, 1080); // CHANGE 
+        camera.setCenter(wx, wy, sceneWidth, sceneHeight);
+        updateBoard();
+    }
+
+    public void setSceneWidth(double width) {
+        double diff = width - sceneWidth;
+        this.sceneWidth = width;
+
+        camera.pan(diff / 2, 0);
+        updateBoard();
+    }
+
+    public void setSceneHeight(double height) {
+        double diff = height - sceneHeight;
+        this.sceneHeight = height;
+
+        camera.pan(0, diff / 2);
         updateBoard();
     }
 }

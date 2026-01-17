@@ -75,6 +75,7 @@ public class BoardView {
 
         // Prevent any animations from shifting board
         worldRoot.setManaged(false);
+        units.setManaged(false);
     }
 
     public void showCoords() {
