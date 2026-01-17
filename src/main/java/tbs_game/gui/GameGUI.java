@@ -1,11 +1,14 @@
 package tbs_game.gui;
 
+import java.util.List;
+
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
 import tbs_game.gui.board.BoardView;
+import tbs_game.hexes.AxialPos;
 
 public class GameGUI {
 
@@ -47,6 +50,7 @@ public class GameGUI {
         root.setOnMouseClicked(e -> handleClick(e.getX(), e.getY()));
         root.setOnMouseMoved(e -> boardView.handleMouseMoved(e.getX(), e.getY()));
 
+        // Panning and Zooming
         root.setOnMousePressed(e -> lastMousePos = new Point2D(e.getX(), e.getY()));
         root.setOnMouseDragged(e -> {
             Point2D now = new Point2D(e.getX(), e.getY());
@@ -77,6 +81,7 @@ public class GameGUI {
         hudView.initHUD();
         boardView.drawInitial();
         hudView.updateHUD(boardView.getSelected());
+        snapCameraToUnit();
     }
 
     private void updateBoard() {
@@ -100,6 +105,9 @@ public class GameGUI {
 
     public void updateHUD() {
         hudView.updateHUD(boardView.getSelected());
+        if (game.isUsersTurn()) {
+            snapCameraToUnit();
+        }
     }
 
     private void handleClick(double mouseX, double mouseY) {
@@ -115,11 +123,24 @@ public class GameGUI {
     }
 
     private void endTurn() {
-        if (game.canEndTurn()) {
-            game.endTurn();
-            boardView.nextTurn();
-            hudView.updateHUD(null);
-            hudView.hideCombatPreview();
+        if (!game.canEndTurn()) {
+            return;
         }
+
+        game.endTurn();
+        boardView.nextTurn();
+        hudView.updateHUD(null);
+        hudView.hideCombatPreview();
+    }
+
+    private void snapCameraToUnit() {
+        List<AxialPos> unitPositions = game.getPositionsForPlayer(game.getCurrentPlayer());
+
+        AxialPos unitPos = unitPositions.get(0);
+        double wx = HexMath.axialToPixelX(unitPos);
+        double wy = HexMath.axialToPixelY(unitPos);
+
+        camera.setCenter(wx, wy, 1960, 1080); // CHANGE 
+        updateBoard();
     }
 }

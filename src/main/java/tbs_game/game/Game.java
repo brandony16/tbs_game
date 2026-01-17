@@ -68,6 +68,10 @@ public class Game {
         return this.state.isGameOver();
     }
 
+    public boolean isUsersTurn() {
+        return this.currentPlayerIdx == 0; // User is always first player
+    }
+
     public Board getBoard() {
         return this.board;
     }

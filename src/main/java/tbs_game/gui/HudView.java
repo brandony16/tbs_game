@@ -99,7 +99,7 @@ public class HudView {
         this.onEndTurn = handler;
     }
 
-    // Called by the NextTurn button internally
+    // Called by the NextTurn button
     private void handleEndTurn() {
         if (onEndTurn != null) {
             onEndTurn.run();

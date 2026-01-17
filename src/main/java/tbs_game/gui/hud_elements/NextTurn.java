@@ -34,7 +34,12 @@ public class NextTurn {
     }
 
     public void updateTurnText(Game game) {
-        if (game.canEndTurn()) {
+        if (!game.isUsersTurn()) {
+            icon.setImage(HudIcons.ACTIONS_REQUIRED);
+            HudIcons.recolorIcon(icon, Color.rgb(48, 48, 48));
+            title.setText("WAITING FOR OPPONENTS");
+            nextTurnButton.setDisable(true);
+        } else if (game.canEndTurn()) {
             icon.setImage(HudIcons.NEXT_TURN);
             HudIcons.recolorIcon(icon, Color.rgb(131, 103, 43));
             title.setText("NEXT TURN");
