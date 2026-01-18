@@ -78,6 +78,14 @@ public class BoardView {
         units.setManaged(false);
     }
 
+    public void setSelected(AxialPos pos) {
+        if (!game.getBoard().isOnBoard(game.wrap(pos))) {
+            return;
+        }
+
+        selectPos(pos);
+    }
+
     public void showCoords() {
         left.showCoords();
         center.showCoords();

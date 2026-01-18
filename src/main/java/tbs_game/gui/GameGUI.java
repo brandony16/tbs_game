@@ -2,9 +2,14 @@ package tbs_game.gui;
 
 import java.util.List;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
 import tbs_game.gui.board.BoardView;
@@ -63,8 +68,8 @@ public class GameGUI {
             Point2D delta = now.subtract(lastMousePos);
 
             camera.pan(delta.getX(), delta.getY());
-            lastMousePos = now;
 
+            lastMousePos = now;
             updateBoard();
         });
         root.setOnScroll(e -> {
@@ -85,6 +90,7 @@ public class GameGUI {
         hudView.initHUD();
         boardView.drawInitial();
         hudView.updateHUD(boardView.getSelected());
+        camera.setScreenSize(sceneWidth, sceneHeight);
         snapCameraToUnit();
     }
 
@@ -95,8 +101,8 @@ public class GameGUI {
 
         boardRoot.setScaleX(z);
         boardRoot.setScaleY(z);
-        boardRoot.setTranslateX(-camera.getX() * z);
-        boardRoot.setTranslateY(-camera.getY() * z);
+        boardRoot.setTranslateY(sceneHeight / 2 - camera.getCenterY());
+        boardRoot.setTranslateX(sceneWidth / 2 - camera.getCenterX());
     }
 
     public StackPane getRoot() {
@@ -144,14 +150,50 @@ public class GameGUI {
         double wx = HexMath.axialToPixelX(unitPos);
         double wy = HexMath.axialToPixelY(unitPos);
 
-        camera.setCenter(wx, wy, sceneWidth, sceneHeight);
-        updateBoard();
+        double startCenterX = camera.getCenterX();
+        double startCenterY = camera.getCenterY();
+        double startZoom = camera.getZoom();
+
+        // setting offsets to (wx, wy) puts those in the top left corner
+        // want (wx, wy) to be in the center of the screen
+        double targetCenterX = wx;
+        double targetCenterY = wy;
+        double targetZoom = 1.0;
+
+        // Short animation 
+        Duration duration = Duration.millis(220);
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(camera.centerXProperty(), startCenterX),
+                        new KeyValue(camera.centerYProperty(), startCenterY),
+                        new KeyValue(camera.zoomProperty(), startZoom)
+                ),
+                new KeyFrame(duration,
+                        new KeyValue(camera.centerXProperty(), targetCenterX, Interpolator.EASE_BOTH),
+                        new KeyValue(camera.centerYProperty(), targetCenterY, Interpolator.EASE_BOTH),
+                        new KeyValue(camera.zoomProperty(), targetZoom, Interpolator.EASE_OUT)
+                )
+        );
+
+        timeline.currentTimeProperty().addListener((obs, oldT, newT) -> {
+            updateBoard();
+        });
+
+        timeline.setOnFinished(e -> {
+            camera.snapToPixelGrid();
+            updateBoard();
+        });
+
+        timeline.play();
+        boardView.setSelected(unitPos);
     }
 
     public void setSceneWidth(double width) {
         double diff = width - sceneWidth;
         this.sceneWidth = width;
 
+        camera.setScreenSize(sceneWidth, sceneHeight);
         camera.pan(diff / 2, 0);
         updateBoard();
     }
@@ -160,6 +202,7 @@ public class GameGUI {
         double diff = height - sceneHeight;
         this.sceneHeight = height;
 
+        camera.setScreenSize(sceneWidth, sceneHeight);
         camera.pan(0, diff / 2);
         updateBoard();
     }

@@ -1,50 +1,103 @@
 package tbs_game.gui;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+
 public class Camera {
 
     private final double boardWidth;
 
-    private double offsetX = 0;
-    private double offsetY = 0;
-    private double zoom = 1.0;
+    private final DoubleProperty centerX = new SimpleDoubleProperty(0);
+    private final DoubleProperty centerY = new SimpleDoubleProperty(0);
+    private final DoubleProperty zoom = new SimpleDoubleProperty(1.0);
+
+    private final DoubleProperty offsetX = new SimpleDoubleProperty(0);
+    private final DoubleProperty offsetY = new SimpleDoubleProperty(0);
+
+    private double screenW;
+    private double screenH;
 
     public Camera(double boardWidth) {
         this.boardWidth = boardWidth;
     }
 
-    public double getX() {
-        return this.offsetX;
+    public void setScreenSize(double w, double h) {
+        this.screenW = w;
+        this.screenH = h;
+        updateOffsets();
     }
 
-    public double getY() {
-        return this.offsetY;
+    private void updateOffsets() {
+        offsetX.set(centerX.get() - screenW / (2 * zoom.get()));
+        offsetY.set(centerY.get() - screenH / (2 * zoom.get()));
+    }
+
+    {
+        centerX.addListener((obs, oldT, newT) -> updateOffsets());
+        centerY.addListener((obs, oldT, newT) -> updateOffsets());
+        zoom.addListener((obs, oldT, newT) -> updateOffsets());
+    }
+
+    public DoubleProperty centerXProperty() {
+        return centerX;
+    }
+
+    public DoubleProperty centerYProperty() {
+        return centerY;
+    }
+
+    public double getCenterX() {
+        return centerX.get();
+    }
+
+    public double getCenterY() {
+        return centerY.get();
+    }
+
+    public DoubleProperty zoomProperty() {
+        return zoom;
+    }
+
+    public double getOffsetX() {
+        return offsetX.get();
+    }
+
+    public double getOffsetY() {
+        return offsetY.get();
     }
 
     public double getZoom() {
-        return this.zoom;
+        return zoom.get();
     }
 
     public void zoom(double zoomFactor) {
-        zoom *= zoomFactor;
-        zoom = Math.clamp(zoom, 0.5, 4);
+        zoom.set(Math.clamp(zoom.get() * zoomFactor, 0.5, 4));
+    }
+
+    public void resetZoom() {
+        zoom.set(1.0);
     }
 
     public void pan(double dx, double dy) {
-        offsetX -= dx / zoom;
-        offsetY -= dy / zoom;
+        centerX.set(centerX.get() - dx / zoom.get());
+        centerY.set(centerY.get() - dy / zoom.get());
 
-        // Wrap camera back around to give infinite wrapping effect
+        // // Wrap camera back around to give infinite wrapping effect
         double halfWidth = boardWidth / 2.0;
-
-        if (offsetX > halfWidth) {
-            offsetX -= boardWidth;
-        } else if (offsetX < -halfWidth) {
-            offsetX += boardWidth;
+        if (centerX.get() > halfWidth) {
+            centerX.set(centerX.get() - boardWidth);
+        } else if (centerX.get() < -halfWidth) {
+            centerX.set(centerX.get() + boardWidth);
         }
     }
 
-    public void setCenter(double wx, double wy, double screenW, double screenH) {
-        offsetX = wx - screenW / (2 * zoom);
-        offsetY = wy - screenH / (2 * zoom);
+    public void snapTo(double wx, double wy) {
+        centerX.set(wx);
+        centerY.set(wy);
+    }
+
+    public void snapToPixelGrid() {
+        centerX.set(Math.round(centerX.get()));
+        centerY.set(Math.round(centerY.get()));
     }
 }
