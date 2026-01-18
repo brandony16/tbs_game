@@ -70,21 +70,20 @@ public class GameGUI {
             camera.pan(delta.getX(), delta.getY());
 
             lastMousePos = now;
-            updateBoard();
+            applyCamera();
         });
         root.setOnScroll(e -> {
-            boolean zoomIn = e.getDeltaY() > 0;
-            double factor = zoomIn ? 1.1111 : 0.9;
 
-            Point2D before = boardView.getLocalCoords(e.getX(), e.getY());
-            camera.zoom(factor);
-            updateBoard();
+            double factor = e.getDeltaY() > 0 ? 1.1111 : 0.9;
 
-            Point2D after = boardView.getLocalCoords(e.getX(), e.getY());
-            Point2D delta = after.subtract(before);
+            Point2D before = sceneToLocal(e.getSceneX(), e.getSceneY());
+            camera.zoomAt(factor, e.getX(), e.getY());
+            Point2D after = sceneToLocal(e.getSceneX(), e.getSceneY());
+            System.out.println("before vs after: " + before + " vs " + after); // should match
 
-            camera.pan(delta.getX() * camera.getZoom(), delta.getY() * camera.getZoom());
-            updateBoard();
+            applyCamera();
+
+            e.consume();
         });
 
         hudView.initHUD();
@@ -94,15 +93,26 @@ public class GameGUI {
         snapCameraToUnit();
     }
 
-    private void updateBoard() {
+    public Point2D sceneToLocal(double sceneX, double sceneY) {
+        double z = camera.getZoom();
+
+        Node localRoot = boardView.getWorldRoot();
+        double worldX = (sceneX - localRoot.getTranslateX()) / z;
+        double worldY = (sceneY - localRoot.getTranslateY()) / z;
+
+        return new Point2D(worldX, worldY);
+    }
+
+    private void applyCamera() {
+
         Node boardRoot = boardView.getWorldRoot();
 
         double z = camera.getZoom();
-
         boardRoot.setScaleX(z);
         boardRoot.setScaleY(z);
-        boardRoot.setTranslateY(sceneHeight / 2 - camera.getCenterY());
-        boardRoot.setTranslateX(sceneWidth / 2 - camera.getCenterX());
+
+        boardRoot.setTranslateX(-sceneWidth / 2 + camera.getCenterX() * z);
+        boardRoot.setTranslateY(-sceneHeight / 2 + camera.getCenterY() * z);
     }
 
     public StackPane getRoot() {
@@ -177,12 +187,12 @@ public class GameGUI {
         );
 
         timeline.currentTimeProperty().addListener((obs, oldT, newT) -> {
-            updateBoard();
+            applyCamera();
         });
 
         timeline.setOnFinished(e -> {
             camera.snapToPixelGrid();
-            updateBoard();
+            applyCamera();
         });
 
         timeline.play();
@@ -195,7 +205,7 @@ public class GameGUI {
 
         camera.setScreenSize(sceneWidth, sceneHeight);
         camera.pan(diff / 2, 0);
-        updateBoard();
+        applyCamera();
     }
 
     public void setSceneHeight(double height) {
@@ -204,6 +214,6 @@ public class GameGUI {
 
         camera.setScreenSize(sceneWidth, sceneHeight);
         camera.pan(0, diff / 2);
-        updateBoard();
+        applyCamera();
     }
 }

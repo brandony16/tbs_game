@@ -5,6 +5,9 @@ import javafx.beans.property.SimpleDoubleProperty;
 
 public class Camera {
 
+    private static final double MIN_ZOOM = 0.5;
+    private static final double MAX_ZOOM = 4.0;
+
     private final double boardWidth;
 
     private final DoubleProperty centerX = new SimpleDoubleProperty(0);
@@ -25,17 +28,15 @@ public class Camera {
         this.screenW = w;
         this.screenH = h;
         updateOffsets();
+
+        centerX.addListener((obs, oldT, newT) -> updateOffsets());
+        centerY.addListener((obs, oldT, newT) -> updateOffsets());
+        zoom.addListener((obs, oldT, newT) -> updateOffsets());
     }
 
     private void updateOffsets() {
         offsetX.set(centerX.get() - screenW / (2 * zoom.get()));
         offsetY.set(centerY.get() - screenH / (2 * zoom.get()));
-    }
-
-    {
-        centerX.addListener((obs, oldT, newT) -> updateOffsets());
-        centerY.addListener((obs, oldT, newT) -> updateOffsets());
-        zoom.addListener((obs, oldT, newT) -> updateOffsets());
     }
 
     public DoubleProperty centerXProperty() {
@@ -89,6 +90,29 @@ public class Camera {
         } else if (centerX.get() < -halfWidth) {
             centerX.set(centerX.get() + boardWidth);
         }
+    }
+
+    public void zoomAt(double zoomFactor, double mouseX, double mouseY) {
+        double oldZoom = zoom.get();
+        double newZoom = Math.clamp(oldZoom * zoomFactor, MIN_ZOOM, MAX_ZOOM);
+
+        if (newZoom == oldZoom) {
+            return;
+        }
+
+        // Screen-space offset from center
+        double dx = mouseX - screenW / 2.0;
+        double dy = mouseY - screenH / 2.0;
+
+
+        // Adjust center so the world point under the mouse stays fixed
+        double newCenterX = centerX.get() + dx / oldZoom - dx / newZoom;
+        double newCenterY = centerY.get() + dy / oldZoom - dy / newZoom;
+
+        centerX.set(newCenterX);
+        centerY.set(newCenterY);
+
+        zoom.set(newZoom);
     }
 
     public void snapTo(double wx, double wy) {

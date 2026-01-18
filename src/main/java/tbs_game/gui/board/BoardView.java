@@ -255,10 +255,6 @@ public class BoardView {
     }
 
     // ----- Utility -----
-    public Point2D getLocalCoords(double mouseX, double mouseY) {
-        return center.getBaseRoot().sceneToLocal(mouseX, mouseY);
-    }
-
     private AxialPos getHexPosAt(double mouseX, double mouseY) {
         Point2D boardCoords = center.getBaseRoot().sceneToLocal(mouseX, mouseY);
         return HexMath.pixelToAxial(boardCoords.getX(), boardCoords.getY());
