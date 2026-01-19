@@ -1,4 +1,4 @@
-package tbs_game.gui;
+package tbs_game.gui.camera;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;

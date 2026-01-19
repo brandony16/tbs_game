@@ -13,6 +13,7 @@ import javafx.util.Duration;
 import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
 import tbs_game.gui.board.BoardView;
+import tbs_game.gui.camera.Camera;
 import tbs_game.hexes.AxialPos;
 
 public class GameGUI {
@@ -67,40 +68,24 @@ public class GameGUI {
             Point2D now = new Point2D(e.getX(), e.getY());
             Point2D delta = now.subtract(lastMousePos);
 
-            camera.pan(delta.getX(), delta.getY());
+            camera.pan(-delta.getX(), -delta.getY());
 
             lastMousePos = now;
             applyCamera();
         });
         root.setOnScroll(e -> {
-
             double factor = e.getDeltaY() > 0 ? 1.1111 : 0.9;
 
-            Point2D before = sceneToLocal(e.getSceneX(), e.getSceneY());
-            camera.zoomAt(factor, e.getX(), e.getY());
-            Point2D after = sceneToLocal(e.getSceneX(), e.getSceneY());
-            System.out.println("before vs after: " + before + " vs " + after); // should match
+            camera.zoom(factor);
 
             applyCamera();
-
-            e.consume();
         });
 
         hudView.initHUD();
         boardView.drawInitial();
         hudView.updateHUD(boardView.getSelected());
         camera.setScreenSize(sceneWidth, sceneHeight);
-        snapCameraToUnit();
-    }
-
-    public Point2D sceneToLocal(double sceneX, double sceneY) {
-        double z = camera.getZoom();
-
-        Node localRoot = boardView.getWorldRoot();
-        double worldX = (sceneX - localRoot.getTranslateX()) / z;
-        double worldY = (sceneY - localRoot.getTranslateY()) / z;
-
-        return new Point2D(worldX, worldY);
+        // snapCameraToUnit();
     }
 
     private void applyCamera() {
@@ -116,7 +101,7 @@ public class GameGUI {
     }
 
     public StackPane getRoot() {
-        return root;
+        return this.root;
     }
 
     public void animateAIMove(ActionPath move, Runnable onFinish) {
