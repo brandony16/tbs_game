@@ -73,15 +73,6 @@ public class BoardLayer {
     }
 
     sortOverlayLayer();
-    cacheLayers();
-  }
-
-  private void cacheLayers() {
-    // baseLayer.setCache(true);
-    // baseLayer.setCacheHint(CacheHint.SPEED);
-
-    // overlayLayer.setCache(true);
-    // overlayLayer.setCacheHint(CacheHint.SPEED);
   }
 
   private void sortOverlayLayer() {

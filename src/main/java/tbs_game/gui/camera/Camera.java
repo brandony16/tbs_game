@@ -1,8 +1,13 @@
 package tbs_game.gui.camera;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
+import javafx.util.Duration;
 import tbs_game.gui.camera.coord_systems.SceneDelta;
 import tbs_game.gui.camera.coord_systems.ScenePos;
 import tbs_game.gui.camera.coord_systems.WorldPos;
@@ -22,6 +27,8 @@ public class Camera {
 
   private final Scale scale = new Scale(1, 1);
   private final Translate translate = new Translate(0, 0);
+
+  private Timeline snapTimeline;
 
   public Camera(double boardWidthPx) {
     this.boardWidthPx = boardWidthPx;
@@ -176,15 +183,29 @@ public class Camera {
   }
 
   /**
-   * Centers the camera on a world position
+   * Centers the camera on a world position.
    * 
    * @param target - the world pos to center on
    */
   public void snapTo(WorldPos target) {
     ScenePos sceneCenter = getSceneCenter();
 
-    translate.setX(sceneCenter.x() - target.x() * scale.getX());
-    translate.setY(sceneCenter.y() - target.y() * scale.getY());
+    double targetX = sceneCenter.x() - target.x() * scale.getX();
+    double targetY = sceneCenter.y() - target.y() * scale.getY();
+
+    // Stop any previous snap
+    if (snapTimeline != null) {
+      snapTimeline.stop();
+    }
+
+    // Short animation to new pos
+    snapTimeline = new Timeline(
+        new KeyFrame(
+            Duration.millis(250),
+            new KeyValue(translate.xProperty(), targetX, Interpolator.EASE_BOTH),
+            new KeyValue(translate.yProperty(), targetY, Interpolator.EASE_BOTH)));
+
+    snapTimeline.play();
   }
 
   /**
