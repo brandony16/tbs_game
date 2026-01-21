@@ -12,7 +12,7 @@ import tbs_game.gui.camera.coord_systems.WorldPos;
 
 public class CameraPlayground {
 
-  private final NewCamera cam;
+  private final Camera cam;
 
   private Pane root;
   private Group world;
@@ -29,7 +29,7 @@ public class CameraPlayground {
   }
 
   public CameraPlayground(double width) {
-    this.cam = new NewCamera(width);
+    this.cam = new Camera(width);
   }
 
   public void setSceneSize(double w, double h) {
