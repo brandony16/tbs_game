@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
@@ -72,6 +73,15 @@ public class BoardLayer {
     }
 
     sortOverlayLayer();
+    cacheLayers();
+  }
+
+  private void cacheLayers() {
+    // baseLayer.setCache(true);
+    // baseLayer.setCacheHint(CacheHint.SPEED);
+
+    // overlayLayer.setCache(true);
+    // overlayLayer.setCacheHint(CacheHint.SPEED);
   }
 
   private void sortOverlayLayer() {

@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import javafx.animation.SequentialTransition;
 import javafx.geometry.Point2D;
+import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
@@ -73,6 +74,12 @@ public class BoardView {
     center.drawInitial(selectedPos, reachableHexes);
     right.drawInitial(selectedPos, reachableHexes);
 
+    // Cache boards so they move fluidly
+    boards.setCache(true);
+    boards.setCacheHint(CacheHint.SPEED);
+    boardOverlays.setCache(true);
+    boardOverlays.setCacheHint(CacheHint.SPEED);
+
     // Prevent any animations from shifting board
     worldRoot.setManaged(false);
     units.setManaged(false);
@@ -115,12 +122,6 @@ public class BoardView {
   // ----- Drawing -----
   public void nextTurn() {
     clearSelection();
-  }
-
-  public void drawInitial() {
-    left.drawInitial(selectedPos, reachableHexes);
-    center.drawInitial(selectedPos, reachableHexes);
-    right.drawInitial(selectedPos, reachableHexes);
   }
 
   public void redraw() {

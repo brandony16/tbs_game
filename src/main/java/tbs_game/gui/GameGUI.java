@@ -76,7 +76,6 @@ public class GameGUI {
     });
 
     hudView.initHUD();
-    boardView.drawInitial();
     hudView.updateHUD(boardView.getSelected());
     camera.setSceneSize(sceneWidth, sceneHeight);
     camera.attach(boardView.getWorldRoot());

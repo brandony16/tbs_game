@@ -150,8 +150,8 @@ public class Camera {
    */
   public void panScene(SceneDelta delta) {
     // Move world opposite mouse movement
-    translate.setX(translate.getX() - delta.dx());
-    translate.setY(translate.getY() - delta.dy());
+    double newX = translate.getX() - delta.dx();
+    translate.setY(translate.getY() - delta.dy()); // Y doesn't wrap
 
     // Bound on which wrapping should occur (in world space)
     double halfWidth = boardWidthPx / 2.0;
@@ -163,9 +163,11 @@ public class Camera {
     // If center shifts across the edge of the board, shift the board by a board
     // width
     if (worldCenterX > halfWidth) {
-      translate.setX(translate.getX() + boardWidthPx * scale.getX());
+      translate.setX(newX + boardWidthPx * scale.getX());
     } else if (worldCenterX < -halfWidth) {
-      translate.setX(translate.getX() - boardWidthPx * scale.getX());
+      translate.setX(newX - boardWidthPx * scale.getX());
+    } else {
+      translate.setX(newX);
     }
   }
 
