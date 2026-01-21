@@ -1,4 +1,4 @@
-package tbs_game.gui.hud_elements;
+package tbs_game.gui.hud.battle_preview;
 
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;

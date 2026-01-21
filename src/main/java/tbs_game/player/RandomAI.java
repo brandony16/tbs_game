@@ -5,12 +5,12 @@ import java.util.Random;
 
 import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
-import tbs_game.game.GameState;
 import tbs_game.game.Rules;
 import tbs_game.game.actions.Action;
 import tbs_game.game.actions.EndTurnAction;
 import tbs_game.game.actions.MoveAction;
 import tbs_game.game.game_helpers.ActionExecutor;
+import tbs_game.game.game_helpers.GameState;
 import tbs_game.game.game_helpers.MovementPlanner;
 import tbs_game.hexes.AxialPos;
 

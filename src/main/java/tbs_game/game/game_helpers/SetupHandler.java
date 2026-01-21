@@ -1,11 +1,12 @@
-package tbs_game.game;
+package tbs_game.game.game_helpers;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-import tbs_game.board.Board;
-import tbs_game.board.Terrain;
-import tbs_game.board.Tile;
+import tbs_game.game.Game;
+import tbs_game.game.board.Board;
+import tbs_game.game.board.Terrain;
+import tbs_game.game.board.Tile;
 import tbs_game.hexes.AxialPos;
 
 public class SetupHandler {

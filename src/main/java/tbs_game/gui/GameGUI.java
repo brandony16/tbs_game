@@ -7,9 +7,10 @@ import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
 import tbs_game.gui.board.BoardView;
 import tbs_game.gui.camera.Camera;
-import tbs_game.gui.camera.coord_systems.SceneDelta;
-import tbs_game.gui.camera.coord_systems.ScenePos;
-import tbs_game.gui.camera.coord_systems.WorldPos;
+import tbs_game.gui.coord_systems.SceneDelta;
+import tbs_game.gui.coord_systems.ScenePos;
+import tbs_game.gui.coord_systems.WorldPos;
+import tbs_game.gui.hud.HudView;
 import tbs_game.hexes.AxialPos;
 
 public class GameGUI {
@@ -120,6 +121,7 @@ public class GameGUI {
     hudView.hideCombatPreview();
   }
 
+  // Snaps the camera to a unit
   private void snapCameraToUnit() {
     List<AxialPos> unitPositions = game.getPositionsForPlayer(game.getCurrentPlayer());
 
@@ -131,6 +133,7 @@ public class GameGUI {
     boardView.setSelected(unitPos);
   }
 
+  // Updates the camera scene dimensions
   public void updateSceneWidth(double width) {
     camera.updateSceneWidth(width);
   }

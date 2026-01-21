@@ -1,4 +1,4 @@
-package tbs_game.board;
+package tbs_game.game.board;
 
 import java.util.Collection;
 import java.util.HashMap;

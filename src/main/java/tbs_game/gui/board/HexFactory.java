@@ -1,7 +1,7 @@
 package tbs_game.gui.board;
 
 import javafx.scene.shape.Polygon;
-import tbs_game.gui.camera.coord_systems.WorldPos;
+import tbs_game.gui.coord_systems.WorldPos;
 
 public class HexFactory {
 

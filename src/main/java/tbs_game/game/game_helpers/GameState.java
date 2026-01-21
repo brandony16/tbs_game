@@ -1,4 +1,4 @@
-package tbs_game.game;
+package tbs_game.game.game_helpers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import tbs_game.board.Board;
+import tbs_game.game.board.Board;
 import tbs_game.hexes.AxialPos;
 import tbs_game.hexes.OffsetPos;
 import tbs_game.player.Player;

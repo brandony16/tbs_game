@@ -1,4 +1,4 @@
-package tbs_game.gui;
+package tbs_game.gui.hud;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -6,10 +6,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import tbs_game.game.Game;
-import tbs_game.gui.hud_elements.BattlePreview;
-import tbs_game.gui.hud_elements.NextTurn;
-import tbs_game.gui.hud_elements.TurnInfo;
-import tbs_game.gui.hud_elements.UnitInfo;
+import tbs_game.gui.HoverContext;
+import tbs_game.gui.hud.battle_preview.BattlePreview;
 import tbs_game.hexes.AxialPos;
 import tbs_game.player.Player;
 import tbs_game.units.Unit;

@@ -1,4 +1,4 @@
-package tbs_game.board;
+package tbs_game.game.board;
 
 public class Tile {
 

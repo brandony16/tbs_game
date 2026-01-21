@@ -1,4 +1,4 @@
-package tbs_game.gui.board;
+package tbs_game.gui.board.layers;
 
 import java.util.Set;
 
@@ -9,10 +9,11 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
-import tbs_game.board.Board;
 import tbs_game.game.Game;
+import tbs_game.game.board.Board;
 import tbs_game.gui.HexMath;
-import tbs_game.gui.camera.coord_systems.WorldPos;
+import tbs_game.gui.board.HexFactory;
+import tbs_game.gui.coord_systems.WorldPos;
 import tbs_game.hexes.AxialPos;
 
 public class HighlightLayer {

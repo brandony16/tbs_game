@@ -1,4 +1,4 @@
-package tbs_game.gui.hud_elements;
+package tbs_game.gui.hud.battle_preview;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -6,7 +6,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import tbs_game.gui.HudView;
+import tbs_game.gui.hud.HudView;
+import tbs_game.gui.hud.utils.PanelFactory;
 import tbs_game.units.Unit;
 
 public class BattlePreview {

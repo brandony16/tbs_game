@@ -1,4 +1,4 @@
-package tbs_game.gui.hud_elements;
+package tbs_game.gui.hud;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,7 +10,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import tbs_game.game.Game;
-import tbs_game.gui.HudView;
+import tbs_game.gui.hud.utils.HudIcons;
+import tbs_game.gui.hud.utils.PanelFactory;
 
 public class NextTurn {
 

@@ -6,9 +6,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import tbs_game.gui.camera.coord_systems.SceneDelta;
-import tbs_game.gui.camera.coord_systems.ScenePos;
-import tbs_game.gui.camera.coord_systems.WorldPos;
+import tbs_game.gui.coord_systems.SceneDelta;
+import tbs_game.gui.coord_systems.ScenePos;
+import tbs_game.gui.coord_systems.WorldPos;
 
 public class CameraPlayground {
 

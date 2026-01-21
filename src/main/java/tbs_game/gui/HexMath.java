@@ -1,7 +1,7 @@
 package tbs_game.gui;
 
 import tbs_game.gui.board.BoardView;
-import tbs_game.gui.camera.coord_systems.WorldPos;
+import tbs_game.gui.coord_systems.WorldPos;
 import tbs_game.hexes.AxialPos;
 
 public class HexMath {

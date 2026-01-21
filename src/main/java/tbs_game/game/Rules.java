@@ -1,6 +1,7 @@
 package tbs_game.game;
 
-import tbs_game.board.Tile;
+import tbs_game.game.board.Tile;
+import tbs_game.game.game_helpers.GameState;
 import tbs_game.hexes.AxialPos;
 import tbs_game.units.AttackType;
 import tbs_game.units.Unit;

@@ -1,4 +1,4 @@
-package tbs_game.gui.board;
+package tbs_game.gui.board.renderers;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -7,7 +7,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import tbs_game.gui.AssetManager;
-import tbs_game.gui.camera.coord_systems.WorldPos;
+import tbs_game.gui.board.BoardView;
+import tbs_game.gui.coord_systems.WorldPos;
 import tbs_game.units.Unit;
 
 public class UnitRenderer {

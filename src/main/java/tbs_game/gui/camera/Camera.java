@@ -8,9 +8,9 @@ import javafx.scene.Node;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
-import tbs_game.gui.camera.coord_systems.SceneDelta;
-import tbs_game.gui.camera.coord_systems.ScenePos;
-import tbs_game.gui.camera.coord_systems.WorldPos;
+import tbs_game.gui.coord_systems.SceneDelta;
+import tbs_game.gui.coord_systems.ScenePos;
+import tbs_game.gui.coord_systems.WorldPos;
 
 public class Camera {
 

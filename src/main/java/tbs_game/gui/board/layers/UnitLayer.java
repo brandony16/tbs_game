@@ -1,4 +1,4 @@
-package tbs_game.gui.board;
+package tbs_game.gui.board.layers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +12,8 @@ import javafx.scene.Node;
 import javafx.util.Duration;
 import tbs_game.game.Game;
 import tbs_game.gui.HexMath;
-import tbs_game.gui.camera.coord_systems.WorldPos;
+import tbs_game.gui.board.renderers.UnitRenderer;
+import tbs_game.gui.coord_systems.WorldPos;
 import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;

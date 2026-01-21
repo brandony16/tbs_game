@@ -9,10 +9,9 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-import tbs_game.board.Board;
-import tbs_game.board.Tile;
-import tbs_game.game.GameState;
 import tbs_game.game.ActionPath;
+import tbs_game.game.board.Board;
+import tbs_game.game.board.Tile;
 import tbs_game.hexes.AxialPos;
 import tbs_game.units.Unit;
 

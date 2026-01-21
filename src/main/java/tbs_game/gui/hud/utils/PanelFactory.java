@@ -1,4 +1,4 @@
-package tbs_game.gui.hud_elements;
+package tbs_game.gui.hud.utils;
 
 import javafx.geometry.Insets;
 import javafx.scene.layout.Region;

@@ -10,12 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import tbs_game.board.Board;
-import tbs_game.board.Terrain;
 import tbs_game.game.ActionPath;
 import tbs_game.game.Game;
-import tbs_game.game.GameState;
 import tbs_game.game.Rules;
+import tbs_game.game.board.Board;
+import tbs_game.game.board.Terrain;
+import tbs_game.game.game_helpers.GameState;
 import tbs_game.game.game_helpers.MovementPlanner;
 import tbs_game.hexes.AxialPos;
 import tbs_game.hexes.OffsetPos;

@@ -1,4 +1,4 @@
-package tbs_game.gui.board;
+package tbs_game.gui.board.renderers;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -11,9 +11,10 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import tbs_game.board.Terrain;
+import tbs_game.game.board.Terrain;
 import tbs_game.gui.AssetManager;
-import tbs_game.gui.camera.coord_systems.WorldPos;
+import tbs_game.gui.board.BoardView;
+import tbs_game.gui.coord_systems.WorldPos;
 
 public final class TerrainRenderer {
 

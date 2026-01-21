@@ -1,9 +1,8 @@
-package tbs_game.game;
+package tbs_game.game.actions;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import tbs_game.game.actions.Action;
 import tbs_game.gui.GameGUI;
 
 public class ActionQueue {

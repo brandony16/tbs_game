@@ -1,4 +1,4 @@
-package tbs_game.gui.hud_elements;
+package tbs_game.gui.hud;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,7 +14,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
-import tbs_game.gui.HudView;
+import tbs_game.gui.hud.utils.HudIcons;
+import tbs_game.gui.hud.utils.PanelFactory;
 import tbs_game.units.Unit;
 import tbs_game.units.UnitType;
 

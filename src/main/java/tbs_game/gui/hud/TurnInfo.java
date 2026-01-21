@@ -1,4 +1,4 @@
-package tbs_game.gui.hud_elements;
+package tbs_game.gui.hud;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -7,7 +7,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import tbs_game.gui.HudView;
+import tbs_game.gui.hud.utils.PanelFactory;
 import tbs_game.player.Player;
 
 public class TurnInfo {

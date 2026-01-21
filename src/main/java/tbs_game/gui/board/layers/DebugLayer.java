@@ -1,12 +1,12 @@
-package tbs_game.gui.board;
+package tbs_game.gui.board.layers;
 
 import javafx.scene.Group;
 import javafx.scene.text.Text;
-import tbs_game.board.Board;
 import tbs_game.game.Game;
-import tbs_game.game.SetupHandler;
+import tbs_game.game.board.Board;
+import tbs_game.game.game_helpers.SetupHandler;
 import tbs_game.gui.HexMath;
-import tbs_game.gui.camera.coord_systems.WorldPos;
+import tbs_game.gui.coord_systems.WorldPos;
 import tbs_game.hexes.AxialPos;
 
 public class DebugLayer {
