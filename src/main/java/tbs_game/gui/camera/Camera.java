@@ -83,7 +83,7 @@ public class Camera {
         centerX.set(centerX.get() - dx / zoom.get());
         centerY.set(centerY.get() - dy / zoom.get());
 
-        // // Wrap camera back around to give infinite wrapping effect
+        // Wrap camera back around to give infinite wrapping effect
         double halfWidth = boardWidth / 2.0;
         if (centerX.get() > halfWidth) {
             centerX.set(centerX.get() - boardWidth);
