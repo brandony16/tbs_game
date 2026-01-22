@@ -31,9 +31,9 @@ public class Main extends Application {
   }
 
   private void setupGame(Stage stage) {
-    // Game game = new Game(25, 20, 4);
-    // game.setUpGame();
-    Game game = Game.battleSim(25, 20, 5);
+    Game game = new Game(25, 20, 4);
+    game.setUpGame();
+    // Game game = Game.battleSim(25, 20, 5);
 
     GameGUI gui = new GameGUI(game, WINDOW_WIDTH, WINDOW_HEIGHT);
     Scene scene = new Scene(gui.getRoot(), WINDOW_WIDTH, WINDOW_HEIGHT);
