@@ -32,6 +32,7 @@ public class Camera {
    */
   public void setSceneSize(double w, double h) {
     model.setSceneSize(w, h);
+    syncTransforms();
   }
 
   /**
@@ -41,6 +42,7 @@ public class Camera {
    */
   public void updateSceneWidth(double newWidth) {
     model.updateSceneWidth(newWidth);
+    syncTransforms();
   }
 
   /**
@@ -50,6 +52,7 @@ public class Camera {
    */
   public void updateSceneHeight(double newHeight) {
     model.updateSceneHeight(newHeight);
+    syncTransforms();
   }
 
   /**

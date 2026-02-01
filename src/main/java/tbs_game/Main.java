@@ -41,16 +41,16 @@ public class Main extends Application {
     stage.setTitle("Budget Polytopia");
     scene.getStylesheets().add(getClass().getResource("/hud.css").toExternalForm());
 
-    // stage.setFullScreen(true);
-    stage.setScene(scene);
-    stage.show();
-
     scene.widthProperty().addListener((obs, oldVal, newVal) -> {
       gui.updateSceneWidth(newVal.doubleValue());
     });
     scene.heightProperty().addListener((obs, oldVal, newVal) -> {
       gui.updateSceneHeight(newVal.doubleValue());
     });
+
+    stage.setFullScreen(true);
+    stage.setScene(scene);
+    stage.show();
 
     AnimationTimer timer = new AnimationTimer() {
       @Override
