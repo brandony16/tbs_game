@@ -48,7 +48,7 @@ public class Main extends Application {
       gui.updateSceneHeight(newVal.doubleValue());
     });
 
-    stage.setFullScreen(true);
+    // stage.setFullScreen(true);
     stage.setScene(scene);
     stage.show();
 
