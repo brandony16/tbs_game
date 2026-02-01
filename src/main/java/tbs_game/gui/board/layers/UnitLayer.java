@@ -74,8 +74,9 @@ public class UnitLayer {
 
     Node unitSprite = UnitRenderer.renderUnit(unit, hexCenter);
     Node healthBar = UnitRenderer.renderHealthBar(unit, hexCenter);
+    Node unitIcon = UnitRenderer.renderUnitIcon(unit, hexCenter);
 
-    group.getChildren().addAll(unitSprite, healthBar);
+    group.getChildren().addAll(unitSprite, healthBar, unitIcon);
     return group;
   }
 

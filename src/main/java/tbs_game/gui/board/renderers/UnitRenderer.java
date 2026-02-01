@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import tbs_game.gui.AssetManager;
 import tbs_game.gui.board.BoardView;
@@ -12,15 +13,16 @@ import tbs_game.gui.coord_systems.WorldPos;
 import tbs_game.units.Unit;
 
 public class UnitRenderer {
+  private static final double TILE_RADIUS = BoardView.TILE_RADIUS;
 
   public static Node renderUnit(Unit unit, WorldPos hexCenter) {
     Image img = AssetManager.getImage(unit.getType().spritePath);
     ImageView iv = new ImageView(img);
 
-    iv.setFitHeight(BoardView.TILE_RADIUS * 1.25);
+    iv.setFitHeight(TILE_RADIUS * 1.25);
     iv.setPreserveRatio(true);
 
-    double scale = (BoardView.TILE_RADIUS * 1.25) / img.getHeight();
+    double scale = (TILE_RADIUS * 1.25) / img.getHeight();
     double width = img.getWidth() * scale;
 
     iv.setX(hexCenter.x() - width / 2);
@@ -30,10 +32,10 @@ public class UnitRenderer {
   }
 
   public static Node renderHealthBar(Unit unit, WorldPos hexCenter) {
-    double barWidth = BoardView.TILE_RADIUS * 0.6;
+    double barWidth = TILE_RADIUS * 0.6;
     double barHeight = 6;
     double barX = hexCenter.x() - barWidth / 2;
-    double barY = hexCenter.y() + BoardView.TILE_RADIUS * 0.45;
+    double barY = hexCenter.y() + TILE_RADIUS * 0.45;
 
     Rectangle bg = new Rectangle(barX, barY, barWidth, barHeight);
     bg.setFill(Color.DARKRED);
@@ -45,5 +47,16 @@ public class UnitRenderer {
     Group healthBar = new Group();
     healthBar.getChildren().addAll(bg, fg);
     return healthBar;
+  }
+
+  public static Node renderUnitIcon(Unit unit, WorldPos hexCenter) {
+    double radius = TILE_RADIUS * 0.4;
+    double circleX = hexCenter.x();
+    double circleY = hexCenter.y() - TILE_RADIUS;
+
+    Circle circle = new Circle(circleX, circleY, radius);
+    circle.setFill(Color.BLACK);
+
+    return circle;
   }
 }
